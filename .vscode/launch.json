@@ -8,7 +8,7 @@
 
         {
             "name": "Robot Sim",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "robotpy",
             "cwd": "${workspaceFolder}/roborio-src",
@@ -18,7 +18,7 @@
         },
         {
             "name": "Python: Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
