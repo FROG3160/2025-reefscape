@@ -11,7 +11,7 @@
             "type": "debugpy",
             "request": "launch",
             "module": "robotpy",
-            "cwd": "${workspaceFolder}/roborio-src",
+            "cwd": "${workspaceFolder}/roborio",
             "args": ["sim"],
             "console": "integratedTerminal",
             "justMyCode": false
