@@ -1,7 +1,7 @@
 import math
 from logging import Logger
 from typing import Tuple
-from commands2 import Subsystem
+from commands2 import Subsystem, Command
 from ntcore import NetworkTableInstance
 from wpilib import DriverStation
 from wpimath.geometry import Translation2d, Rotation2d
@@ -25,6 +25,10 @@ from .ctre_motors import FROGTalonFX, FROGTalonFXConfig, DriveUnit
 from .sensors import FROGCANCoderConfig, FROGCanCoder, FROGGyro
 from phoenix6.configs.config_groups import ClosedLoopGeneralConfigs
 from wpilib import Timer
+
+# imports for SysID characterization
+from commands2.sysid import SysIdRoutine
+from wpilib.sysid import SysIdRoutineLog
 
 
 class SwerveModule:
@@ -426,3 +430,19 @@ class SwerveChassis(Subsystem):
         states = self.kinematics.toSwerveModuleStates(self.chassisSpeeds, self.center)
         states = self.kinematics.desaturateWheelSpeeds(states, self.max_speed)
         self.moduleStates = states
+
+    # methods for running the SysID characterization routines
+
+    def log(self, sys_id_routine: SysIdRoutineLog) -> None:
+        # Record a frame for each module.  Since these share an encoder, we consider
+        # the entire group to be one motor.
+        for module in self.modules:
+            sys_id_routine.motor(module.name).voltage(
+                module.drive.get_motor_voltage().value
+            ).position(module.getCurrentDistance()).velocity(module.getCurrentSpeed())
+
+    def sysIdQuasistatic(self, direction: SysIdRoutine.Direction) -> Command:
+        return self.sys_id_routine.quasistatic(direction)
+
+    def sysIdDynamic(self, direction: SysIdRoutine.Direction) -> Command:
+        return self.sys_id_routine.dynamic(direction)
