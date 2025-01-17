@@ -10,5 +10,8 @@
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
         "**/.venv": true
-    }
+    },
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnPaste": false,
+    "editor.formatOnSave": true
 }
