@@ -22,7 +22,7 @@ from phoenix6.controls import (
 from phoenix6.signals.spn_enums import NeutralModeValue, InvertedValue
 from wpimath.units import radiansToRotations, rotationsToRadians
 from .ctre_motors import FROGTalonFX, FROGTalonFXConfig, DriveUnit
-from .sensors import FROGCANCoderConfig, FROGCanCoder, FROGGyro
+from .sensors import FROGCANCoderConfig, FROGCanCoder, FROGNavXGyro
 from phoenix6.configs.config_groups import ClosedLoopGeneralConfigs
 from wpilib import Timer
 
@@ -201,7 +201,7 @@ class SwerveChassis(Subsystem):
     def __init__(
         self,
         swerve_module_configs,
-        gyro: FROGGyro,
+        gyro: FROGNavXGyro,
         max_speed: float,
         max_rotation_speed: float,
         parent_nt: str = "Subsystems",

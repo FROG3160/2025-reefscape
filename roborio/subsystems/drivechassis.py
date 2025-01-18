@@ -3,7 +3,7 @@ import math
 
 # from robotpy_apriltag import AprilTagField, loadAprilTagLayoutField
 from FROGlib.swerve import SwerveChassis, SwerveModule
-from FROGlib.sensors import FROGGyro
+from FROGlib.sensors import FROGNavXGyro
 from constants import (
     AprilTagPlacement,
     kMaxChassisRadiansPerSec,
@@ -24,6 +24,7 @@ from pathplannerlib.config import (
 from pathplannerlib.path import PathPlannerPath, PathConstraints
 from wpilib import DriverStation, Field2d
 from wpimath.geometry import Pose2d, Rotation2d, Transform2d, Transform3d, Rotation3d
+
 # from subsystems.vision import PositioningSubsystem
 # from subsystems.elevation import ElevationSubsystem
 from wpilib import SmartDashboard
@@ -33,6 +34,7 @@ import constants
 from wpimath.units import degreesToRadians
 from wpimath.controller import ProfiledPIDControllerRadians
 from wpimath.trajectory import TrapezoidProfileRadians
+
 # from subsystems.leds import LEDSubsystem
 
 
@@ -54,14 +56,13 @@ class DriveTrain(SwerveChassis):
             #     SwerveModule(**configs.swerveModuleBackLeft),
             #     SwerveModule(**configs.swerveModuleBackRight),
             # ),
-            gyro=FROGGyro(),
+            gyro=FROGNavXGyro(),
             max_speed=kMaxMetersPerSecond,
             max_rotation_speed=kMaxChassisRadiansPerSec,
             parent_nt=parent_nt,
         )
         self.resetController = True
         # TODO https://github.com/FROG3160/2025-reefscape/issues/5
-
 
         self.estimatorPose = Pose2d(0, 0, Rotation2d(0))
 
@@ -246,7 +247,7 @@ class DriveTrain(SwerveChassis):
                 abs(latestVisionResult.botPose.x - self.estimatorPose.x) < 1
                 and abs(latestVisionResult.botPose.y - self.estimatorPose.y) < 1
             ):
-                # TODO: https://github.com/FROG3160/2025-reefscape/issues/6  
+                # TODO: https://github.com/FROG3160/2025-reefscape/issues/6
                 # We may want to validate the first instance of tagData
                 # is a valid tag by checking tagData[0].id > 0
                 translationStdDev = remap(
