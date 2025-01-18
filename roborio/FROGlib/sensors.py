@@ -5,8 +5,8 @@ from phoenix6.configs.cancoder_configs import CANcoderConfiguration
 from phoenix6.signals.spn_enums import AbsoluteSensorRangeValue, SensorDirectionValue
 from phoenix6.hardware.cancoder import CANcoder
 
-# TODO https://github.com/FROG3160/2025-reefscape/issues/2
-class FROGGyro:
+
+class FROGNavXGyro:
     """Gyro class that creates and instance of the NavX gyro and uses it to get AHRS data,
     converting it for use by the swerve drivetrain.  All swerve calculations use radians
     with CCW rotation being positive, and field-oriented driving uses moving forward and
@@ -63,6 +63,7 @@ class FROGGyro:
 
     def getAngleAdjustment(self):
         return self.gyro.getAngleAdjustment()
+
 
 # TODO https://github.com/FROG3160/2025-reefscape/issues/3
 class FROGCANCoderConfig(CANcoderConfiguration):
