@@ -6,7 +6,6 @@ from phoenix6.signals.spn_enums import AbsoluteSensorRangeValue, SensorDirection
 from phoenix6.hardware.cancoder import CANcoder
 
 
-# TODO https://github.com/FROG3160/2025-reefscape/issues/2
 class FROGNavXGyro:
     """Gyro class that creates and instance of the NavX gyro and uses it to get AHRS data,
     converting it for use by the swerve drivetrain.  All swerve calculations use radians
