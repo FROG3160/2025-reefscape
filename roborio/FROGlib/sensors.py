@@ -1,5 +1,6 @@
 import math
 from navx import AHRS
+from phoenix6.hardware.pigeon2 import Pigeon2
 from wpimath.geometry import Rotation2d
 from phoenix6.configs.cancoder_configs import CANcoderConfiguration
 from phoenix6.signals.spn_enums import AbsoluteSensorRangeValue, SensorDirectionValue
@@ -63,6 +64,55 @@ class FROGNavXGyro:
 
     def getAngleAdjustment(self):
         return self.gyro.getAngleAdjustment()
+
+
+class FROGPigeonGyro:
+    "Gyro class that creates an instance of the Pigeon 2.0 Gyro"
+
+    def __init__(self):
+        # TODO Make sure if we need this.
+        self.gyro = Pigeon2(5, "")
+        self.starting_angle = 0.0  # Not sure if needed
+        self.offset = 0  # Not sure if needed
+        # self.field_heading = 360-242
+        # self.gyro.reset()
+        self.gyro.reset()
+
+    def getAngleCCW(self):
+        # returns gyro heading
+        # and inverts it to change from bearing to
+        # cartesian angles with CCW positive.
+        # return -self.gyro.getYaw()
+        return self.gyro.get_yaw()
+
+    def getRoll(self):
+        return self.gyro.get_roll()
+
+    def getPitch(self):
+        return self.gyro.get_pitch()
+
+    def setOffset(self, offset):
+        self.offset = offset
+
+    def getDegreesPerSecCCW(self):
+        return self.gyro.get_angular_velocity_z_world()
+
+    def getRadiansPerSecCCW(self):
+        return math.radians(self.getDegreesPerSecCCW())
+
+    def getRotation2d(self):
+        return self.gyro.getRotation2d()
+
+    def resetGyro(self, on_red: bool):
+        # sets yaw reading to 0
+        if on_red:
+            self.setAngleAdjustment(180)
+        else:
+            self.setAngleAdjustment(0)
+        self.gyro.reset()
+
+    def setAngleAdjustment(self, angle):
+        self.gyro.set_yaw(angle)
 
 
 # TODO https://github.com/FROG3160/2025-reefscape/issues/3
