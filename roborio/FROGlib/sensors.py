@@ -119,11 +119,9 @@ class FROGCANCoderConfig(CANcoderConfiguration):
     """Inheretis from CANcoderConfiguration and add the ability to pass in steer offset
     during instantiation."""
 
-    def __init__(self, steer_offset):
+    def __init__(self, steer_offset=0):
         super().__init__()
-        self.magnet_sensor.absolute_sensor_range = (
-            AbsoluteSensorRangeValue.SIGNED_PLUS_MINUS_HALF
-        )
+        self.magnet_sensor.absolute_sensor_discontinuity_point = 0.5
         self.magnet_sensor.magnet_offset = steer_offset
         self.magnet_sensor.sensor_direction = (
             SensorDirectionValue.COUNTER_CLOCKWISE_POSITIVE
