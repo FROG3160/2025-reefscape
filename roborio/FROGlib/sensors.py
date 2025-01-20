@@ -83,19 +83,19 @@ class FROGPigeonGyro:
         # and inverts it to change from bearing to
         # cartesian angles with CCW positive.
         # return -self.gyro.getYaw()
-        return self.gyro.get_yaw()
+        return self.gyro.get_yaw().value
 
     def getRoll(self):
-        return self.gyro.get_roll()
+        return self.gyro.get_roll().value
 
     def getPitch(self):
-        return self.gyro.get_pitch()
+        return self.gyro.get_pitch().value
 
     def setOffset(self, offset):
         self.offset = offset
 
     def getDegreesPerSecCCW(self):
-        return self.gyro.get_angular_velocity_z_world()
+        return self.gyro.get_angular_velocity_z_world().value
 
     def getRadiansPerSecCCW(self):
         return math.radians(self.getDegreesPerSecCCW())
@@ -115,7 +115,6 @@ class FROGPigeonGyro:
         self.gyro.set_yaw(angle)
 
 
-# TODO https://github.com/FROG3160/2025-reefscape/issues/3
 class FROGCANCoderConfig(CANcoderConfiguration):
     """Inheretis from CANcoderConfiguration and add the ability to pass in steer offset
     during instantiation."""
