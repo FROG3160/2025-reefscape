@@ -95,7 +95,7 @@ class FROGXboxDriver(CommandXboxController):
 
 
 # TODO https://github.com/FROG3160/2025-reefscape/issues/4
-class FROGXboxOperator(CommandXboxController):
+class FROGXboxTactical(CommandXboxController):
     """Custom Xbox Controller class for the operator controller"""
 
     def __init__(self, port, deadband):
