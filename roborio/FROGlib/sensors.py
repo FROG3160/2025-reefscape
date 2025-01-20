@@ -115,7 +115,6 @@ class FROGPigeonGyro:
         self.gyro.set_yaw(angle)
 
 
-# TODO https://github.com/FROG3160/2025-reefscape/issues/3
 class FROGCANCoderConfig(CANcoderConfiguration):
     """Inheretis from CANcoderConfiguration and add the ability to pass in steer offset
     during instantiation."""
