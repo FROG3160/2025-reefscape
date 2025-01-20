@@ -3,7 +3,7 @@ from navx import AHRS
 from phoenix6.hardware.pigeon2 import Pigeon2
 from wpimath.geometry import Rotation2d
 from phoenix6.configs.cancoder_configs import CANcoderConfiguration
-from phoenix6.signals.spn_enums import AbsoluteSensorRangeValue, SensorDirectionValue
+from phoenix6.signals.spn_enums import SensorDirectionValue
 from phoenix6.hardware.cancoder import CANcoder
 
 
