@@ -94,8 +94,7 @@ class FROGXboxDriver(CommandXboxController):
         self._hid.setRumble(RIGHT_RUMBLE, 0)
 
 
-# TODO https://github.com/FROG3160/2025-reefscape/issues/4
-class FROGXboxOperator(CommandXboxController):
+class FROGXboxTactical(CommandXboxController):
     """Custom Xbox Controller class for the operator controller"""
 
     def __init__(self, port, deadband):
