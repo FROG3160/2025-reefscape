@@ -169,3 +169,9 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+roborio/simgui.json
+roborio/simgui-ds.json
+roborio/simgui-window.json
+roborio/networktables.json
+
+logs/
