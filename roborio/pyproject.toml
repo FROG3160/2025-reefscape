@@ -19,7 +19,7 @@ robotpy_extras = [
     # "navx",
     "pathplannerlib",
     # "phoenix5",
-    "photonvision",
+    #"photonvision",
     # "playingwithfusion",
     # "rev",
     # "romi",
