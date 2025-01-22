@@ -87,38 +87,36 @@ class FROGTalonFX(TalonFX):
         # self._motorVoltagePub.set(self.get_motor_voltage().value)
 
 
-class GearStages:
+class GearTrain:
     def __init__(self, gear_stages: list):
         """
         Constructs a GearStages object that stores data about the gear stages.
         Args:
             gear_stages (list): list of gear stages expressed as tuples of two integers e.g. [(10, 32), (9, 24)]
         """
-        self.gearing = math.prod(gear_stages)
+        self.gear_ratio = math.prod(gear_stages)
 
-    # TODO: need to re-evalute the names of these methods.  How can we make it more
-    # explicit?
-    def toMotor(self, rotations):
+    def input_rotations(self, output_rotations):
         """Calculates motor rotations given the rotation at the other end of the gears."""
-        return rotations / self.gearing
+        return output_rotations / self.gear_ratio
 
-    def fromMotor(self, rotations):
+    def output_rotations(self, input_rotations):
         """Calculates final gear rotation given the motor's rotation"""
-        return rotations * self.gearing
+        return input_rotations * self.gear_ratio
 
 
-class DriveUnit:
-    def __init__(self, gear_stages: list, diameter: float):
-        """Constructs a DriveUnit object that stores data about the motor, gear stages, and wheel
-           that makes up a complete power train.
+class DriveTrain:
+    def __init__(self, gear_stages: list, wheel_diameter: float):
+        """Constructs a DriveTrain object that stores data about the gear stages and wheel.
+
         Args:
             gear_stages (list): list of gear stages expressed as tuples of two integers e.g. [(10, 32), (9, 24)]
             diameter (float): Diameter of the attached wheel in meters
         """
-        self.gearing = GearStages(gear_stages)
-        self.circumference = math.pi * diameter
+        self.gearing = GearTrain(gear_stages)
+        self.circumference = math.pi * wheel_diameter
 
-    def speedToVelocity(self, speed: float) -> float:
+    def speed_to_input_rps(self, speed: float) -> float:
         """Converts the system linear speed to a motor velocity
         Args:
             speed (float): desired linear speed in meters per second
@@ -126,28 +124,27 @@ class DriveUnit:
             float: motor rotations per second
         """
         wheel_rotations_sec = speed / self.circumference
-        motor_rotations_sec = self.gearing.toMotor(wheel_rotations_sec)
+        motor_rotations_sec = self.gearing.input_rotations(wheel_rotations_sec)
         return motor_rotations_sec
 
-    def velocityToSpeed(self, rotations_per_sec: float) -> float:
+    def input_rps_to_speed(self, rotations_per_sec: float) -> float:
         """Converts motor velocity to the system linear speed
 
         Args:
-            velocity (float): motor velocity in encoder counts per 100ms
+            rotations_per_sec (float): motor rotational speed in rotations per second
         Returns:
             float: system linear speed in meters per second
         """
-        wheel_rotations_sec = self.gearing.fromMotor(rotations_per_sec)
+        wheel_rotations_sec = self.gearing.output_rotations(rotations_per_sec)
         return wheel_rotations_sec * self.circumference
 
-    def positionToDistance(self, rotations: float) -> float:
-        """Takes encoder count and returns distance
+    def rotations_to_distance(self, rotations: float) -> float:
+        """Takes  and returns distance
 
         Args:
-            position (int): number of encoder counts
-
+            rotations (float): number of motor rotations
         Returns:
             float: distance in meters
         """
-        wheel_rotations = self.gearing.fromMotor(rotations)
+        wheel_rotations = self.gearing.output_rotations(rotations)
         return wheel_rotations * self.circumference
