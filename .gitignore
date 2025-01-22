@@ -174,4 +174,6 @@ roborio/simgui-ds.json
 roborio/simgui-window.json
 roborio/networktables.json
 
+roborio/ctre_sim
+
 logs/
