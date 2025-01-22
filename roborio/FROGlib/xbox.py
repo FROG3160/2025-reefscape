@@ -4,6 +4,7 @@ from commands2.button import CommandXboxController
 from wpimath.filter import SlewRateLimiter
 from wpimath import applyDeadband
 from wpilib.interfaces import GenericHID
+from wpilib import DriverStation
 import constants
 
 RIGHT_RUMBLE = GenericHID.RumbleType.kRightRumble
@@ -16,6 +17,8 @@ class FROGXboxDriver(CommandXboxController):
     """
 
     MODE = 0  # run auto routines
+    RED_ALLIANCE = -1
+    BLUE_ALLIANCE = 1
 
     def __init__(self, port, deadband, debouncePeriod, translationSlew, rotSlew):
         super().__init__(port)
@@ -26,6 +29,7 @@ class FROGXboxDriver(CommandXboxController):
         self.xSlew = SlewRateLimiter(translationSlew)
         self.ySlew = SlewRateLimiter(translationSlew)
         self.rotSlew = SlewRateLimiter(rotSlew)
+        self.alliance = 0
 
     def getFieldHeading(self) -> float:
         """Get the desired robot heading from the Xbox's right
@@ -52,13 +56,13 @@ class FROGXboxDriver(CommandXboxController):
         return self.rotSlew.calculate(self.getFieldRotation())
 
     def getFieldForward(self):
-        return applyDeadband(-self.getLeftY(), self.deadband)
+        return applyDeadband(-self.getLeftY() * self.alliance, self.deadband)
 
     def getSlewLimitedFieldForward(self):
         return self.xSlew.calculate(self.getFieldForward())
 
     def getFieldLeft(self):
-        return applyDeadband(-self.getLeftX(), self.deadband)
+        return applyDeadband(-self.getLeftX() * self.alliance, self.deadband)
 
     def getSlewLimitedFieldLeft(self):
         return self.ySlew.calculate(self.getFieldLeft())
@@ -92,6 +96,12 @@ class FROGXboxDriver(CommandXboxController):
 
     def stopRightRumble(self):
         self._hid.setRumble(RIGHT_RUMBLE, 0)
+
+    def set_alliance(self, alliance):
+        if alliance == DriverStation.Alliance.kBlue:
+            self.alliance = self.BLUE_ALLIANCE
+        else:
+            self.alliance = self.RED_ALLIANCE
 
 
 class FROGXboxTactical(CommandXboxController):
