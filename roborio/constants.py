@@ -56,6 +56,9 @@ kBackRightDriveID = 14
 kBackRightSteerID = 24
 kBackRightSensorID = 34
 
+kShoulderMotorID = 41
+kShoulderFollowerID = 42
+
 
 # Falcon 500 max rps
 kFalconMaxRps = 106
