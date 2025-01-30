@@ -31,4 +31,5 @@ robotpy_extras = [
 requires = [
     "phoenix6~=25.1",
     "photonlibpy",
+    "robotpy-apriltag",
 ]
