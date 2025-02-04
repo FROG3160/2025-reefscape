@@ -5,6 +5,7 @@
 #
 import os
 import wpilib
+from wpilib import DriverStation
 from wpilib.interfaces import GenericHID
 from wpimath.units import degreesToRadians
 from wpimath.geometry import Pose2d, Rotation2d
@@ -27,6 +28,7 @@ from commands2.sysid import SysIdRoutine
 from FROGlib.xbox import FROGXboxDriver, FROGXboxTactical
 
 from subsystems.drivechassis import DriveChassis
+from subsystems.positioning import Position
 from commands.drive.field_oriented import (
     ManualDrive,
 )
@@ -55,6 +57,7 @@ class RobotContainer:
         # Create all subsystems here.  If a subsystem is needed by other subsystems, create it first,
         # then pass it in to the subsystems needing it.
         self.driveSubsystem = DriveChassis()
+        self.positioning = Position()
 
         self.registerNamedCommands()
 

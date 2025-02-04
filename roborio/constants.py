@@ -14,12 +14,13 @@ import math
 import wpilib
 from wpimath.geometry import Pose3d, Rotation3d
 from wpimath.units import feetToMeters, inchesToMeters
+from wpilib import DriverStation
 
 # CANCoder offsets
-kFrontLeftOffset = -0.246338
-kFrontRightOffset = 0.036377
-kBackLeftOffset = 0.478027
-kBackRightOffset = 0.207031
+kFrontLeftOffset = 0.168701  # -0.246338
+kFrontRightOffset = -0.260254  # 0.036377
+kBackLeftOffset = 0.387451  # 0.478027
+kBackRightOffset = -0.243652  # 0.207031
 
 # steer motor gains
 kSteerP = 2.402346
@@ -130,3 +131,51 @@ kTotalLength = kFrameLength + kBumperDepth * 2
 kTotalWidth = kFrameWidth + kBumperDepth * 2
 
 kTargetSizeThreshold = 14.0
+
+
+class Tags:
+    class Blue:
+        class Reef(Enum):
+            DSRIGHT = 17
+            DSCENTER = 18
+            DSLEFT = 19
+            BARGELEFT = 20
+            BARGECENTER = 21
+            BARGERIGHT = 22
+
+        class Station(Enum):
+            LEFT = 12
+            RIGHT = 13
+
+        class Barge(Enum):
+            LEFT = 14
+            RIGHT = 15
+
+        class Processor(Enum):
+            RIGHT = 16
+
+    class Red:
+        class Reef(Enum):
+            DSRIGHT = 8
+            DSCENTER = 7
+            DSLEFT = 6
+            BARGELEFT = 11
+            BARGECENTER = 10
+            BARGERIGHT = 9
+
+        class Station(Enum):
+            LEFT = 1
+            RIGHT = 2
+
+        class Barge(Enum):
+            LEFT = 5
+            RIGHT = 4
+
+        class Processor(Enum):
+            RIGHT = 3
+
+
+kReefTags = {
+    DriverStation.Alliance.kBlue: {"Reef": Tags.Blue.Reef},
+    DriverStation.Alliance.kRed: {"Reef": Tags.Red.Reef},
+}
