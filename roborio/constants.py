@@ -9,10 +9,9 @@
 # This should only hold numerical, string, or boolean constants, using
 # the C++ naming convention.
 
-from enum import Enum, member
+from enum import Enum
 import math
 import wpilib
-from wpimath.geometry import Pose3d, Rotation3d
 from wpimath.units import feetToMeters, inchesToMeters
 from wpilib import DriverStation
 
@@ -66,14 +65,14 @@ kFalconMaxRps = 106
 
 
 # Swerve Drive Physical Attributes
-kTrackWidthMeters = inchesToMeters(20)
-kWheelBaseMeters = inchesToMeters(20)
-kWheelDiameter = inchesToMeters(3.91)  # The tread has worn down
+kTrackWidthMeters = inchesToMeters(22.750)
+kWheelBaseMeters = inchesToMeters(25.750)
+kWheelDiameter = inchesToMeters(4)  # The tread has worn down
 kSwerveDriveGearing = [
-    (14.0 / 50.0),
+    (16.0 / 50.0),
     (28.0 / 16.0),
     (15.0 / 45.0),
-]  # Mk4 L3 from V.O.L.T.S.
+]  # Mk4c L3
 # kDriveBaseRadius is the distance from the center of the robot
 # to the farthest module. This is needed for the construction
 # of Autobuilder in the drivetrain init method.
@@ -82,7 +81,7 @@ kDriveBaseRadius = math.sqrt(
 )
 
 # Swerve Drive Performance
-kMaxMetersPerSecond = feetToMeters(16)  # max fps for L1=13.5, L2=16.3, L3=18
+kMaxMetersPerSecond = feetToMeters(16)  # max fps for Mk4c L1=14.7, L2=17.7, L3=19.5
 kMaxChassisRadiansPerSec = 2 * math.tau  # revolutions per sec * tau
 
 # Swerve Drive Trajectory Constraints
@@ -105,24 +104,6 @@ kDeadband = 0.15
 kDebouncePeriod = 0.5
 kTranslationSlew = 2
 kRotSlew = 2
-
-
-# class AprilTagPlacement:
-
-#     class Red:
-#         SPEAKER = 4
-#         AMP = 5
-#         STAGE_CENTER = 13
-#         STAGE_AMP = 12
-#         STAGE_SOURCE = 11
-
-#     class Blue:
-#         SPEAKER = 7
-#         AMP = 6
-#         STAGE_CENTER = 14
-#         STAGE_AMP = 15
-#         STAGE_SOURCE = 16
-
 
 kFrameLength = inchesToMeters(20)
 kFrameWidth = inchesToMeters(20)
