@@ -1,10 +1,13 @@
 import math
 from ntcore import NetworkTableInstance
+from phoenix6.configs.cancoder_configs import CANcoderConfiguration
 from phoenix6.configs.talon_fx_configs import TalonFXConfiguration
+from phoenix6.hardware.cancoder import CANcoder
+from phoenix6.hardware.pigeon2 import Pigeon2
 from phoenix6.hardware.talon_fx import TalonFX
 from phoenix6.configs.talon_fx_configs import FeedbackSensorSourceValue
 from phoenix6.configs.config_groups import Slot0Configs, Slot1Configs, FeedbackConfigs
-from phoenix6.signals.spn_enums import GravityTypeValue
+from phoenix6.signals.spn_enums import GravityTypeValue, SensorDirectionValue
 
 
 class FROGFeedbackConfig(FeedbackConfigs):
@@ -83,68 +86,73 @@ class FROGTalonFX(TalonFX):
     def logData(self):
         """Logs data to network tables for this motor"""
         self._motorVelocityPub.set(self.get_velocity().value)
+
+
+class FROGPigeonGyro:
+    "Gyro class that creates an instance of the Pigeon 2.0 Gyro"
+
+    def __init__(self):
+        # TODO Make sure if we need this.
+        self.gyro = Pigeon2(5, "")
+        self.starting_angle = 0.0  # Not sure if needed
+        self.offset = 0  # Not sure if needed
+        # self.field_heading = 360-242
+        # self.gyro.reset()
+        self.gyro.reset()
+
+    def getAngleCCW(self):
+        # returns gyro heading
+        # and inverts it to change from bearing to
+        # cartesian angles with CCW positive.
+        # return -self.gyro.getYaw()
+        return self.gyro.get_yaw().value
+
+    def getRoll(self):
+        return self.gyro.get_roll().value
+
+    def getPitch(self):
+        return self.gyro.get_pitch().value
+
+    def setOffset(self, offset):
+        self.offset = offset
+
+    def getDegreesPerSecCCW(self):
+        return self.gyro.get_angular_velocity_z_world().value
+
+    def getRadiansPerSecCCW(self):
+        return math.radians(self.getDegreesPerSecCCW())
+
+    def getRotation2d(self):
+        return self.gyro.getRotation2d()
+
+    def resetGyro(self, on_red: bool):
+        # sets yaw reading to 0
+        if on_red:
+            self.setAngleAdjustment(180)
+        else:
+            self.setAngleAdjustment(0)
+        self.gyro.reset()
+
+    def setAngleAdjustment(self, angle):
+        self.gyro.set_yaw(angle)
+
+
+class FROGCANCoderConfig(CANcoderConfiguration):
+    """Inheretis from CANcoderConfiguration and add the ability to pass in steer offset
+    during instantiation."""
+
+    def __init__(self, steer_offset=0):
+        super().__init__()
+        self.magnet_sensor.absolute_sensor_discontinuity_point = 0.5
+        self.magnet_sensor.magnet_offset = steer_offset
+        self.magnet_sensor.sensor_direction = (
+            SensorDirectionValue.COUNTER_CLOCKWISE_POSITIVE
+        )
+
+
+class FROGCanCoder(CANcoder):
+    def __init__(self, id, config: FROGCANCoderConfig):
+        super().__init__(id)
+        self.configurator.apply(config)
         # self._motorPositionPub.set(self.get_position().value)
         # self._motorVoltagePub.set(self.get_motor_voltage().value)
-
-
-class GearTrain:
-    def __init__(self, gear_stages: list):
-        """
-        Constructs a GearStages object that stores data about the gear stages.
-        Args:
-            gear_stages (list): list of gear stages expressed as tuples of two integers e.g. [(10, 32), (9, 24)]
-        """
-        self.gear_ratio = math.prod(gear_stages)
-
-    def input_rotations(self, output_rotations):
-        """Calculates motor rotations given the rotation at the other end of the gears."""
-        return output_rotations / self.gear_ratio
-
-    def output_rotations(self, input_rotations):
-        """Calculates final gear rotation given the motor's rotation"""
-        return input_rotations * self.gear_ratio
-
-
-class DriveTrain:
-    def __init__(self, gear_stages: list, wheel_diameter: float):
-        """Constructs a DriveTrain object that stores data about the gear stages and wheel.
-
-        Args:
-            gear_stages (list): list of gear stages expressed as tuples of two integers e.g. [(10, 32), (9, 24)]
-            diameter (float): Diameter of the attached wheel in meters
-        """
-        self.gearing = GearTrain(gear_stages)
-        self.circumference = math.pi * wheel_diameter
-
-    def speed_to_input_rps(self, speed: float) -> float:
-        """Converts the system linear speed to a motor velocity
-        Args:
-            speed (float): desired linear speed in meters per second
-        Returns:
-            float: motor rotations per second
-        """
-        wheel_rotations_sec = speed / self.circumference
-        motor_rotations_sec = self.gearing.input_rotations(wheel_rotations_sec)
-        return motor_rotations_sec
-
-    def input_rps_to_speed(self, rotations_per_sec: float) -> float:
-        """Converts motor velocity to the system linear speed
-
-        Args:
-            rotations_per_sec (float): motor rotational speed in rotations per second
-        Returns:
-            float: system linear speed in meters per second
-        """
-        wheel_rotations_sec = self.gearing.output_rotations(rotations_per_sec)
-        return wheel_rotations_sec * self.circumference
-
-    def rotations_to_distance(self, rotations: float) -> float:
-        """Takes  and returns distance
-
-        Args:
-            rotations (float): number of motor rotations
-        Returns:
-            float: distance in meters
-        """
-        wheel_rotations = self.gearing.output_rotations(rotations)
-        return wheel_rotations * self.circumference

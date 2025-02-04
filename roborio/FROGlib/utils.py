@@ -88,6 +88,69 @@ def arrayToPose3d(array):
     )
 
 
+class GearTrain:
+    def __init__(self, gear_stages: list):
+        """
+        Constructs a GearStages object that stores data about the gear stages.
+        Args:
+            gear_stages (list): list of gear stages expressed as tuples of two integers e.g. [(10, 32), (9, 24)]
+        """
+        self.gear_ratio = math.prod(gear_stages)
+
+    def input_rotations(self, output_rotations):
+        """Calculates motor rotations given the rotation at the other end of the gears."""
+        return output_rotations / self.gear_ratio
+
+    def output_rotations(self, input_rotations):
+        """Calculates final gear rotation given the motor's rotation"""
+        return input_rotations * self.gear_ratio
+
+
+class DriveTrain:
+    def __init__(self, gear_stages: list, wheel_diameter: float):
+        """Constructs a DriveTrain object that stores data about the gear stages and wheel.
+
+        Args:
+            gear_stages (list): list of gear stages expressed as tuples of two integers e.g. [(10, 32), (9, 24)]
+            diameter (float): Diameter of the attached wheel in meters
+        """
+        self.gearing = GearTrain(gear_stages)
+        self.circumference = math.pi * wheel_diameter
+
+    def speed_to_input_rps(self, speed: float) -> float:
+        """Converts the system linear speed to a motor velocity
+        Args:
+            speed (float): desired linear speed in meters per second
+        Returns:
+            float: motor rotations per second
+        """
+        wheel_rotations_sec = speed / self.circumference
+        motor_rotations_sec = self.gearing.input_rotations(wheel_rotations_sec)
+        return motor_rotations_sec
+
+    def input_rps_to_speed(self, rotations_per_sec: float) -> float:
+        """Converts motor velocity to the system linear speed
+
+        Args:
+            rotations_per_sec (float): motor rotational speed in rotations per second
+        Returns:
+            float: system linear speed in meters per second
+        """
+        wheel_rotations_sec = self.gearing.output_rotations(rotations_per_sec)
+        return wheel_rotations_sec * self.circumference
+
+    def rotations_to_distance(self, rotations: float) -> float:
+        """Takes  and returns distance
+
+        Args:
+            rotations (float): number of motor rotations
+        Returns:
+            float: distance in meters
+        """
+        wheel_rotations = self.gearing.output_rotations(rotations)
+        return wheel_rotations * self.circumference
+
+
 # from robotpy_apriltag import loadAprilTagLayoutField, AprilTagField
 # from wpimath.geometry import Pose3d, Rotation3d
 

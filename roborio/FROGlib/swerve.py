@@ -21,8 +21,10 @@ from phoenix6.controls import (
 )
 from phoenix6.signals.spn_enums import NeutralModeValue, InvertedValue
 from wpimath.units import radiansToRotations, rotationsToRadians
-from .ctre_motors import FROGTalonFX, FROGTalonFXConfig, DriveTrain
-from .sensors import FROGCANCoderConfig, FROGCanCoder, FROGPigeonGyro
+
+from .utils import DriveTrain
+from .ctre import FROGCANCoderConfig, FROGPigeonGyro, FROGTalonFX, FROGTalonFXConfig
+from .ctre import FROGCanCoder
 from phoenix6.configs.config_groups import ClosedLoopGeneralConfigs
 from wpilib import Timer
 from dataclasses import dataclass, field

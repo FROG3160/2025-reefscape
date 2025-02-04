@@ -1,8 +1,7 @@
 import math
 import constants
 from wpimath.geometry import Translation2d, Translation3d, Transform3d, Rotation3d
-from FROGlib import ctre_motors  # import FROGTalonFXConfig, FROGFeedbackConfig
-from FROGlib import sensors  # import FROGCANCoderConfig
+from roborio.FROGlib import ctre  # import FROGTalonFXConfig, FROGFeedbackConfig
 from FROGlib import swerve  # import SwerveModuleConfig
 from phoenix6.configs.config_groups import (
     Slot0Configs,
@@ -64,13 +63,13 @@ swerveModuleFrontLeft = swerve.SwerveModuleConfig(
         "drive_gearing": constants.kSwerveDriveGearing,
         "wheel_diameter": constants.kWheelDiameter,
         "drive_motor_id": constants.kFrontLeftDriveID,
-        "drive_motor_config": ctre_motors.FROGTalonFXConfig(
+        "drive_motor_config": ctre.FROGTalonFXConfig(
             slot0gains=driveDutyCycleGains, slot1gains=driveVoltageGains
         ),
         "steer_motor_id": constants.kFrontLeftSteerID,
-        "steer_motor_config": ctre_motors.FROGTalonFXConfig(
+        "steer_motor_config": ctre.FROGTalonFXConfig(
             feedback_config=(
-                ctre_motors.FROGFeedbackConfig(
+                ctre.FROGFeedbackConfig(
                     remote_sensor_id=constants.kFrontLeftSensorID,
                     sensor_source=FeedbackSensorSourceValue.REMOTE_CANCODER,
                 )
@@ -78,7 +77,7 @@ swerveModuleFrontLeft = swerve.SwerveModuleConfig(
             slot0gains=steerGains,
         ),
         "cancoder_id": constants.kFrontLeftSensorID,
-        "cancoder_config": sensors.FROGCANCoderConfig(constants.kFrontLeftOffset),
+        "cancoder_config": ctre.FROGCANCoderConfig(constants.kFrontLeftOffset),
     }
 )
 swerveModuleFrontRight = swerve.SwerveModuleConfig(
@@ -90,13 +89,13 @@ swerveModuleFrontRight = swerve.SwerveModuleConfig(
         "drive_gearing": constants.kSwerveDriveGearing,
         "wheel_diameter": constants.kWheelDiameter,
         "drive_motor_id": constants.kFrontRightDriveID,
-        "drive_motor_config": ctre_motors.FROGTalonFXConfig(
+        "drive_motor_config": ctre.FROGTalonFXConfig(
             slot0gains=driveDutyCycleGains, slot1gains=driveVoltageGains
         ),
         "steer_motor_id": constants.kFrontRightSteerID,
-        "steer_motor_config": ctre_motors.FROGTalonFXConfig(
+        "steer_motor_config": ctre.FROGTalonFXConfig(
             feedback_config=(
-                ctre_motors.FROGFeedbackConfig(
+                ctre.FROGFeedbackConfig(
                     remote_sensor_id=constants.kFrontRightSensorID,
                     sensor_source=FeedbackSensorSourceValue.REMOTE_CANCODER,
                 )
@@ -104,7 +103,7 @@ swerveModuleFrontRight = swerve.SwerveModuleConfig(
             slot0gains=steerGains,
         ),
         "cancoder_id": constants.kFrontRightSensorID,
-        "cancoder_config": sensors.FROGCANCoderConfig(constants.kFrontRightOffset),
+        "cancoder_config": ctre.FROGCANCoderConfig(constants.kFrontRightOffset),
     }
 )
 swerveModuleBackLeft = swerve.SwerveModuleConfig(
@@ -116,13 +115,13 @@ swerveModuleBackLeft = swerve.SwerveModuleConfig(
         "drive_gearing": constants.kSwerveDriveGearing,
         "wheel_diameter": constants.kWheelDiameter,
         "drive_motor_id": constants.kBackLeftDriveID,
-        "drive_motor_config": ctre_motors.FROGTalonFXConfig(
+        "drive_motor_config": ctre.FROGTalonFXConfig(
             slot0gains=driveDutyCycleGains, slot1gains=driveVoltageGains
         ),
         "steer_motor_id": constants.kBackLeftSteerID,
-        "steer_motor_config": ctre_motors.FROGTalonFXConfig(
+        "steer_motor_config": ctre.FROGTalonFXConfig(
             feedback_config=(
-                ctre_motors.FROGFeedbackConfig(
+                ctre.FROGFeedbackConfig(
                     remote_sensor_id=constants.kBackLeftSensorID,
                     sensor_source=FeedbackSensorSourceValue.REMOTE_CANCODER,
                 )
@@ -130,7 +129,7 @@ swerveModuleBackLeft = swerve.SwerveModuleConfig(
             slot0gains=steerGains,
         ),
         "cancoder_id": constants.kBackLeftSensorID,
-        "cancoder_config": sensors.FROGCANCoderConfig(constants.kBackLeftOffset),
+        "cancoder_config": ctre.FROGCANCoderConfig(constants.kBackLeftOffset),
     }
 )
 swerveModuleBackRight = swerve.SwerveModuleConfig(
@@ -142,13 +141,13 @@ swerveModuleBackRight = swerve.SwerveModuleConfig(
         "drive_gearing": constants.kSwerveDriveGearing,
         "wheel_diameter": constants.kWheelDiameter,
         "drive_motor_id": constants.kBackRightDriveID,
-        "drive_motor_config": ctre_motors.FROGTalonFXConfig(
+        "drive_motor_config": ctre.FROGTalonFXConfig(
             slot0gains=driveDutyCycleGains, slot1gains=driveVoltageGains
         ),
         "steer_motor_id": constants.kBackRightSteerID,
-        "steer_motor_config": ctre_motors.FROGTalonFXConfig(
+        "steer_motor_config": ctre.FROGTalonFXConfig(
             feedback_config=(
-                ctre_motors.FROGFeedbackConfig(
+                ctre.FROGFeedbackConfig(
                     remote_sensor_id=constants.kBackRightSensorID,
                     sensor_source=FeedbackSensorSourceValue.REMOTE_CANCODER,
                 )
@@ -156,6 +155,6 @@ swerveModuleBackRight = swerve.SwerveModuleConfig(
             slot0gains=steerGains,
         ),
         "cancoder_id": constants.kBackRightSensorID,
-        "cancoder_config": sensors.FROGCANCoderConfig(constants.kBackRightOffset),
+        "cancoder_config": ctre.FROGCANCoderConfig(constants.kBackRightOffset),
     }
 )

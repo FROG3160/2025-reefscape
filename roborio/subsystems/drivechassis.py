@@ -1,6 +1,6 @@
 import math
 from FROGlib.swerve import SwerveBase
-from FROGlib.sensors import FROGPigeonGyro
+from roborio.FROGlib.ctre import FROGPigeonGyro
 from constants import (
     kMaxChassisRadiansPerSec,
     kMaxMetersPerSecond,
