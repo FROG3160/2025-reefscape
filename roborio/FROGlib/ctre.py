@@ -91,13 +91,8 @@ class FROGTalonFX(TalonFX):
 class FROGPigeonGyro:
     "Gyro class that creates an instance of the Pigeon 2.0 Gyro"
 
-    def __init__(self):
-        # TODO Make sure if we need this.
-        self.gyro = Pigeon2(5, "")
-        self.starting_angle = 0.0  # Not sure if needed
-        self.offset = 0  # Not sure if needed
-        # self.field_heading = 360-242
-        # self.gyro.reset()
+    def __init__(self, can_id: int):
+        self.gyro = Pigeon2(can_id)
         self.gyro.reset()
 
     def getAngleCCW(self):
@@ -113,9 +108,6 @@ class FROGPigeonGyro:
     def getPitch(self):
         return self.gyro.get_pitch().value
 
-    def setOffset(self, offset):
-        self.offset = offset
-
     def getDegreesPerSecCCW(self):
         return self.gyro.get_angular_velocity_z_world().value
 
@@ -124,14 +116,6 @@ class FROGPigeonGyro:
 
     def getRotation2d(self):
         return self.gyro.getRotation2d()
-
-    def resetGyro(self, on_red: bool):
-        # sets yaw reading to 0
-        if on_red:
-            self.setAngleAdjustment(180)
-        else:
-            self.setAngleAdjustment(0)
-        self.gyro.reset()
 
     def setAngleAdjustment(self, angle):
         self.gyro.set_yaw(angle)

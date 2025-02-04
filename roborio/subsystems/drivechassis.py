@@ -49,7 +49,7 @@ class DriveChassis(SwerveBase):
                 ctre.swerveModuleBackLeft,
                 ctre.swerveModuleBackRight,
             ),
-            gyro=FROGPigeonGyro(),
+            gyro=FROGPigeonGyro(constants.kGyroID),
             max_speed=kMaxMetersPerSecond,
             max_rotation_speed=kMaxChassisRadiansPerSec,
             parent_nt=parent_nt,

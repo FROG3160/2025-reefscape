@@ -56,6 +56,8 @@ kBackRightDriveID = 14
 kBackRightSteerID = 24
 kBackRightSensorID = 34
 
+kGyroID = 39
+
 kShoulderMotorID = 41
 kShoulderFollowerID = 42
 
