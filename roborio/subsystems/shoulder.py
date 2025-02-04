@@ -1,5 +1,5 @@
 from commands2.subsystem import Subsystem
-from FROGlib.ctre_motors import FROGTalonFX, FROGTalonFXConfig, FROGFeedbackConfig
+from roborio.FROGlib.ctre import FROGTalonFX, FROGTalonFXConfig, FROGFeedbackConfig
 import constants
 from phoenix6.configs import Slot0Configs, Slot1Configs, MotorOutputConfigs
 from phoenix6.signals import NeutralModeValue
