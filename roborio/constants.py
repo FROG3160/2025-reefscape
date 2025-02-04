@@ -16,10 +16,10 @@ from wpimath.geometry import Pose3d, Rotation3d
 from wpimath.units import feetToMeters, inchesToMeters
 
 # CANCoder offsets
-kFrontLeftOffset = -0.246338
-kFrontRightOffset = 0.036377
-kBackLeftOffset = 0.478027
-kBackRightOffset = 0.207031
+kFrontLeftOffset = 0.168701  # -0.246338
+kFrontRightOffset = -0.260254  # 0.036377
+kBackLeftOffset = 0.387451  # 0.478027
+kBackRightOffset = -0.243652  # 0.207031
 
 # steer motor gains
 kSteerP = 2.402346
