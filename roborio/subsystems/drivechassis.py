@@ -106,7 +106,9 @@ class DriveChassis(SwerveBase):
             with module.drive_motor as m:
                 sys_id_routine.motor(module.name).voltage(
                     m.get_motor_voltage().value
-                ).position(m.get_position()).velocity(m.get_velocity())
+                ).angularPosition(m.get_position().value).angularVelocity(
+                    m.get_velocity().value
+                )
 
     def sysid_log_steer(self, sys_id_routine: SysIdRoutineLog) -> None:
         # Record a frame for each module.  Since these share an encoder, we consider
@@ -115,7 +117,9 @@ class DriveChassis(SwerveBase):
             with module.steer_motor as m:
                 sys_id_routine.motor(module.name).voltage(
                     m.get_motor_voltage().value
-                ).position(m.get_position()).velocity(m.get_velocity())
+                ).angularPosition(m.get_position().value).angularVelocity(
+                    m.get_velocity().value
+                )
 
     def sysIdQuasistaticDrive(self, direction: SysIdRoutine.Direction) -> Command:
         return self.sys_id_routine_drive.quasistatic(direction)
