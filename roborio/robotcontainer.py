@@ -85,33 +85,33 @@ class RobotContainer:
         # Bind full set of SysId routine tests to buttons; a complete routine should run each of these
         # once.
         self.driverController.a().whileTrue(
-            self.driveSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward)
+            self.driveSubsystem.sysIdQuasistaticDrive(SysIdRoutine.Direction.kForward)
         )
         self.driverController.b().whileTrue(
-            self.driveSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse)
+            self.driveSubsystem.sysIdQuasistaticDrive(SysIdRoutine.Direction.kReverse)
         )
         self.driverController.x().whileTrue(
-            self.driveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward)
+            self.driveSubsystem.sysIdDynamicDrive(SysIdRoutine.Direction.kForward)
         )
         self.driverController.y().whileTrue(
-            self.driveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse)
+            self.driveSubsystem.sysIdDynamicDrive(SysIdRoutine.Direction.kReverse)
         )
 
         wpilib.SmartDashboard.putData(
             "Quasistatic Forward",
-            self.driveSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kForward),
+            self.driveSubsystem.sysIdQuasistaticSteer(SysIdRoutine.Direction.kForward),
         )
         wpilib.SmartDashboard.putData(
             "Quasistatic Reverse",
-            self.driveSubsystem.sysIdQuasistatic(SysIdRoutine.Direction.kReverse),
+            self.driveSubsystem.sysIdQuasistaticSteer(SysIdRoutine.Direction.kReverse),
         )
         wpilib.SmartDashboard.putData(
             "Dynamic Forward",
-            self.driveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kForward),
+            self.driveSubsystem.sysIdDynamicSteer(SysIdRoutine.Direction.kForward),
         )
         wpilib.SmartDashboard.putData(
             "Dynamic Reverse",
-            self.driveSubsystem.sysIdDynamic(SysIdRoutine.Direction.kReverse),
+            self.driveSubsystem.sysIdDynamicSteer(SysIdRoutine.Direction.kReverse),
         )
 
     def configureDriverControls(self):
