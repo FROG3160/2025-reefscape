@@ -92,13 +92,11 @@ class DriveChassis(SwerveBase):
                     slot=0,  # Duty Cycle gains for steer
                 )
             )
-            module.drive_motor.set_control(VoltageOut(voltage, enable_foc=False))
+            module.drive_motor.set_control(VoltageOut(output=voltage, enable_foc=False))
 
     def sysid_steer(self, voltage: volts) -> None:
         for module in self.modules:
-            module.steer_motor.set_control(
-                VoltageOut(voltage=voltage, enable_foc=False)
-            )
+            module.steer_motor.set_control(VoltageOut(output=voltage, enable_foc=False))
             module.drive_motor.stopMotor()
 
     def sysid_log_drive(self, sys_id_routine: SysIdRoutineLog) -> None:
