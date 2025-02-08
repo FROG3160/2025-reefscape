@@ -1,6 +1,6 @@
 import math
 from FROGlib.swerve import SwerveBase
-from roborio.FROGlib.ctre import FROGPigeonGyro
+from FROGlib.ctre import FROGPigeonGyro
 from constants import (
     kMaxChassisRadiansPerSec,
     kMaxMetersPerSecond,
@@ -28,10 +28,9 @@ from wpimath.trajectory import TrapezoidProfileRadians
 
 from phoenix6.controls import (
     PositionDutyCycle,
-    VelocityDutyCycle,
     VelocityVoltage,
     PositionVoltage,
-    DutyCycleOut,
+    VoltageOut,
 )
 
 # from subsystems.leds import LEDSubsystem
@@ -75,35 +74,60 @@ class DriveChassis(SwerveBase):
 
         # Tell SysId to make generated commands require this subsystem, suffix test state in
         # WPILog with this subsystem's name ("drive")
-        self.sys_id_routine = SysIdRoutine(
+        self.sys_id_routine_drive = SysIdRoutine(
             SysIdRoutine.Config(),
-            SysIdRoutine.Mechanism(self.sysid_drive, self.sysid_log, self),
+            SysIdRoutine.Mechanism(self.sysid_drive, self.sysid_log_drive, self),
+        )
+        self.sys_id_routine_steer = SysIdRoutine(
+            SysIdRoutine.Config(),
+            SysIdRoutine.Mechanism(self.sysid_steer, self.sysid_log_steer, self),
         )
 
     # Tell SysId how to plumb the driving voltage to the motors.
     def sysid_drive(self, voltage: volts) -> None:
         for module in self.modules:
             module.steer_motor.set_control(
-                PositionDutyCycle(
+                PositionVoltage(
                     position=0,
                     slot=0,  # Duty Cycle gains for steer
                 )
             )
-            module.drive_motor.set_control(DutyCycleOut(voltage))
+            module.drive_motor.set_control(VoltageOut(output=voltage, enable_foc=False))
 
-    def sysid_log(self, sys_id_routine: SysIdRoutineLog) -> None:
+    def sysid_steer(self, voltage: volts) -> None:
+        for module in self.modules:
+            module.steer_motor.set_control(VoltageOut(output=voltage, enable_foc=False))
+            module.drive_motor.stopMotor()
+
+    def sysid_log_drive(self, sys_id_routine: SysIdRoutineLog) -> None:
         # Record a frame for each module.  Since these share an encoder, we consider
         # the entire group to be one motor.
         for module in self.modules:
-            sys_id_routine.motor(module.name).voltage(
-                module.drive_motor.get_motor_voltage().value
-            ).position(module.getCurrentDistance()).velocity(module.getCurrentSpeed())
+            with module.drive_motor as m:
+                sys_id_routine.motor(module.name).voltage(
+                    m.get_motor_voltage().value
+                ).position(m.get_position()).velocity(m.get_velocity())
 
-    def sysIdQuasistatic(self, direction: SysIdRoutine.Direction) -> Command:
-        return self.sys_id_routine.quasistatic(direction)
+    def sysid_log_steer(self, sys_id_routine: SysIdRoutineLog) -> None:
+        # Record a frame for each module.  Since these share an encoder, we consider
+        # the entire group to be one motor.
+        for module in self.modules:
+            with module.steer_motor as m:
+                sys_id_routine.motor(module.name).voltage(
+                    m.get_motor_voltage().value
+                ).position(m.get_position()).velocity(m.get_velocity())
 
-    def sysIdDynamic(self, direction: SysIdRoutine.Direction) -> Command:
-        return self.sys_id_routine.dynamic(direction)
+    def sysIdQuasistaticDrive(self, direction: SysIdRoutine.Direction) -> Command:
+        return self.sys_id_routine_drive.quasistatic(direction)
+
+    def sysIdDynamicDrive(self, direction: SysIdRoutine.Direction) -> Command:
+        return self.sys_id_routine_drive.dynamic(direction)
+
+    def sysIdQuasistaticSteer(self, direction: SysIdRoutine.Direction) -> Command:
+        return self.sys_id_routine_steer.quasistatic(direction)
+
+    def sysIdDynamicSteer(self, direction: SysIdRoutine.Direction) -> Command:
+        return self.sys_id_routine_steer.dynamic(direction)
 
     def resetRotationController(self):
         self.profiledRotationController.reset(
