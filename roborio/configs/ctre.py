@@ -1,7 +1,7 @@
 import math
 import constants
 from wpimath.geometry import Translation2d, Translation3d, Transform3d, Rotation3d
-from roborio.FROGlib import ctre  # import FROGTalonFXConfig, FROGFeedbackConfig
+from FROGlib import ctre  # import FROGTalonFXConfig, FROGFeedbackConfig
 from FROGlib import swerve  # import SwerveModuleConfig
 from phoenix6.configs.config_groups import (
     Slot0Configs,
