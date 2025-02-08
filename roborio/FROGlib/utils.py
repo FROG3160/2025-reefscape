@@ -107,7 +107,7 @@ class GearTrain:
 
 
 class DriveTrain:
-    def __init__(self, gear_stages: list, wheel_diameter: float):
+    def __init__(self, gear_stages: list = [1], wheel_diameter: float = 1.0):
         """Constructs a DriveTrain object that stores data about the gear stages and wheel.
 
         Args:
