@@ -217,9 +217,9 @@ class SwerveModule:
                 requested_state.speed
             )
             self.steer_motor.set_control(
-                PositionDutyCycle(
+                PositionVoltage(
                     position=self.commandedRotation,
-                    slot=0,  # Duty Cycle gains for steer
+                    slot=0,  # Position voltage gains for steer
                 )
             )
             self._moduleRotationPub.set(self.commandedRotation)
@@ -442,8 +442,8 @@ class SwerveBase(Subsystem):
 
         if self.enabled:
             self.setStatesFromSpeeds()  # apply chassis Speeds
-        for module, state in zip(self.modules, self.moduleStates):
-            module.setState(state)
+            for module, state in zip(self.modules, self.moduleStates):
+                module.setState(state)
 
         self.logTelemetry()
 
