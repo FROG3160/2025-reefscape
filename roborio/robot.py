@@ -81,4 +81,5 @@ class MyRobot(commands2.TimedCommandRobot):
     def testInit(self) -> None:
         # Cancels all running commands at the start of test mode
         commands2.CommandScheduler.getInstance().cancelAll()
+        self.container.driveSubsystem.disable()
         self.container.configureSysIDButtonBindings()
