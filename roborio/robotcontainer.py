@@ -99,19 +99,19 @@ class RobotContainer:
 
         wpilib.SmartDashboard.putData(
             "Quasistatic Forward",
-            self.driveSubsystem.sysIdQuasistaticSteer(SysIdRoutine.Direction.kForward),
+            self.driveSubsystem.sysIdQuasistaticDrive(SysIdRoutine.Direction.kForward),
         )
         wpilib.SmartDashboard.putData(
             "Quasistatic Reverse",
-            self.driveSubsystem.sysIdQuasistaticSteer(SysIdRoutine.Direction.kReverse),
+            self.driveSubsystem.sysIdQuasistaticDrive(SysIdRoutine.Direction.kReverse),
         )
         wpilib.SmartDashboard.putData(
             "Dynamic Forward",
-            self.driveSubsystem.sysIdDynamicSteer(SysIdRoutine.Direction.kForward),
+            self.driveSubsystem.sysIdDynamicDrive(SysIdRoutine.Direction.kForward),
         )
         wpilib.SmartDashboard.putData(
             "Dynamic Reverse",
-            self.driveSubsystem.sysIdDynamicSteer(SysIdRoutine.Direction.kReverse),
+            self.driveSubsystem.sysIdDynamicDrive(SysIdRoutine.Direction.kReverse),
         )
 
     def configureDriverControls(self):
