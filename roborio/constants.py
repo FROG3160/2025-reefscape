@@ -17,13 +17,15 @@ from wpilib import DriverStation
 
 # CANCoder offsets
 kFrontLeftOffset = 0.168701  # -0.246338
-kFrontRightOffset = -0.260254  # 0.036377
-kBackLeftOffset = 0.387451  # 0.478027
-kBackRightOffset = -0.243652  # 0.207031
+kFrontRightOffset = -0.260986  # 0.036377
+kBackLeftOffset = 0.383057  # 0.478027
+kBackRightOffset = -0.244141  # 0.207031
 
 # steer motor gains
-kSteerP = 2.402346
-kSteerI = 0.200195
+kSteerP = 39.236  # 2.402346
+kSteerI = 0  # 0.200195\
+kSteerS = 0.15
+kSteerV = 0.10583
 
 # drive motor gains
 kDriveFeedForward = 0.53
