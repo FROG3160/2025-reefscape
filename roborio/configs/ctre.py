@@ -14,7 +14,13 @@ from pathplannerlib.config import PIDConstants
 from wpimath.units import inchesToMeters
 from phoenix6.signals.spn_enums import NeutralModeValue, InvertedValue
 
-steerGains = Slot0Configs().with_k_p(constants.kSteerP).with_k_i(constants.kSteerI)
+steerGains = (
+    Slot0Configs()
+    .with_k_p(constants.kSteerP)
+    .with_k_i(constants.kSteerI)
+    .with_k_s(constants.kSteerS)
+    .with_k_v(constants.kSteerV)
+)
 driveDutyCycleGains = (
     Slot0Configs()
     .with_k_s(constants.kDutyCycleDriveS)
