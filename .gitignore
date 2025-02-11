@@ -177,3 +177,4 @@ roborio/networktables.json
 roborio/ctre_sim
 
 logs/
+tests/
