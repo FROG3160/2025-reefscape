@@ -14,6 +14,7 @@ import math
 import wpilib
 from wpimath.units import feetToMeters, inchesToMeters
 from wpilib import DriverStation
+from FROGlib.utils import GearStage
 
 # CANCoder offsets
 kFrontLeftOffset = 0.168701  # -0.246338
@@ -73,9 +74,9 @@ kTrackWidthMeters = inchesToMeters(22.750)
 kWheelBaseMeters = inchesToMeters(25.750)
 kWheelDiameter = inchesToMeters(4)  # The tread has worn down
 kSwerveDriveGearing = [
-    (16.0 / 50.0),
-    (28.0 / 16.0),
-    (15.0 / 45.0),
+    GearStage(16, 50),
+    GearStage(28, 16),
+    GearStage(15, 45),
 ]  # Mk4c L3
 # kDriveBaseRadius is the distance from the center of the robot
 # to the farthest module. This is needed for the construction

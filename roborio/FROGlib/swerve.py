@@ -92,8 +92,9 @@ class SwerveModule:
         config.drive_motor_config.motor_output.inverted = (
             InvertedValue.CLOCKWISE_POSITIVE
         )
-        config.drive_motor_config.feedback.sensor_to_mechanism_ratio = 1 / math.prod(
-            config.drive_gearing
+        self.drivetrain = DriveTrain(config.drive_gearing, config.wheel_diameter)
+        config.drive_motor_config.feedback.sensor_to_mechanism_ratio = (
+            self.drivetrain.system_reduction
         )
 
         # create/configure drive motor
@@ -128,11 +129,6 @@ class SwerveModule:
         # set module location
         self.location = config.location
         #
-        # self.drivetrain = DriveTrain(config.drive_gearing, config.wheel_diameter)
-        # setting drive gearing to [1] since we are giving that information to the
-        # feedback config of the motor above
-        self.drivetrain = DriveTrain([1], config.wheel_diameter)
-
         self.enabled = False
 
         nt_table = f"{config.parent_nt}/{self.name}"
@@ -187,12 +183,10 @@ class SwerveModule:
         Returns:
             float: distance in meters
         """
-        return self.drivetrain.rotations_to_distance(
-            self.drive_motor.get_position().value
-        )
+        return self.drive_motor.get_position().value
 
     def getCurrentSpeed(self) -> float:
-        return self.drivetrain.input_rps_to_speed(self.drive_motor.get_velocity().value)
+        return self.drive_motor.get_velocity().value
 
     def getCurrentState(self):
         return SwerveModuleState(
@@ -213,9 +207,7 @@ class SwerveModule:
 
             requested_state.optimize(self.getCurrentSteerAzimuth())
             self.commandedRotation = radiansToRotations(requested_state.angle.radians())
-            self.commandedSpeed = self.drivetrain.speed_to_input_rps(
-                requested_state.speed
-            )
+            self.commandedSpeed = requested_state.speed
             self.steer_motor.set_control(
                 PositionVoltage(
                     position=self.commandedRotation,

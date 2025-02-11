@@ -88,34 +88,40 @@ def arrayToPose3d(array):
     )
 
 
-class GearTrain:
-    def __init__(self, gear_stages: list):
-        """
-        Constructs a GearStages object that stores data about the gear stages.
-        Args:
-            gear_stages (list): list of gear stages expressed as tuples of two integers e.g. [(10, 32), (9, 24)]
-        """
-        self.gear_ratio = math.prod(gear_stages)
+class GearStage:
+    def __init__(self, input_gear, output_gear):
+        self.input_gear = input_gear
+        self.output_gear = output_gear
 
-    def input_rotations(self, output_rotations):
-        """Calculates motor rotations given the rotation at the other end of the gears."""
-        return output_rotations / self.gear_ratio
-
-    def output_rotations(self, input_rotations):
-        """Calculates final gear rotation given the motor's rotation"""
-        return input_rotations * self.gear_ratio
+    def get_reduction(self):
+        return self.output_gear / self.input_gear
 
 
 class DriveTrain:
-    def __init__(self, gear_stages: list = [1], wheel_diameter: float = 1.0):
+    def __init__(
+        self, gear_stages: list = [GearStage(1, 1)], wheel_diameter: float = 1.0
+    ):
         """Constructs a DriveTrain object that stores data about the gear stages and wheel.
 
         Args:
             gear_stages (list): list of gear stages expressed as tuples of two integers e.g. [(10, 32), (9, 24)]
             diameter (float): Diameter of the attached wheel in meters
         """
-        self.gearing = GearTrain(gear_stages)
+        self.gear_stages = gear_stages
+        self.gear_reduction = math.prod(
+            [stage.get_reduction() for stage in self.gear_stages]
+        )
         self.circumference = math.pi * wheel_diameter
+        self.system_reduction = self.gear_reduction / self.circumference
+        self.rotation_to_distance_factor = self.circumference / self.gear_reduction
+
+    def input_rotations(self, output_rotations):
+        """Calculates motor rotations given the rotation at the other end of the gears."""
+        return output_rotations * self.gear_reduction
+
+    def output_rotations(self, input_rotations):
+        """Calculates final gear rotation given the motor's rotation"""
+        return input_rotations / self.gear_reduction
 
     def speed_to_input_rps(self, speed: float) -> float:
         """Converts the system linear speed to a motor velocity
@@ -125,7 +131,7 @@ class DriveTrain:
             float: motor rotations per second
         """
         wheel_rotations_sec = speed / self.circumference
-        motor_rotations_sec = self.gearing.input_rotations(wheel_rotations_sec)
+        motor_rotations_sec = self.input_rotations(wheel_rotations_sec)
         return motor_rotations_sec
 
     def input_rps_to_speed(self, rotations_per_sec: float) -> float:
@@ -136,7 +142,7 @@ class DriveTrain:
         Returns:
             float: system linear speed in meters per second
         """
-        wheel_rotations_sec = self.gearing.output_rotations(rotations_per_sec)
+        wheel_rotations_sec = self.output_rotations(rotations_per_sec)
         return wheel_rotations_sec * self.circumference
 
     def rotations_to_distance(self, rotations: float) -> float:
@@ -147,7 +153,7 @@ class DriveTrain:
         Returns:
             float: distance in meters
         """
-        wheel_rotations = self.gearing.output_rotations(rotations)
+        wheel_rotations = self.gear_stages.output_rotations(rotations)
         return wheel_rotations * self.circumference
 
 
@@ -179,3 +185,5 @@ class DriveTrain:
 # print()
 # for tag in field.getTags():
 #     print(f"Tag: {tag.ID}, {tag.pose}")
+
+pass
