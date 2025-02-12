@@ -40,10 +40,10 @@ kDutyCycleDriveS = 0.01125
 # factoring in the wheel diameter (4 inches) and the 8.14 gear reduction
 # resulting in a value of 25.5024 rotations for every meter of travel
 # The calculated kV was near 3, so 3/25.5024 = 0.117
-kVoltageDriveV = 0.113
+kVoltageDriveV = 1.928
 kVoltageDriveS = 0.14
-kVoltageDriveP = 0.02
-kVoltageDriveA = 0.01
+kVoltageDriveP = 2.0
+kVoltageDriveA = 0.027631
 
 # Swerve Drive Motor/Encoder IDs
 kFrontLeftDriveID = 11
