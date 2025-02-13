@@ -47,7 +47,6 @@ class SwerveModuleConfig:
     steer_motor_config: FROGTalonFXConfig = FROGTalonFXConfig()
     cancoder_id: int = 0
     cancoder_config: FROGCANCoderConfig = FROGCANCoderConfig()
-    parent_nt = ("Undefined",)
 
 
 class SwerveModule:
@@ -101,7 +100,7 @@ class SwerveModule:
         self.drive_motor = FROGTalonFX(
             config.drive_motor_id,
             config.drive_motor_config,
-            parent_nt=f"{config.parent_nt}/{self.name}",
+            parent_nt=f"{parent_nt}/{self.name}",
             motor_name="Drive",
         )
 
@@ -111,7 +110,7 @@ class SwerveModule:
         self.steer_motor = FROGTalonFX(
             config.steer_motor_id,
             config.steer_motor_config,
-            parent_nt=f"{config.parent_nt}/{self.name}",
+            parent_nt=f"{parent_nt}/{self.name}",
             motor_name="Steer",
         )
 
@@ -131,7 +130,7 @@ class SwerveModule:
         #
         self.enabled = False
 
-        nt_table = f"{config.parent_nt}/{self.name}"
+        nt_table = f"{parent_nt}/{self.name}"
         self._moduleSpeedPub = (
             NetworkTableInstance.getDefault()
             .getFloatTopic(f"{nt_table}/commanded_speed")
