@@ -8,7 +8,9 @@ import wpilib
 from wpilib import DriverStation
 from wpilib.interfaces import GenericHID
 from wpimath.units import degreesToRadians
-from wpimath.geometry import Pose2d, Rotation2d
+from wpimath.geometry import Pose2d, Rotation2d, Transform3d
+
+from robotpy_apriltag import AprilTagField, AprilTagFieldLayout
 
 import commands2
 import commands2.button
@@ -32,6 +34,8 @@ from subsystems.positioning import Position
 from commands.drive.field_oriented import (
     ManualDrive,
 )
+
+from photonlibpy import PhotonCamera, PhotonPoseEstimator, PoseStrategy
 
 
 class RobotContainer:
@@ -128,3 +132,12 @@ class RobotContainer:
 
         # return self.autochooser.getSelected()
         pass
+
+class VisionPose:
+    def __init__(self):
+        self.estimator = PhotonPoseEstimator(
+            fieldTags=AprilTagFieldLayout().loadField(AprilTagField.k2025Reefscape),
+            strategy=PoseStrategy(),
+            camera=PhotonCamera("FROGPositioning"),
+            robotToCamera=Transform3d(),
+        )
