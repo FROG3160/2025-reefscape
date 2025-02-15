@@ -8,7 +8,7 @@ from constants import kReefTags
 class Position(FROGField):
 
     def __init__(self):
-        super().__init__(AprilTagField.k2025Reefscape)
+        super().__init__(AprilTagField.k2025ReefscapeWelded)
         self._reef_tags = None
 
     def getTagPose(self, tag_id: int):
