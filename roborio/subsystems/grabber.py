@@ -20,8 +20,8 @@ from pathplannerlib.path import PathPlannerPath, PathConstraints
 from wpilib import DriverStation, Field2d
 from wpimath.geometry import Pose2d, Rotation2d, Transform2d, Transform3d, Rotation3d
 
-class grabber:
 
+class Grabber(Subsystem):
     def __init__(self):
         self.motor = FROGTalonFX(
             id=constants.kGrabberMotorID,
@@ -34,7 +34,3 @@ class grabber:
             parent_nt="Grabber",
             motor_name="motor",
         )
-        self._follower = FROGTalonFX(id=constants.kGrabberFollowerID)
-        # set the follower's control to ALWAYS follow the main motor
-        self._follower.set_control(Follower(self.motor.device_id, False))
-
