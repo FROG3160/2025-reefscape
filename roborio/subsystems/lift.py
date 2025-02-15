@@ -7,7 +7,10 @@ from phoenix6.controls import Follower, VelocityVoltage, PositionVoltage, Voltag
 from typing import Callable
 from commands2 import Command
 
-def __init__(self):
+
+class Lift(Subsystem):
+
+    def __init__(self):
         self.motor = FROGTalonFX(
             id=constants.kLiftMotorID,
             motor_config=FROGTalonFXConfig(
