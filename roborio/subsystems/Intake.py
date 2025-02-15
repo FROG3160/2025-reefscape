@@ -7,9 +7,10 @@ from phoenix6.controls import Follower, VelocityVoltage, PositionVoltage, Voltag
 from typing import Callable
 from commands2 import Command
 
-class Intake:
+
+class Intake(Subsystem):
     def __init__(self):
-    self.motor = FROGTalonFX(
+        self.lower_motor = FROGTalonFX(
             id=constants.kIntakeMotorID,
             motor_config=FROGTalonFXConfig(
                 feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(90),
@@ -18,19 +19,27 @@ class Intake:
                 MotorOutputConfigs().with_neutral_mode(NeutralModeValue.BRAKE)
             ),
             parent_nt="Intake",
-            motor_name="motor",
+            motor_name="lower_motor",
         )
-    self.motor2 = FROGTalonFX(
+        self.upper_motor = FROGTalonFX(
             id=constants.kRollersMotorID,
             motor_config=FROGTalonFXConfig(
                 feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(90),
-                slot1gains=Slot1Configs(), 
+                slot1gains=Slot1Configs(),
             ).with_motor_output(
                 MotorOutputConfigs().with_neutral_mode(NeutralModeValue.BRAKE)
             ),
-            parent_nt="Roller",
-            motor_name="motor",
+            parent_nt="Intake",
+            motor_name="upper_motor",
         )
-
-
-    
+        self.deploy_motor = FROGTalonFX(
+            id=constants.kRollersMotorID,
+            motor_config=FROGTalonFXConfig(
+                feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(90),
+                slot1gains=Slot1Configs(),
+            ).with_motor_output(
+                MotorOutputConfigs().with_neutral_mode(NeutralModeValue.BRAKE)
+            ),
+            parent_nt="Intake",
+            motor_name="deploy_motor",
+        )
