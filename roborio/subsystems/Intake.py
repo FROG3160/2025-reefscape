@@ -1,3 +1,12 @@
+from commands2.subsystem import Subsystem
+from roborio.FROGlib.ctre import FROGTalonFX, FROGTalonFXConfig, FROGFeedbackConfig
+import constants
+from phoenix6.configs import Slot0Configs, Slot1Configs, MotorOutputConfigs
+from phoenix6.signals import NeutralModeValue
+from phoenix6.controls import Follower, VelocityVoltage, PositionVoltage, VoltageOut
+from typing import Callable
+from commands2 import Command
+
 class Intake:
     def __init__(self):
     self.motor = FROGTalonFX(
