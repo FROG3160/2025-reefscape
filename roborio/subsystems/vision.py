@@ -5,10 +5,16 @@ from robotpy_apriltag import AprilTagField, AprilTagFieldLayout
 
 
 class VisionPose:
-    def __init__(self):
+    def __init__(self, poseCameraName: str):
         self.estimator = PhotonPoseEstimator(
-            fieldTags=AprilTagFieldLayout().loadField(AprilTagField.k2025Reefscape),
-            strategy=PoseStrategy(),
-            camera=PhotonCamera("FROGPositioning"),
+            fieldTags=AprilTagFieldLayout().loadField(
+                AprilTagField.k2025ReefscapeWelded
+            ),
+            strategy=PoseStrategy.LOWEST_AMBIGUITY,
+            camera=PhotonCamera(poseCameraName),
             robotToCamera=Transform3d(),
         )
+
+
+    def periodic(self):
+        self.latestVisionPose = self.estimator.update()
