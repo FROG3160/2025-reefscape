@@ -29,6 +29,7 @@ from FROGlib.xbox import FROGXboxDriver, FROGXboxTactical
 
 from subsystems.drivechassis import DriveChassis
 from subsystems.positioning import Position
+from subsystems.vision import VisionPose
 from commands.drive.field_oriented import (
     ManualDrive,
 )
@@ -58,6 +59,8 @@ class RobotContainer:
         # then pass it in to the subsystems needing it.
         self.driveSubsystem = DriveChassis()
         self.positioning = Position()
+        self.camera1 = VisionPose("Arducam OV9281 Apriltag 1")
+        self.camera2 = VisionPose("Arducam OV9281 Apriltag 2")
 
         self.registerNamedCommands()
 
