@@ -118,6 +118,8 @@ kTotalWidth = kFrameWidth + kBumperDepth * 2
 
 kTargetSizeThreshold = 14.0
 
+kShoulderRatio = 90
+
 
 class Tags:
     class Blue:

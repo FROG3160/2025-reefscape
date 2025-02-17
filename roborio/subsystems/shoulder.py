@@ -13,7 +13,9 @@ class Shoulder(Subsystem):
         self.motor = FROGTalonFX(
             id=constants.kShoulderMotorID,
             motor_config=FROGTalonFXConfig(
-                feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(90),
+                feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(
+                    constants.kShoulderRatio
+                ),
                 slot0gains=Slot0Configs(),
                 slot1gains=Slot1Configs(),
             ).with_motor_output(
