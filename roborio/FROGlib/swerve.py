@@ -20,6 +20,7 @@ from phoenix6.controls import (
     PositionVoltage,
 )
 from phoenix6.signals.spn_enums import NeutralModeValue, InvertedValue
+from phoenix6 import BaseStatusSignal
 from wpimath.units import radiansToRotations, rotationsToRadians
 
 from .utils import DriveTrain
@@ -117,10 +118,24 @@ class SwerveModule:
         # create/configure cancoder
         self.steer_encoder = FROGCanCoder(config.cancoder_id, config.cancoder_config)
 
-        self.drive_motor.get_velocity().set_update_frequency(50)
-        self.drive_motor.get_motor_voltage().set_update_frequency(50)
-        self.steer_motor.get_position().set_update_frequency(50)
-        self.steer_encoder.get_absolute_position().set_update_frequency(50)
+        # self.drive_motor.get_velocity().set_update_frequency(50)
+        self._drive_velocity = self.drive_motor.get_velocity()
+        # self.drive_motor.get_motor_voltage().set_update_frequency(50)
+        self._drive_voltage = self.drive_motor.get_motor_voltage()
+        self._drive_position = self.drive_motor.get_position()
+        # self.steer_motor.get_position().set_update_frequency(50)
+        self._steer_position = self.steer_motor.get_position()
+        # self.steer_encoder.get_absolute_position().set_update_frequency(50)
+        self._encoder_position = self.steer_encoder.get_absolute_position()
+        self._module_signals = [
+            self._drive_velocity,
+            self._drive_voltage,
+            self._drive_position,
+            self._steer_position,
+            self._encoder_position,
+        ]
+        BaseStatusSignal.set_update_frequency_for_all(50, self._module_signals)
+
         self.drive_motor.optimize_bus_utilization()
         self.steer_motor.optimize_bus_utilization()
         self.steer_encoder.optimize_bus_utilization()
@@ -158,12 +173,12 @@ class SwerveModule:
     def enable(self):
         self.enabled = True
 
-    def getEncoderAzimuthRotations(self) -> float:
-        """gets the absolute position from the CANCoder
+    def getEncoderRotations(self) -> float:
+        """gets the position from the steer motor
         Returns:
             float: absolute position of the sensor in rotations
         """
-        return self.steer_encoder.get_absolute_position().value
+        return self._encoder_position.value
 
     def getCurrentSteerAzimuth(self) -> Rotation2d:
         """Gets the Azimuth of the swerve wheel.
@@ -171,7 +186,7 @@ class SwerveModule:
         Returns:
             Rotation2d: The robot-relative Azimuth of the swerve wheel.
         """
-        if rotations := self.getEncoderAzimuthRotations():
+        if rotations := self.getEncoderRotations():
             return Rotation2d(rotationsToRadians(rotations))
         else:
             return Rotation2d(0)
@@ -182,10 +197,10 @@ class SwerveModule:
         Returns:
             float: distance in meters
         """
-        return self.drive_motor.get_position().value
+        return self._drive_position.value
 
     def getCurrentSpeed(self) -> float:
-        return self.drive_motor.get_velocity().value
+        return self._drive_velocity.value
 
     def getCurrentState(self):
         return SwerveModuleState(
@@ -198,11 +213,14 @@ class SwerveModule:
             self.getCurrentDistance(), self.getCurrentSteerAzimuth()
         )
 
+    def refresh_signals(self):
+        BaseStatusSignal.refresh_all(self._module_signals)
+
     def setState(self, requested_state: SwerveModuleState):
         if self.enabled:
             # log the current state of the motors before commanding them to a new value
-            self._moduleVelocityPub.set(self.drive_motor.get_velocity().value)
-            self._modulePositionPub.set(self.steer_motor.get_position().value)
+            self._moduleVelocityPub.set(self.getCurrentSpeed())
+            self._modulePositionPub.set(self.getEncoderRotations())
 
             requested_state.optimize(self.getCurrentSteerAzimuth())
             self.commandedRotation = radiansToRotations(requested_state.angle.radians())
