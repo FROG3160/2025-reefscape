@@ -15,6 +15,6 @@ class VisionPose:
             robotToCamera=Transform3d(),
         )
 
-
     def periodic(self):
         self.latestVisionPose = self.estimator.update()
+        return self.latestVisionPose
