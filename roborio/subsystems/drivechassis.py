@@ -11,7 +11,14 @@ from constants import (
 from configs import ctre
 
 from wpilib import DriverStation, Field2d
-from wpimath.geometry import Pose2d, Rotation2d, Transform2d, Transform3d, Rotation3d
+from wpimath.geometry import (
+    Pose2d,
+    Rotation2d,
+    Translation2d,
+    Transform2d,
+    Transform3d,
+    Rotation3d,
+)
 from wpimath.units import volts
 from wpilib.sysid import SysIdRoutineLog
 
@@ -32,6 +39,9 @@ from phoenix6.controls import (
     PositionVoltage,
     VoltageOut,
 )
+from pathplannerlib.auto import AutoBuilder
+from pathplannerlib.controller import PPHolonomicDriveController
+from pathplannerlib.config import RobotConfig, PIDConstants, ModuleConfig, DCMotor
 
 # from subsystems.leds import LEDSubsystem
 
@@ -72,6 +82,41 @@ class DriveChassis(SwerveBase):
         self.field = Field2d()
         SmartDashboard.putData("DrivePose", self.field)
 
+        ab_config = RobotConfig(
+            massKG=60.0,
+            MOI=10.0,
+            moduleConfig=ModuleConfig(
+                wheelRadiusMeters=0.058,
+                maxDriveVelocityMPS=6,
+                wheelCOF=1.0,
+                driveMotor=DCMotor(),
+                driveCurrentLimit=120,
+                numMotors=1,
+            ),
+            moduleOffsets=[
+                Translation2d(),
+                Translation2d(),
+                Translation2d(),
+                Translation2d(),
+            ],
+            trackwidthMeters=1,
+        )
+        AutoBuilder.configure(
+            self.getPose,  # Robot pose supplier
+            self.resetPose,  # Method to reset odometry (will be called if your auto has a starting pose)
+            self.getRobotRelativeSpeeds,  # ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+            lambda speeds, feedforwards: self.driveRobotRelative(
+                speeds
+            ),  # Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also outputs individual module feedforwards
+            PPHolonomicDriveController(  # PPHolonomicController is the built in path following controller for holonomic drive trains
+                PIDConstants(5.0, 0.0, 0.0),  # Translation PID constants
+                PIDConstants(5.0, 0.0, 0.0),  # Rotation PID constants
+            ),
+            ab_config,  # The robot configuration
+            self.shouldFlipPath,  # Supplier to control path flipping based on alliance color
+            self,  # Reference to this subsystem to set requirements
+        )
+
         # Tell SysId to make generated commands require this subsystem, suffix test state in
         # WPILog with this subsystem's name ("drive")
         self.sys_id_routine_drive = SysIdRoutine(
@@ -82,6 +127,9 @@ class DriveChassis(SwerveBase):
             SysIdRoutine.Config(),
             SysIdRoutine.Mechanism(self.sysid_steer, self.sysid_log_steer, self),
         )
+
+    def shouldFlipPath(self):
+        return DriverStation.getAlliance() == DriverStation.Alliance.kRed
 
     # Tell SysId how to plumb the driving voltage to the motors.
     def sysid_drive(self, voltage: volts) -> None:
