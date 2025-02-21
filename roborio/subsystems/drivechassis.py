@@ -1,13 +1,6 @@
 import math
 from FROGlib.swerve import SwerveBase
 from FROGlib.ctre import FROGPigeonGyro
-from constants import (
-    kMaxChassisRadiansPerSec,
-    kMaxMetersPerSecond,
-    kDriveBaseRadius,
-    kSteerP,
-    kSteerI,
-)
 from configs import ctre
 
 from wpilib import DriverStation, Field2d
@@ -29,7 +22,7 @@ from commands2 import Subsystem, Command
 from commands2.sysid import SysIdRoutine
 from FROGlib.utils import RobotRelativeTarget, remap
 import constants
-from wpimath.units import degreesToRadians
+from wpimath.units import degreesToRadians, lbsToKilograms, inchesToMeters
 from wpimath.controller import ProfiledPIDControllerRadians
 from wpimath.trajectory import TrapezoidProfileRadians
 
@@ -61,8 +54,8 @@ class DriveChassis(SwerveBase):
                 ctre.swerveModuleBackRight,
             ),
             gyro=FROGPigeonGyro(constants.kGyroID),
-            max_speed=kMaxMetersPerSecond,
-            max_rotation_speed=kMaxChassisRadiansPerSec,
+            max_speed=constants.kMaxMetersPerSecond,
+            max_rotation_speed=constants.kMaxChassisRadiansPerSec,
             parent_nt=parent_nt,
         )
         self.resetController = True
@@ -87,23 +80,18 @@ class DriveChassis(SwerveBase):
         SmartDashboard.putData("DrivePose", self.field)
 
         ab_config = RobotConfig(
-            massKG=60.0,
-            MOI=10.0,
+            massKG=constants.kRobotKilograms,
+            MOI=constants.kMOI,
             moduleConfig=ModuleConfig(
-                wheelRadiusMeters=0.058,
-                maxDriveVelocityMPS=6,
+                wheelRadiusMeters=inchesToMeters(constants.kWheelDiameter / 2),
+                maxDriveVelocityMPS=constants.kMaxMetersPerSecond,
                 wheelCOF=1.0,
                 driveMotor=DCMotor(),
                 driveCurrentLimit=120,
                 numMotors=1,
             ),
-            moduleOffsets=[
-                Translation2d(),
-                Translation2d(),
-                Translation2d(),
-                Translation2d(),
-            ],
-            trackwidthMeters=1,
+            moduleOffsets=[module.location for module in self.modules],
+            trackwidthMeters=constants.kTrackWidthMeters,
         )
         AutoBuilder.configure(
             self.getPose,  # Robot pose supplier
