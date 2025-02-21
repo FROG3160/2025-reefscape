@@ -34,11 +34,13 @@ from phoenix6.controls import (
 )
 
 # from subsystems.leds import LEDSubsystem
+from subsystems.vision import VisionPose
 
 
 class DriveChassis(SwerveBase):
     def __init__(
         self,
+        positioningCameras: list[VisionPose],
         parent_nt: str = "Subsystems",
     ):
         super().__init__(
@@ -54,6 +56,8 @@ class DriveChassis(SwerveBase):
             parent_nt=parent_nt,
         )
         self.resetController = True
+
+        self.positioningCameras = positioningCameras
 
         # initializing the estimator to 0, 0, 0
         self.estimatorPose = Pose2d(0, 0, Rotation2d(0))
@@ -147,6 +151,15 @@ class DriveChassis(SwerveBase):
         self.estimatorPose = self.estimator.update(
             self.gyro.getRotation2d(), tuple(self.getModulePositions())
         )
+
+        # Updates pose estimator with target data from positioning cameras.
+        # Initial implementation without confidence/stdev calculations.
+        for camera in self.positioningCameras:
+            if camera.periodic() is not None:
+                self.estimator.addVisionMeasurement(
+                    camera.periodic().estimatedPose.toPose2d(),
+                    camera.periodic().timestampSeconds,
+                )
 
         self.field.setRobotPose(self.estimator.getEstimatedPosition())
         SmartDashboard.putNumberArray(

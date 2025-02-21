@@ -59,10 +59,22 @@ class RobotContainer:
 
         # Create all subsystems here.  If a subsystem is needed by other subsystems, create it first,
         # then pass it in to the subsystems needing it.
-        self.driveSubsystem = DriveChassis()
-        self.positioning = Position()
+
+        # List of all positioning cameras
+        self.positioningCameras = []
+
+        # Create all positioning cameras here
         self.camera1 = VisionPose(kCamera1Name)
         self.camera2 = VisionPose(kCamera2Name)
+        self.driveSubsystem = DriveChassis()
+        self.positioning = Position()
+
+        # Add each positioning camera to the positioningCameras list
+        self.positioningCameras.append(self.camera1)
+        self.positioningCameras.append(self.camera2)
+
+        self.driveSubsystem = DriveChassis(self.positioningCameras)
+        self.positioning = Position()
 
         self.registerNamedCommands()
 
