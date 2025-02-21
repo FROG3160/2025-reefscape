@@ -20,6 +20,8 @@ from constants import (
     kDebouncePeriod,
     kTranslationSlew,
     kRotSlew,
+    kCamera1Name,
+    kCamera2Name,
 )
 from commands2.cmd import runOnce, startEnd, waitUntil
 from commands2 import DeferredCommand, PrintCommand, RepeatCommand, InterruptionBehavior
@@ -62,8 +64,10 @@ class RobotContainer:
         self.positioningCameras = []
 
         # Create all positioning cameras here
-        self.camera1 = VisionPose("Arducam OV9281 Apriltag 1")
-        self.camera2 = VisionPose("Arducam OV9281 Apriltag 2")
+        self.camera1 = VisionPose(kCamera1Name)
+        self.camera2 = VisionPose(kCamera2Name)
+        self.driveSubsystem = DriveChassis()
+        self.positioning = Position()
 
         # Add each positioning camera to the positioningCameras list
         self.positioningCameras.append(self.camera1)
