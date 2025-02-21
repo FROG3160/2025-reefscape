@@ -66,8 +66,6 @@ class RobotContainer:
         # Create all positioning cameras here
         self.camera1 = VisionPose(kCamera1Name)
         self.camera2 = VisionPose(kCamera2Name)
-        self.driveSubsystem = DriveChassis()
-        self.positioning = Position()
 
         # Add each positioning camera to the positioningCameras list
         self.positioningCameras.append(self.camera1)
