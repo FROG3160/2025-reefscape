@@ -22,6 +22,8 @@ from constants import (
     kRotSlew,
     kCamera1Name,
     kCamera2Name,
+    robotToCamera,
+    robotToCamera2,
 )
 from commands2.cmd import runOnce, startEnd, waitUntil
 from commands2 import DeferredCommand, PrintCommand, RepeatCommand, InterruptionBehavior
@@ -64,8 +66,8 @@ class RobotContainer:
         self.positioningCameras = []
 
         # Create all positioning cameras here
-        self.camera1 = VisionPose(kCamera1Name, constants.robotToCamera)
-        self.camera2 = VisionPose(kCamera2Name, constants.robotToCamera2)
+        self.camera1 = VisionPose(kCamera1Name, robotToCamera)
+        self.camera2 = VisionPose(kCamera2Name, robotToCamera2)
 
         # Add each positioning camera to the positioningCameras list
         self.positioningCameras.append(self.camera1)

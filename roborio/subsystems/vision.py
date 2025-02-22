@@ -16,7 +16,6 @@ class VisionPose:
             strategy=PoseStrategy.LOWEST_AMBIGUITY,
             camera=PhotonCamera(poseCameraName),
             robotToCamera=cameraTransform,
-            offset=0,
         )
 
     def periodic(self):
