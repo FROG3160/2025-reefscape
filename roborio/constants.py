@@ -136,8 +136,8 @@ class Tags:
             BARGERIGHT = 22
 
         class Station(Enum):
-            LEFT = 12
-            RIGHT = 13
+            LEFT = 13
+            RIGHT = 12
 
         class Barge(Enum):
             LEFT = 14
