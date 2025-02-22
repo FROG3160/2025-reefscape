@@ -13,7 +13,7 @@ from wpimath.geometry import Translation2d, Translation3d, Transform3d, Rotation
 from enum import Enum
 import math
 import wpilib
-from wpimath.units import feetToMeters, inchesToMeters
+from wpimath.units import feetToMeters, inchesToMeters, degreesToRadians
 from wpilib import DriverStation
 from FROGlib.utils import GearStage
 
@@ -168,22 +168,30 @@ class Tags:
             RIGHT = 3
 
 
-robotToCamera = Transform3d(
+robotToCamera1 = Transform3d(
     Translation3d(
-        inchesToMeters(15.5),  # Forward from center
-        inchesToMeters(0),  # Left from center
-        inchesToMeters(3.6),  # Up from the floor
+        inchesToMeters(15.3333),  # Forward from center
+        inchesToMeters(0.5),  # Left from center
+        inchesToMeters(5.75),  # Up from the floor
     ),
-    Rotation3d(0, 0, 0),
+    Rotation3d(
+        degreesToRadians(0),
+        degreesToRadians(-49.55),
+        degreesToRadians(0),
+    ),
 )
 
 robotToCamera2 = Transform3d(
     Translation3d(
-        inchesToMeters(-15.5),  # Forward from center
-        inchesToMeters(0),  # Left from center
-        inchesToMeters(3.6),  # Up from the floor
+        inchesToMeters(-15),  # Forward from center
+        inchesToMeters(-0.5),  # Left from center
+        inchesToMeters(5.75),  # Up from the floor
     ),
-    Rotation3d(0, 0, math.pi),
+    Rotation3d(
+        degreesToRadians(0),
+        degreesToRadians(18.9),
+        degreesToRadians(180),
+    ),
 )
 
 
