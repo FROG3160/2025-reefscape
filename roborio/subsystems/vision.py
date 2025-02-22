@@ -5,14 +5,17 @@ from robotpy_apriltag import AprilTagField, AprilTagFieldLayout
 
 
 class VisionPose:
-    def __init__(self, poseCameraName: str):
+    def __init__(
+        self, poseCameraName: str, cameraTransform: Transform3d = Transform3d()
+    ):
+
         self.estimator = PhotonPoseEstimator(
             fieldTags=AprilTagFieldLayout().loadField(
                 AprilTagField.k2025ReefscapeWelded
             ),
             strategy=PoseStrategy.LOWEST_AMBIGUITY,
             camera=PhotonCamera(poseCameraName),
-            robotToCamera=Transform3d(),
+            robotToCamera=cameraTransform,
         )
 
     def periodic(self):

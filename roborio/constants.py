@@ -9,6 +9,7 @@
 # This should only hold numerical, string, or boolean constants, using
 # the C++ naming convention.
 
+from wpimath.geometry import Translation2d, Translation3d, Transform3d, Rotation3d
 from enum import Enum
 import math
 import wpilib
@@ -165,6 +166,25 @@ class Tags:
 
         class Processor(Enum):
             RIGHT = 3
+
+
+robotToCamera = Transform3d(
+    Translation3d(
+        inchesToMeters(15.5),  # Forward from center
+        inchesToMeters(0),  # Left from center
+        inchesToMeters(3.6),  # Up from the floor
+    ),
+    Rotation3d(0, 0, 0),
+)
+
+robotToCamera2 = Transform3d(
+    Translation3d(
+        inchesToMeters(-15.5),  # Forward from center
+        inchesToMeters(0),  # Left from center
+        inchesToMeters(3.6),  # Up from the floor
+    ),
+    Rotation3d(0, 0, math.pi),
+)
 
 
 kReefTags = {
