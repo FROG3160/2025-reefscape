@@ -66,7 +66,7 @@ class RobotContainer:
         self.positioningCameras = []
 
         # Create all positioning cameras here
-        self.camera1 = VisionPose(kCamera1Name, robotToCamera)
+        self.camera1 = VisionPose(kCamera1Name, robotToCamera1)
         self.camera2 = VisionPose(kCamera2Name, robotToCamera2)
 
         # Add each positioning camera to the positioningCameras list
