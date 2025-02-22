@@ -121,8 +121,8 @@ kTargetSizeThreshold = 14.0
 kShoulderRatio = 90
 
 # Camera names and configs
-kCamera1Name = "Arducam OV9281 Apriltag 1"
-kCamera2Name = "Arducam OV9281 Apriltag 2"
+kCamera1Name = "Arducam_OV9281_Apriltag_1"
+kCamera2Name = "Arducam_OV9281_Apriltag_2"
 
 
 class Tags:
