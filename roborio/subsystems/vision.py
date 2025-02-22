@@ -13,8 +13,10 @@ class VisionPose:
             strategy=PoseStrategy.LOWEST_AMBIGUITY,
             camera=PhotonCamera(poseCameraName),
             robotToCamera=Transform3d(),
+            offset = 0
         )
 
     def periodic(self):
         self.latestVisionPose = self.estimator.update()
         return self.latestVisionPose
+        
