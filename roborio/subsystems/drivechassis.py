@@ -1,17 +1,17 @@
 import math
 from FROGlib.swerve import SwerveBase
 from FROGlib.ctre import FROGPigeonGyro
-from constants import (
-    kMaxChassisRadiansPerSec,
-    kMaxMetersPerSecond,
-    kDriveBaseRadius,
-    kSteerP,
-    kSteerI,
-)
 from configs import ctre
 
 from wpilib import DriverStation, Field2d
-from wpimath.geometry import Pose2d, Rotation2d, Transform2d, Transform3d, Rotation3d
+from wpimath.geometry import (
+    Pose2d,
+    Rotation2d,
+    Translation2d,
+    Transform2d,
+    Transform3d,
+    Rotation3d,
+)
 from wpimath.units import volts
 from wpilib.sysid import SysIdRoutineLog
 
@@ -22,7 +22,7 @@ from commands2 import Subsystem, Command
 from commands2.sysid import SysIdRoutine
 from FROGlib.utils import RobotRelativeTarget, remap
 import constants
-from wpimath.units import degreesToRadians
+from wpimath.units import degreesToRadians, lbsToKilograms, inchesToMeters
 from wpimath.controller import ProfiledPIDControllerRadians
 from wpimath.trajectory import TrapezoidProfileRadians
 
@@ -32,6 +32,9 @@ from phoenix6.controls import (
     PositionVoltage,
     VoltageOut,
 )
+from pathplannerlib.auto import AutoBuilder
+from pathplannerlib.controller import PPHolonomicDriveController
+from pathplannerlib.config import RobotConfig, PIDConstants, ModuleConfig, DCMotor
 
 # from subsystems.leds import LEDSubsystem
 from subsystems.vision import VisionPose
@@ -51,8 +54,8 @@ class DriveChassis(SwerveBase):
                 ctre.swerveModuleBackRight,
             ),
             gyro=FROGPigeonGyro(constants.kGyroID),
-            max_speed=kMaxMetersPerSecond,
-            max_rotation_speed=kMaxChassisRadiansPerSec,
+            max_speed=constants.kMaxMetersPerSecond,
+            max_rotation_speed=constants.kMaxChassisRadiansPerSec,
             parent_nt=parent_nt,
         )
         self.resetController = True
@@ -76,6 +79,36 @@ class DriveChassis(SwerveBase):
         self.field = Field2d()
         SmartDashboard.putData("DrivePose", self.field)
 
+        ab_config = RobotConfig(
+            massKG=constants.kRobotKilograms,
+            MOI=constants.kMOI,
+            moduleConfig=ModuleConfig(
+                wheelRadiusMeters=inchesToMeters(constants.kWheelDiameter / 2),
+                maxDriveVelocityMPS=constants.kMaxMetersPerSecond,
+                wheelCOF=1.0,
+                driveMotor=DCMotor.krakenX60(1),
+                driveCurrentLimit=120,
+                numMotors=1,
+            ),
+            moduleOffsets=[module.location for module in self.modules],
+            trackwidthMeters=constants.kTrackWidthMeters,
+        )
+        AutoBuilder.configure(
+            self.getPose,  # Robot pose supplier
+            self.resetPose,  # Method to reset odometry (will be called if your auto has a starting pose)
+            self.getRobotRelativeSpeeds,  # ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+            lambda speeds, feedforwards: self.driveRobotRelative(
+                speeds
+            ),  # Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also outputs individual module feedforwards
+            PPHolonomicDriveController(  # PPHolonomicController is the built in path following controller for holonomic drive trains
+                PIDConstants(5.0, 0.0, 0.0),  # Translation PID constants
+                PIDConstants(5.0, 0.0, 0.0),  # Rotation PID constants
+            ),
+            ab_config,  # The robot configuration
+            self.shouldFlipPath,  # Supplier to control path flipping based on alliance color
+            self,  # Reference to this subsystem to set requirements
+        )
+
         # Tell SysId to make generated commands require this subsystem, suffix test state in
         # WPILog with this subsystem's name ("drive")
         self.sys_id_routine_drive = SysIdRoutine(
@@ -86,6 +119,9 @@ class DriveChassis(SwerveBase):
             SysIdRoutine.Config(),
             SysIdRoutine.Mechanism(self.sysid_steer, self.sysid_log_steer, self),
         )
+
+    def shouldFlipPath(self):
+        return DriverStation.getAlliance() == DriverStation.Alliance.kRed
 
     # Tell SysId how to plumb the driving voltage to the motors.
     def sysid_drive(self, voltage: volts) -> None:
