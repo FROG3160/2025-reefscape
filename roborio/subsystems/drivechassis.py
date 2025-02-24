@@ -86,7 +86,7 @@ class DriveChassis(SwerveBase):
                 wheelRadiusMeters=inchesToMeters(constants.kWheelDiameter / 2),
                 maxDriveVelocityMPS=constants.kMaxMetersPerSecond,
                 wheelCOF=1.0,
-                driveMotor=DCMotor(),
+                driveMotor=DCMotor.krakenX60(1),
                 driveCurrentLimit=120,
                 numMotors=1,
             ),
