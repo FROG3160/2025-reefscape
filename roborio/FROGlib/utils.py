@@ -153,7 +153,7 @@ class DriveTrain:
         Returns:
             float: distance in meters
         """
-        wheel_rotations = self.gear_stages.output_rotations(rotations)
+        wheel_rotations = self.output_rotations(rotations)
         return wheel_rotations * self.circumference
 
 

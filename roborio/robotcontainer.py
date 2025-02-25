@@ -34,6 +34,7 @@ from FROGlib.xbox import FROGXboxDriver, FROGXboxTactical
 from subsystems.drivechassis import DriveChassis
 from subsystems.positioning import Position
 from subsystems.vision import VisionPose
+from subsystems.lift import Lift
 from commands.drive.field_oriented import (
     ManualDrive,
 )
@@ -69,12 +70,16 @@ class RobotContainer:
         self.camera1 = VisionPose(kCamera1Name, robotToCamera)
         self.camera2 = VisionPose(kCamera2Name, robotToCamera2)
 
+        # Sensors/Cameras
         # Add each positioning camera to the positioningCameras list
         self.positioningCameras.append(self.camera1)
         self.positioningCameras.append(self.camera2)
 
-        self.driveSubsystem = DriveChassis(self.positioningCameras)
         self.positioning = Position()
+
+        # Subsystems
+        self.driveSubsystem = DriveChassis(self.positioningCameras)
+        self.elevator = Lift()
 
         self.registerNamedCommands()
 
@@ -98,38 +103,45 @@ class RobotContainer:
         self.configureDriverControls()
         self.configureOperatorControls()
 
+    def configureTestBindings(self):
+        self.elevator.setDefaultCommand(
+            self.elevator.joystick_move_command(self.driverController.getLeftY)
+        )
+
     def configureSysIDButtonBindings(self):
         # Bind full set of SysId routine tests to buttons; a complete routine should run each of these
         # once.
-        self.driverController.a().whileTrue(
-            self.driveSubsystem.sysIdQuasistaticDrive(SysIdRoutine.Direction.kForward)
-        )
-        self.driverController.b().whileTrue(
-            self.driveSubsystem.sysIdQuasistaticDrive(SysIdRoutine.Direction.kReverse)
-        )
-        self.driverController.x().whileTrue(
-            self.driveSubsystem.sysIdDynamicDrive(SysIdRoutine.Direction.kForward)
-        )
-        self.driverController.y().whileTrue(
-            self.driveSubsystem.sysIdDynamicDrive(SysIdRoutine.Direction.kReverse)
-        )
 
-        wpilib.SmartDashboard.putData(
-            "Quasistatic Forward",
-            self.driveSubsystem.sysIdQuasistaticDrive(SysIdRoutine.Direction.kForward),
-        )
-        wpilib.SmartDashboard.putData(
-            "Quasistatic Reverse",
-            self.driveSubsystem.sysIdQuasistaticDrive(SysIdRoutine.Direction.kReverse),
-        )
-        wpilib.SmartDashboard.putData(
-            "Dynamic Forward",
-            self.driveSubsystem.sysIdDynamicDrive(SysIdRoutine.Direction.kForward),
-        )
-        wpilib.SmartDashboard.putData(
-            "Dynamic Reverse",
-            self.driveSubsystem.sysIdDynamicDrive(SysIdRoutine.Direction.kReverse),
-        )
+        with self.elevator as sub:
+            self.driverController.a().whileTrue(
+                sub.sysIdQuasistaticDrive(SysIdRoutine.Direction.kForward)
+            )
+            self.driverController.b().whileTrue(
+                sub.sysIdQuasistaticDrive(SysIdRoutine.Direction.kReverse)
+            )
+            self.driverController.x().whileTrue(
+                sub.sysIdDynamicDrive(SysIdRoutine.Direction.kForward)
+            )
+            self.driverController.y().whileTrue(
+                sub.sysIdDynamicDrive(SysIdRoutine.Direction.kReverse)
+            )
+
+            wpilib.SmartDashboard.putData(
+                "Quasistatic Forward",
+                sub.sysIdQuasistaticDrive(SysIdRoutine.Direction.kForward),
+            )
+            wpilib.SmartDashboard.putData(
+                "Quasistatic Reverse",
+                sub.sysIdQuasistaticDrive(SysIdRoutine.Direction.kReverse),
+            )
+            wpilib.SmartDashboard.putData(
+                "Dynamic Forward",
+                sub.sysIdDynamicDrive(SysIdRoutine.Direction.kForward),
+            )
+            wpilib.SmartDashboard.putData(
+                "Dynamic Reverse",
+                sub.sysIdDynamicDrive(SysIdRoutine.Direction.kReverse),
+            )
 
     def configureDriverControls(self):
         """DRIVER CONTROLS"""

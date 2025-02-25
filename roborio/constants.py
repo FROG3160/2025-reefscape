@@ -65,6 +65,10 @@ kGyroID = 39
 kShoulderMotorID = 41
 kShoulderFollowerID = 42
 
+kLiftMotorID = 51
+kLiftFollowerID = 52
+kLiftGearReduction = 12.5
+
 
 # Falcon 500 max rps
 kFalconMaxRps = 106
