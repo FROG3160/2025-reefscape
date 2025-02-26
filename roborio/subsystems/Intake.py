@@ -11,9 +11,9 @@ from commands2 import Command
 class Intake(Subsystem):
     def __init__(self):
         self.lower_motor = FROGTalonFX(
-            id=constants.kIntakeMotorID,
+            id=constants.kIntakeLowerMotorID,
             motor_config=FROGTalonFXConfig(
-                feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(90),
+                feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(1),
                 slot0gains=Slot0Configs(),
             ).with_motor_output(
                 MotorOutputConfigs().with_neutral_mode(NeutralModeValue.BRAKE)
@@ -22,9 +22,9 @@ class Intake(Subsystem):
             motor_name="lower_motor",
         )
         self.upper_motor = FROGTalonFX(
-            id=constants.kRollersMotorID,
+            id=constants.kIntakeUpperMotorID,
             motor_config=FROGTalonFXConfig(
-                feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(90),
+                feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(1),
                 slot1gains=Slot1Configs(),
             ).with_motor_output(
                 MotorOutputConfigs().with_neutral_mode(NeutralModeValue.BRAKE)
@@ -33,9 +33,9 @@ class Intake(Subsystem):
             motor_name="upper_motor",
         )
         self.deploy_motor = FROGTalonFX(
-            id=constants.kRollersMotorID,
+            id=constants.kIntakeDeployMotorID,
             motor_config=FROGTalonFXConfig(
-                feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(90),
+                feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(1),
                 slot1gains=Slot1Configs(),
             ).with_motor_output(
                 MotorOutputConfigs().with_neutral_mode(NeutralModeValue.BRAKE)
