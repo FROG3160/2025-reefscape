@@ -35,6 +35,8 @@ from subsystems.drivechassis import DriveChassis
 from subsystems.positioning import Position
 from subsystems.vision import VisionPose
 from subsystems.lift import Lift
+from subsystems.shoulder import Shoulder
+from subsystems.arm import Arm
 from commands.drive.field_oriented import (
     ManualDrive,
 )
@@ -80,6 +82,8 @@ class RobotContainer:
         # Subsystems
         self.driveSubsystem = DriveChassis(self.positioningCameras)
         self.elevator = Lift()
+        self.shoulder = Shoulder()
+        self.arm = Arm()
 
         self.registerNamedCommands()
 
@@ -106,6 +110,15 @@ class RobotContainer:
     def configureTestBindings(self):
         self.elevator.setDefaultCommand(
             self.elevator.joystick_move_command(self.driverController.getLeftY)
+        )
+        self.shoulder.setDefaultCommand(
+            self.shoulder.joystick_move_command(self.driverController.getRightY)
+        )
+        self.arm.setDefaultCommand(
+            self.arm.joystick_retract_command(self.driverController.getLeftTriggerAxis)
+        )
+        self.driverController.rightTrigger().whileTrue(
+            self.arm.joystick_extend_command(self.driverController.getRightTriggerAxis)
         )
 
     def configureSysIDButtonBindings(self):

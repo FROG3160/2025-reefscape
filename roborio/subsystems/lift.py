@@ -65,7 +65,7 @@ class Lift(Subsystem):
             Command: The command that will cause the motor to move from joystick control.
         """
         return self.run(
-            lambda: self.motor.set_control(VoltageOut(control() * 10, enable_foc=False))
+            lambda: self.motor.set_control(VoltageOut(control() * 11, enable_foc=False))
         )
 
     def sys_id_quasistatic(self, direction: SysIdRoutine.Direction) -> Command:
