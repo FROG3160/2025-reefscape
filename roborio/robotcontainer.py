@@ -82,6 +82,8 @@ class RobotContainer:
         # Subsystems
         self.driveSubsystem = DriveChassis(self.positioningCameras)
         self.elevator = Lift()
+        self.arm = Arm()
+        self.grabber = Grabber()
 
         self.registerNamedCommands()
 
@@ -110,7 +112,7 @@ class RobotContainer:
             self.elevator.joystick_move_command(self.driverController.getLeftY)
         )
         self.arm.setDefaultCommand(
-            self.arm.joyStick_move_command(self.driverController.getRightY)
+            self.arm.joystick_move_command(self.driverController.getRightY)
         )
         self.grabber.setdefaultCommand(
             self.grabber.joystick_move_command(self.driverController.getRightX)
