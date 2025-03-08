@@ -73,7 +73,7 @@ kIntakeDeployMotorID = 51
 kIntakeLowerMotorID = 52
 kIntakeUpperMotorID = 53
 
-kLiftGearReduction = 12.5
+kLiftGearReduction = 5.0  # 4:1 x 2.5:1 x 1:2
 kShoulderGearReduction = 90
 
 # Falcon 500 max rps
