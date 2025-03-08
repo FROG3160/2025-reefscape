@@ -62,13 +62,19 @@ kBackRightSensorID = 34
 
 kGyroID = 39
 
-kShoulderMotorID = 41
-kShoulderFollowerID = 42
+kLiftMotorID = 41
+kLiftFollowerID = 42
+kShoulderMotorID = 43
+kShoulderFollowerID = 44
+kArmMotorID = 45
+kGrabberMotorID = 46
 
-kLiftMotorID = 51
-kLiftFollowerID = 52
+kIntakeDeployMotorID = 51
+kIntakeLowerMotorID = 52
+kIntakeUpperMotorID = 53
+
 kLiftGearReduction = 12.5
-
+kShoulderGearReduction = 90
 
 # Falcon 500 max rps
 kFalconMaxRps = 106
