@@ -68,6 +68,8 @@ kShoulderMotorID = 43
 kShoulderFollowerID = 44
 kArmMotorID = 45
 kGrabberMotorID = 46
+kShoulderSensorID = 48
+kGrabberSensorID = 49
 
 kIntakeDeployMotorID = 51
 kIntakeLowerMotorID = 52
