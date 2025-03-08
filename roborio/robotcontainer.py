@@ -36,7 +36,9 @@ from subsystems.positioning import Position
 from subsystems.vision import VisionPose
 from subsystems.lift import Lift
 from subsystems.shoulder import Shoulder
+from subsystems.grabber import Grabber
 from subsystems.arm import Arm
+
 from commands.drive.field_oriented import (
     ManualDrive,
 )
@@ -84,6 +86,7 @@ class RobotContainer:
         self.elevator = Lift()
         self.shoulder = Shoulder()
         self.arm = Arm()
+        self.grabber = Grabber()
 
         self.registerNamedCommands()
 
@@ -110,6 +113,9 @@ class RobotContainer:
     def configureTestBindings(self):
         self.elevator.setDefaultCommand(
             self.elevator.joystick_move_command(self.driverController.getLeftY)
+        )
+        self.grabber.setdefaultCommand(
+            self.grabber.joystick_move_command(self.driverController.getRightX)
         )
         self.shoulder.setDefaultCommand(
             self.shoulder.joystick_move_command(self.driverController.getRightY)

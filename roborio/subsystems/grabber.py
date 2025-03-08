@@ -34,3 +34,20 @@ class Grabber(Subsystem):
             parent_nt="Grabber",
             motor_name="motor",
         )
+
+    def Joystick_move_command(self, control: Callable[[], float]) -> Command:
+        """Returns a command that takes a joystick control giving values between
+        -1.0 and 1.0 and calls it to apply motor voltage of -10 to 10 volts.
+
+        Args:
+            control (Callable[[], float]): A control from the joystick that provides
+            a value from -1.0 to 1.0
+
+        Returns:
+            Command: The command that will cause the motor to move from joystick control.
+        """
+        return self.run(
+            lambda: self.motor.set_control(
+                VoltageOut(control() * 2.5, enable_foc=False)
+            )
+        )
