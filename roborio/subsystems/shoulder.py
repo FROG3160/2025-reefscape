@@ -9,6 +9,8 @@ from commands2 import Command
 
 
 class Shoulder(Subsystem):
+    # STATES
+    # StraghtUP,StraghtDown, Middle
     def __init__(self):
         self.motor = FROGTalonFX(
             id=constants.kShoulderMotorID,

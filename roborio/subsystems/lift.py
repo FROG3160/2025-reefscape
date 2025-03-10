@@ -12,6 +12,8 @@ from wpimath.units import volts
 
 
 class Lift(Subsystem):
+    # States
+    # atTopReeflvl, atMidReeflvl, atBotReeflvl atBase
 
     def __init__(self):
 

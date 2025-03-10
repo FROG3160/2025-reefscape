@@ -9,6 +9,9 @@ from commands2 import Command
 
 
 class Arm(Subsystem):
+    # STATES
+    # Retracted, Extended
+
     def __init__(self):
         self.motor = FROGTalonFX(
             id=constants.kArmMotorID,
