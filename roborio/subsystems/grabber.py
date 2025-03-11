@@ -1,25 +1,21 @@
 import math
-
+from enum import Enum
 from commands2.subsystem import Subsystem
-from roborio.FROGlib.ctre import FROGTalonFX, FROGTalonFXConfig, FROGFeedbackConfig
+from commands2.button import Trigger
+from FROGlib.ctre import FROGTalonFX, FROGTalonFXConfig, FROGFeedbackConfig
 import constants
 from phoenix6.configs import Slot0Configs, Slot1Configs, MotorOutputConfigs
 from phoenix6.signals import NeutralModeValue
-from phoenix6.controls import Follower, VelocityVoltage, PositionVoltage, VoltageOut
+from phoenix6.controls import (
+    Follower,
+    VelocityVoltage,
+    PositionVoltage,
+    VoltageOut,
+    StaticBrake,
+)
 from phoenix6.hardware import CANrange
 from typing import Callable
 from commands2 import Command
-
-# Objects needed for Auto setup (AutoBuilder)
-from pathplannerlib.auto import AutoBuilder
-from pathplannerlib.config import (
-    HolonomicPathFollowerConfig,
-    ReplanningConfig,
-    PIDConstants,
-)
-from pathplannerlib.path import PathPlannerPath, PathConstraints
-from wpilib import DriverStation, Field2d
-from wpimath.geometry import Pose2d, Rotation2d, Transform2d, Transform3d, Rotation3d
 
 
 class Grabber(Subsystem):
@@ -29,18 +25,18 @@ class Grabber(Subsystem):
     def __init__(self):
         self.motor = FROGTalonFX(
             id=constants.kGrabberMotorID,
-            motor_config=FROGTalonFXConfig(
-                feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(90),
-                slot0gains=Slot0Configs(),
-            ).with_motor_output(
+            motor_config=FROGTalonFXConfig().with_motor_output(
                 MotorOutputConfigs().with_neutral_mode(NeutralModeValue.BRAKE)
             ),
             parent_nt="Grabber",
             motor_name="motor",
         )
         self.range = CANrange(constants.kGrabberSensorID)
+        self.motor_intake = VoltageOut(output=5.0, enable_foc=False)
+        self.motor_stop = StaticBrake()
+        self.motor_voltage = 5
 
-    def Joystick_move_command(self, control: Callable[[], float]) -> Command:
+    def joystick_move_command(self, control: Callable[[], float]) -> Command:
         """Returns a command that takes a joystick control giving values between
         -1.0 and 1.0 and calls it to apply motor voltage of -10 to 10 volts.
 
@@ -59,3 +55,25 @@ class Grabber(Subsystem):
 
     def get_range(self):
         return self.range.get_distance().value
+
+    def detecting_coral(self) -> bool:
+        return self.get_range() < 0.05
+
+    def detecting_algae(self) -> bool:
+        return 0.08 > self.get_range() > 0.05
+
+    def intake_coral(self) -> Command:
+        return self.startEnd(
+            # start running the motor
+            lambda: self.motor.set_control(self.motor_intake),
+            # stop the motor
+            lambda: self.motor.set_control(VoltageOut(0, enable_foc=False)),
+        ).until(self.detecting_coral)
+
+    def intake_algae(self) -> Command:
+        return self.startEnd(
+            # start running the motor
+            lambda: self.motor.set_control(self.motor_intake),
+            # stop the motor
+            lambda: self.motor.set_control(VoltageOut(0, enable_foc=False)),
+        ).until(self.detecting_algae)
