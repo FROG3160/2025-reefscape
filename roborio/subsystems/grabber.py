@@ -4,8 +4,16 @@ from commands2.subsystem import Subsystem
 from commands2.button import Trigger
 from FROGlib.ctre import FROGTalonFX, FROGTalonFXConfig, FROGFeedbackConfig
 import constants
-from phoenix6.configs import Slot0Configs, Slot1Configs, MotorOutputConfigs
+from phoenix6.hardware import TalonFXS
+from phoenix6.configs import (
+    Slot0Configs,
+    Slot1Configs,
+    MotorOutputConfigs,
+    TalonFXSConfiguration,
+    CommutationConfigs,
+)
 from phoenix6.signals import NeutralModeValue
+from phoenix6.signals.spn_enums import BrushedMotorWiringValue
 from phoenix6.controls import (
     Follower,
     VelocityVoltage,
@@ -23,14 +31,19 @@ class Grabber(Subsystem):
     # Empty, HasCoral, HasAlgae
 
     def __init__(self):
-        self.motor = FROGTalonFX(
-            id=constants.kGrabberMotorID,
-            motor_config=FROGTalonFXConfig().with_motor_output(
+        self.motor = TalonFXS(constants.kGrabberMotorID)
+        self.motor.configurator.apply(
+            TalonFXSConfiguration()
+            .with_commutation(
+                CommutationConfigs().with_brushed_motor_wiring(
+                    BrushedMotorWiringValue.LEADS_A_AND_B
+                )
+            )
+            .with_motor_output(
                 MotorOutputConfigs().with_neutral_mode(NeutralModeValue.BRAKE)
-            ),
-            parent_nt="Grabber",
-            motor_name="motor",
+            )
         )
+
         self.range = CANrange(constants.kGrabberSensorID)
         self.motor_intake = VoltageOut(output=5.0, enable_foc=False)
         self.motor_stop = StaticBrake()
