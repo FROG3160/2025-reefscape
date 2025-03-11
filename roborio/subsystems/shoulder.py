@@ -10,7 +10,7 @@ from commands2 import Command
 
 class Shoulder(Subsystem):
     # States
-    # home ,coralLvl1, coralLvl2, coralLvl3, algeLvl1, algeLvl2, algeLvl3
+    # home, coralLvl1, coralLvl2, coralLvl3, algeLvl1, algeLvl2, algeLvl3, processor
 
     def __init__(self):
         self.motor = FROGTalonFX(
