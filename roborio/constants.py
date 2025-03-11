@@ -22,6 +22,7 @@ kFrontLeftOffset = 0.168701  # -0.246338
 kFrontRightOffset = -0.260986  # 0.036377
 kBackLeftOffset = 0.383057  # 0.478027
 kBackRightOffset = -0.244141  # 0.207031
+KShoulderOffset = 0.0
 
 # steer motor gains
 kSteerP = 39.236  # 2.402346

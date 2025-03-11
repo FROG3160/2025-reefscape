@@ -1,8 +1,15 @@
 from commands2.subsystem import Subsystem
-from FROGlib.ctre import FROGTalonFX, FROGTalonFXConfig, FROGFeedbackConfig
+from FROGlib.ctre import (
+    FROGTalonFX,
+    FROGTalonFXConfig,
+    FROGFeedbackConfig,
+    FROGCanCoder,
+    FROGCANCoderConfig,
+)
 import constants
 from phoenix6.configs import Slot0Configs, Slot1Configs, MotorOutputConfigs
 from phoenix6.signals import NeutralModeValue
+from phoenix6.signals.spn_enums import FeedbackSensorSourceValue
 from phoenix6.controls import Follower, VelocityVoltage, PositionVoltage, VoltageOut
 from typing import Callable
 from commands2 import Command
@@ -10,11 +17,16 @@ from commands2 import Command
 
 class Shoulder(Subsystem):
     def __init__(self):
+        self.shoulder_encoder = FROGCanCoder(
+            constants.kShoulderSensorID,
+            FROGCANCoderConfig(steer_offset=constants.KShoulderOffset),
+        )
         self.motor = FROGTalonFX(
             id=constants.kShoulderMotorID,
             motor_config=FROGTalonFXConfig(
-                feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(
-                    constants.kShoulderRatio
+                feedback_config=FROGFeedbackConfig(
+                    remote_sensor_id=self.shoulder_encoder.device_id,
+                    sensor_source=FeedbackSensorSourceValue.REMOTE_CANCODER,
                 ),
                 slot0gains=Slot0Configs(),
                 slot1gains=Slot1Configs(),
