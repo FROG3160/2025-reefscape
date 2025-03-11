@@ -12,6 +12,8 @@ from wpimath.units import volts
 
 
 class Lift(Subsystem):
+    # States
+    # home, mid, top
 
     def __init__(self):
 
