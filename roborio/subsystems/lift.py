@@ -68,6 +68,22 @@ class Lift(Subsystem):
             lambda: self.motor.set_control(VoltageOut(control() * 11, enable_foc=False))
         )
 
+    def lift_is_at_home(self):
+        return self.motor.get_torque_current().value > 8
+
+    def reset_lift_to_home(self):
+        self.motor.set_position(0)
+
+    def home(self) -> Command:
+        return (
+            self.startEnd(
+                lambda: self.motor.set_control(VoltageOut(-0.25, enable_foc=False)),
+                lambda: self.motor.set_control(VoltageOut(0, enable_foc=False)),
+            )
+            .until(self.lift_is_at_home)
+            .andThen(self.runOnce(self.reset_lift_to_home))
+        )
+
     def sys_id_quasistatic(self, direction: SysIdRoutine.Direction) -> Command:
         return self.sys_id_routine.quasistatic(direction)
 
