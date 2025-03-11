@@ -114,9 +114,6 @@ class RobotContainer:
         self.elevator.setDefaultCommand(
             self.elevator.joystick_move_command(self.driverController.getLeftY)
         )
-        self.grabber.setdefaultCommand(
-            self.grabber.joystick_move_command(self.driverController.getRightX)
-        )
         self.shoulder.setDefaultCommand(
             self.shoulder.joystick_move_command(self.driverController.getRightY)
         )
@@ -126,6 +123,9 @@ class RobotContainer:
         self.driverController.rightTrigger().whileTrue(
             self.arm.joystick_extend_command(self.driverController.getRightTriggerAxis)
         )
+        self.driverController.back().onTrue(self.arm.set_home())
+        self.driverController.a().onTrue(self.grabber.intake_algae())
+        self.driverController.b().onTrue(self.grabber.intake_coral())
 
     def configureSysIDButtonBindings(self):
         # Bind full set of SysId routine tests to buttons; a complete routine should run each of these
