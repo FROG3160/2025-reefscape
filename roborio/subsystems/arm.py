@@ -10,7 +10,7 @@ from commands2 import Command
 
 class Arm(Subsystem):
     # STATES
-    # Retracted, Extended
+    # coralPlacment, algePlacement, processor
 
     def __init__(self):
         self.motor = FROGTalonFX(
