@@ -10,7 +10,7 @@ from commands2 import Command
 
 class Intake(Subsystem):
     # States
-    # StraghtUP, levelWithFloor, rollerOn, rollersOff
+    # upAndOff, downAndOn
     def __init__(self):
         self.lower_motor = FROGTalonFX(
             id=constants.kIntakeLowerMotorID,
