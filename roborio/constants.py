@@ -134,13 +134,15 @@ kBumperDepth = inchesToMeters(3.25)
 kTotalLength = kFrameLength + kBumperDepth * 2
 kTotalWidth = kFrameWidth + kBumperDepth * 2
 
-kTargetSizeThreshold = 14.0
+kTargetAreaThreshold = 14.0
 
 kShoulderRatio = 90
 
 # Camera names and configs
 kCamera1Name = "Arducam_OV9281_Apriltag_1"
 kCamera2Name = "Arducam_OV9281_Apriltag_2"
+kLLTargeting = "limelight-tgt"
+kTargetAreaThreshold = 14.0
 
 
 class Tags:

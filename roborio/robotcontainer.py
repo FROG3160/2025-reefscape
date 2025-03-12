@@ -33,7 +33,7 @@ from FROGlib.xbox import FROGXboxDriver, FROGXboxTactical
 
 from subsystems.drivechassis import DriveChassis
 from subsystems.positioning import Position
-from subsystems.vision import VisionPose
+from subsystems.vision import VisionPose, TargetingSubsystem
 from subsystems.lift import Lift
 from subsystems.shoulder import Shoulder
 from subsystems.grabber import Grabber
@@ -41,6 +41,9 @@ from subsystems.arm import Arm
 
 from commands.drive.field_oriented import (
     ManualDrive,
+)
+from commands.drive.robot_oriented import (
+    DriveToTarget,
 )
 
 
@@ -87,6 +90,7 @@ class RobotContainer:
         self.shoulder = Shoulder()
         self.arm = Arm()
         self.grabber = Grabber()
+        self.targeting = TargetingSubsystem()
 
         self.registerNamedCommands()
 
@@ -100,6 +104,9 @@ class RobotContainer:
 
     def registerNamedCommands(self):
         pass
+
+    def driveToTargetCommand(self):
+        return DriveToTarget(self.driveSubsystem, self.targeting)
 
     def configureButtonBindings(self):
         """
@@ -126,6 +133,7 @@ class RobotContainer:
         self.driverController.back().onTrue(self.arm.set_home())
         self.driverController.a().onTrue(self.grabber.intake_algae())
         self.driverController.b().onTrue(self.grabber.intake_coral())
+        self.driverController.a().onTrue(self.driveToTargetCommand())
 
     def configureSysIDButtonBindings(self):
         # Bind full set of SysId routine tests to buttons; a complete routine should run each of these
