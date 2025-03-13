@@ -123,7 +123,7 @@ class RobotContainer:
         self.driverController.rightTrigger().whileTrue(
             self.arm.joystick_extend_command(self.driverController.getRightTriggerAxis)
         )
-        self.driverController.back().onTrue(self.arm.set_home())
+        self.driverController.back().onTrue(self.elevator.home())
         self.driverController.a().onTrue(self.grabber.intake_algae())
         self.driverController.b().onTrue(self.grabber.intake_coral())
 
@@ -131,7 +131,7 @@ class RobotContainer:
         # Bind full set of SysId routine tests to buttons; a complete routine should run each of these
         # once.
 
-        with self.elevator as sub:
+        with self.arm as sub:
             self.driverController.a().whileTrue(
                 sub.sysIdQuasistaticDrive(SysIdRoutine.Direction.kForward)
             )
