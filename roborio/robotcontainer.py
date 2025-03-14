@@ -133,7 +133,6 @@ class RobotContainer:
         self.driverController.back().onTrue(self.arm.set_home())
         self.driverController.a().onTrue(self.grabber.intake_algae())
         self.driverController.b().onTrue(self.grabber.intake_coral())
-        self.driverController.a().onTrue(self.driveToTargetCommand())
 
     def configureSysIDButtonBindings(self):
         # Bind full set of SysId routine tests to buttons; a complete routine should run each of these

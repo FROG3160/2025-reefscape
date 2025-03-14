@@ -75,6 +75,10 @@ class MyRobot(commands2.TimedCommandRobot):
         # make sure the drive is enabled
         self.container.driveSubsystem.enable()
 
+        self.container.driverController.a().onTrue(
+            self.container.driveToTargetCommand()
+        )
+
     def teleopPeriodic(self) -> None:
         """This function is called periodically during operator control"""
 
