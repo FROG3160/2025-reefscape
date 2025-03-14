@@ -20,6 +20,7 @@ from configs.ctre import (
 
 
 class Intake(Subsystem):
+    HOME_POSITION = 0.3
 
     def __init__(self):
         self.lower_motor = FROGTalonFX(
@@ -62,5 +63,28 @@ class Intake(Subsystem):
             motor_name="deploy_motor",
         )
         # when the robot is powered on, the intake should be in the upright position
-        self.deploy_motor.set_position(0.3)
-        self.upper_
+        self.deploy_motor.set_position(self.HOME_POSITION)
+        self.homing_torque_limit = 8.0
+
+    def reset_position(self):
+        self.deploy_motor.set_position(self.HOME_POSITION)
+
+    def get_torque(self):
+        return self.deploy_motor.get_torque_current().value
+
+    def stop_homing(self):
+        return abs(self.get_torque()) > self.homing_torque_limit
+
+    def set_home(self) -> Command:
+        return (
+            self.startEnd(
+                # START
+                lambda: self.motor.set_control(
+                    VoltageOut(self.homing_voltage, enable_foc=False)
+                ),
+                # END
+                lambda: self.motor.set_control(VoltageOut(0, enable_foc=False)),
+            )
+            .until(self.stop_homing)
+            .andThen(self.runOnce(self.reset_position))
+        )
