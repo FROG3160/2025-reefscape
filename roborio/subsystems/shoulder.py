@@ -46,8 +46,7 @@ class Shoulder(Subsystem):
                 .with_k_s(0.24)
                 .with_k_v(6)
                 .with_k_a(0.01)
-                .with_k_g(0.2)
-                .with_static_feedforward_sign(),
+                .with_k_g(0.2),
                 slot1gains=Slot1Configs(),
             )
             .with_motor_output(motorOutputCWPandBrake)
