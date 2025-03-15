@@ -38,6 +38,7 @@ from subsystems.lift import Lift
 from subsystems.shoulder import Shoulder
 from subsystems.grabber import Grabber
 from subsystems.arm import Arm
+from subsystems.intake import Intake
 
 from commands.drive.field_oriented import (
     ManualDrive,
@@ -87,6 +88,7 @@ class RobotContainer:
         self.shoulder = Shoulder()
         self.arm = Arm()
         self.grabber = Grabber()
+        self.intake = Intake()
 
         self.registerNamedCommands()
 
@@ -114,9 +116,6 @@ class RobotContainer:
         self.elevator.setDefaultCommand(
             self.elevator.joystick_move_command(self.driverController.getLeftY)
         )
-        self.grabber.setdefaultCommand(
-            self.grabber.joystick_move_command(self.driverController.getRightX)
-        )
         self.shoulder.setDefaultCommand(
             self.shoulder.joystick_move_command(self.driverController.getRightY)
         )
@@ -126,12 +125,15 @@ class RobotContainer:
         self.driverController.rightTrigger().whileTrue(
             self.arm.joystick_extend_command(self.driverController.getRightTriggerAxis)
         )
+        self.driverController.back().onTrue(self.elevator.home())
+        self.driverController.a().onTrue(self.grabber.intake_algae())
+        self.driverController.b().onTrue(self.grabber.intake_coral())
 
     def configureSysIDButtonBindings(self):
         # Bind full set of SysId routine tests to buttons; a complete routine should run each of these
         # once.
 
-        with self.elevator as sub:
+        with self.arm as sub:
             self.driverController.a().whileTrue(
                 sub.sysIdQuasistaticDrive(SysIdRoutine.Direction.kForward)
             )
@@ -162,6 +164,11 @@ class RobotContainer:
                 sub.sysIdDynamicDrive(SysIdRoutine.Direction.kReverse),
             )
 
+    def configureHomeRoutines(self):
+        wpilib.SmartDashboard.putData("Home Elevator", self.elevator.home())
+        wpilib.SmartDashboard.putData("Home Arm", self.arm.set_home())
+        wpilib.SmartDashboard.putData("Home Intake", self.intake.set_home())
+
     def configureDriverControls(self):
         """DRIVER CONTROLS"""
         # self.driverController.start().onTrue(
@@ -170,7 +177,8 @@ class RobotContainer:
 
     def configureOperatorControls(self):
         """OPERATOR CONTROLS"""
-        pass
+        wpilib.SmartDashboard.putData("Deploy Intake", self.intake.deploy())
+        wpilib.SmartDashboard.putData("Retract Intake", self.intake.retract())
 
     def getAutonomousCommand(self):
 

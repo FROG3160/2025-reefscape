@@ -22,6 +22,7 @@ kFrontLeftOffset = 0.168701  # -0.246338
 kFrontRightOffset = -0.260986  # 0.036377
 kBackLeftOffset = 0.383057  # 0.478027
 kBackRightOffset = -0.244141  # 0.207031
+KShoulderOffset = -0.05859375  # offset with arm parallel to the floor
 
 # steer motor gains
 kSteerP = 39.236  # 2.402346
@@ -99,7 +100,7 @@ kDriveBaseRadius = math.sqrt(
 )
 
 
-kRobotKilograms = lbsToKilograms(110)
+kRobotKilograms = lbsToKilograms(95)
 kMOI = (kTrackWidthMeters**2 + kWheelBaseMeters**2) * kRobotKilograms * (1 / 12)
 
 # Swerve Drive Performance
