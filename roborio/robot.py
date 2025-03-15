@@ -69,7 +69,7 @@ class MyRobot(commands2.TimedCommandRobot):
 
     def teleopInit(self) -> None:
         # set's the driver X, Y output based on which alliance we are on
-        self.container.driverController.set_alliance(DriverStation.getAlliance())
+        self.container.driverControllerV2.set_alliance(DriverStation.getAlliance())
         self.container.positioning.setReefTags(DriverStation.getAlliance())
 
         # make sure the drive is enabled
