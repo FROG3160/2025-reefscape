@@ -29,7 +29,7 @@ from commands2.cmd import runOnce, startEnd, waitUntil
 from commands2 import DeferredCommand, PrintCommand, RepeatCommand, InterruptionBehavior
 from commands2.sysid import SysIdRoutine
 
-from FROGlib.xbox import FROGXboxDriver, FROGXboxTactical
+from FROGlib.xbox import FROGXboxDriver, FROGXboxDriverV2, FROGXboxTactical
 
 from subsystems.drivechassis import DriveChassis
 from subsystems.positioning import Position
@@ -41,9 +41,7 @@ from subsystems.arm import Arm
 from subsystems.intake import Intake
 from subsystems.climber import Climber
 
-from commands.drive.field_oriented import (
-    ManualDrive,
-)
+from commands.drive.field_oriented import ManualDrive, ManualDriveV2
 
 
 class RobotContainer:
@@ -58,6 +56,13 @@ class RobotContainer:
 
         # The driver's controller
         self.driverController = FROGXboxDriver(
+            kDriverControllerPort,
+            kDeadband,
+            kDebouncePeriod,
+            kTranslationSlew,
+            kRotSlew,
+        )
+        self.driverControllerV2 = FROGXboxDriverV2(
             kDriverControllerPort,
             kDeadband,
             kDebouncePeriod,
@@ -100,7 +105,8 @@ class RobotContainer:
 
         # Configure default commands
         self.driveSubsystem.setDefaultCommand(
-            ManualDrive(self.driverController, self.driveSubsystem)
+            # ManualDrive(self.driverController, self.driveSubsystem)
+            ManualDriveV2(self.driverControllerV2, self.driveSubsystem)
         )
 
     def registerNamedCommands(self):

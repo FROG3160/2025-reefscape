@@ -104,6 +104,82 @@ class FROGXboxDriver(CommandXboxController):
             self.alliance = self.RED_ALLIANCE
 
 
+class FROGXboxDriverV2(CommandXboxController):
+    MODE = 0
+    RED_ALLIANCE = -1
+    BLUE_ALLIANCE = 1
+
+    def __init__(self, port, deadband, debouncePeriod, translationSlew, rotSlew):
+        super().__init__(port)
+        self.button_latest = {}
+        self.timer = Timer()
+        self.deadband = deadband
+        self.debounce_period = debouncePeriod
+        self.xSlew = SlewRateLimiter(translationSlew)
+        self.ySlew = SlewRateLimiter(translationSlew)
+        self.rotSlew = SlewRateLimiter(rotSlew)
+        self.alliance = 0
+
+    def getFieldRotation(self) -> float:
+        """Get the speed/rate of rotation from the Xbox's left and right triggers, with applied deadband.
+
+        Returns:
+            float: rotational speed factor from -1 to 1 with CCW being positive
+        """
+        self.CCWRot = self.getLeftTriggerAxis()
+        self.CWRot = -self.getRightTriggerAxis()
+        self.combinedRot = self.CCWRot + self.CWRot
+        return applyDeadband(self.combinedRot, self.deadband)
+
+    def getSlewLimitedFieldRotation(self) -> float:
+        return self.rotSlew.calculate(self.getFieldRotation())
+
+    def getFieldForward(self):
+        return applyDeadband(-self.getLeftY() * self.alliance, self.deadband)
+
+    def getSlewLimitedFieldForward(self):
+        return self.xSlew.calculate(self.getFieldForward())
+
+    def getFieldLeft(self):
+        return applyDeadband(-self.getLeftX() * self.alliance, self.deadband)
+
+    def getSlewLimitedFieldLeft(self):
+        return self.ySlew.calculate(self.getFieldLeft())
+
+    def getPOVDebounced(self):
+        val = -1
+        now = self.timer.getFPGATimestamp()
+        pov = self.getPOV()
+        if pov > -1:
+            if (now - self.button_latest.get("POV", 0)) > self.debounce_period:
+                self.button_latest["POV"] = now
+                val = pov
+        if (now - self.button_latest.get("POV", 0)) < self.debounce_period:
+            self.setRumble(RIGHT_RUMBLE, 1)
+        else:
+            self.setRumble(RIGHT_RUMBLE, 0)
+        # self.update_nt("button_pov", val)
+        return val
+
+    def leftRumble(self):
+        self._hid.setRumble(LEFT_RUMBLE, 1)
+
+    def stopLeftRumble(self):
+        self._hid.setRumble(LEFT_RUMBLE, 0)
+
+    def rightRumble(self):
+        self._hid.setRumble(RIGHT_RUMBLE, 1)
+
+    def stopRightRumble(self):
+        self._hid.setRumble(RIGHT_RUMBLE, 0)
+
+    def set_alliance(self, alliance):
+        if alliance == DriverStation.Alliance.kBlue:
+            self.alliance = self.BLUE_ALLIANCE
+        else:
+            self.alliance = self.RED_ALLIANCE
+
+
 class FROGXboxTactical(CommandXboxController):
     """Custom Xbox Controller class for the operator controller"""
 
