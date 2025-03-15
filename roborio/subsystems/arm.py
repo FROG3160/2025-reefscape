@@ -8,7 +8,10 @@ from phoenix6.configs import (
     SoftwareLimitSwitchConfigs,
 )
 from phoenix6.signals import NeutralModeValue, InvertedValue
-from phoenix6.controls import Follower, VelocityVoltage, PositionVoltage, VoltageOut
+from phoenix6.controls import (
+    VoltageOut,
+    MotionMagicVoltage,
+)
 from typing import Callable
 from commands2 import Command
 from configs.ctre import motorOutputCWPandBrake
@@ -18,6 +21,13 @@ from wpimath.units import volts
 
 
 class Arm(Subsystem):
+    class Position:
+        RETRACTED = 0
+        CORAL_PICKUP = 2
+        CORAL_L2_PLACE = 4
+        CORAL_L4_PLACE = 5
+        ALGAE_PICKUP = 3
+
     def __init__(self):
         self.motor = FROGTalonFX(
             id=constants.kArmMotorID,
@@ -36,66 +46,28 @@ class Arm(Subsystem):
             parent_nt="Arm",
             motor_name="motor",
         )
+        self.motor.get_position().set_update_frequency(50)
+        self.motor.optimize_bus_utilization()
         self.limitswitch = None
         self.homing_voltage = -0.25  # motor is inverted, negative values retract
         self.homing_torque_limit = 8.0
 
-        self.sys_id_routine = SysIdRoutine(
-            # a lower rampRate means quasistatic tests will take longer and log more data points
-            # the stepvoltage is the voltage used by the dynamic tests.  Generally would want
-            # a voltage strong enough to take the sytstem closer to its limit.  In this case, we
-            # just don't have a mechanism that takes long to move.
-            SysIdRoutine.Config(rampRate=0.5, stepVoltage=4.0),
-            SysIdRoutine.Mechanism(
-                self.sysid_move_motor,
-                self.sysid_log_motor,
-                self,
-            ),
-        )
+        self.position_tolerance = 0.1
+        self.control = MotionMagicVoltage(0, slot=0, enable_foc=False)
 
-    def sysid_move_motor(self, voltage: volts) -> None:
-        self.motor.set_control(VoltageOut(output=voltage, enable_foc=False))
-
-    def sysid_log_motor(self, sys_id_routine: SysIdRoutineLog) -> None:
-        # Record a frame for each module.  Since these share an encoder, we consider
-        # the entire group to be one motor.
-        with self.motor as m:
-            sys_id_routine.motor("Lift_motor").voltage(
-                m.get_motor_voltage().value
-            ).position(m.get_position().value).velocity(m.get_velocity().value)
-
-    def joystick_retract_command(self, retract_control: Callable[[], float]) -> Command:
+    def joystick_move_command(self, control: Callable[[], float]) -> Command:
         """Returns a command that takes a joystick control giving values between
-        0 and 1.0 and calls it to apply motor voltage of -4 to 0 volts.
+        -1.0 and 1.0 and calls it to apply motor voltage of -10 to 10 volts.
 
         Args:
             control (Callable[[], float]): A control from the joystick that provides
-            a value from 0 to 1.0
+            a value from -1.0 to 1.0
 
         Returns:
             Command: The command that will cause the motor to move from joystick control.
         """
         return self.run(
-            lambda: self.motor.set_control(
-                VoltageOut(retract_control() * -4, enable_foc=False)
-            )
-        )
-
-    def joystick_extend_command(self, extend_control: Callable[[], float]) -> Command:
-        """Returns a command that takes a joystick control giving values between
-        0 and 1.0 and calls it to apply motor voltage of 0 to 4 volts.
-
-        Args:
-            control (Callable[[], float]): A control from the joystick that provides
-            a value from 0 to 1.0
-
-        Returns:
-            Command: The command that will cause the motor to move from joystick control.
-        """
-        return self.run(
-            lambda: self.motor.set_control(
-                VoltageOut(extend_control() * 4, enable_foc=False)
-            )
+            lambda: self.motor.set_control(VoltageOut(control() * 2, enable_foc=False))
         )
 
     def reset_position(self):
@@ -121,8 +93,10 @@ class Arm(Subsystem):
             .andThen(self.runOnce(self.reset_position))
         )
 
-    def sys_id_quasistatic(self, direction: SysIdRoutine.Direction) -> Command:
-        return self.sys_id_routine.quasistatic(direction)
+    def move(self, position) -> Command:
+        return self.runOnce(
+            lambda: self.motor.set_control(self.control().with_position(position))
+        )
 
-    def sys_id_dynamic(self, direction: SysIdRoutine.Direction) -> Command:
-        return self.sys_id_routine.dynamic(direction)
+    def at_position(self, position):
+        return abs(self.motor.get_position() - position) < self.position_tolerance

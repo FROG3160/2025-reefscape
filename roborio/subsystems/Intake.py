@@ -1,5 +1,6 @@
 from enum import Enum
 from commands2.subsystem import Subsystem
+from commands2.button import Trigger
 from FROGlib.ctre import FROGTalonFX, FROGTalonFXConfig, FROGFeedbackConfig
 import constants
 from phoenix6.configs import (
@@ -32,6 +33,12 @@ class Intake(Subsystem):
     class Position:
         HOME = 0.3
         DEPLOYED = 0.0
+
+    class Status:
+        OFF = 0
+        ON = 1
+        CORAL_DETECTED = 2
+        CORAL_CLEARED = 3
 
     def __init__(self):
         self.lower_motor = FROGTalonFX(
@@ -73,20 +80,30 @@ class Intake(Subsystem):
             parent_nt="Intake",
             motor_name="deploy_motor",
         )
+        self.deploy_motor.get_torque_current().set_update_frequency(50)
+        self.deploy_motor.get_position().set_update_frequency(50)
+        self.deploy_motor.optimize_bus_utilization()
         # when the robot is powered on, the intake should be in the upright position
         self._position = self.Position.HOME
+        self.deploy_position_tolerance = 0.01
         self.reset_position()
         self.homing_torque_limit = 8.0
+        self.homing_voltage = 1.0
         self.deploy_control = MotionMagicVoltage(0, slot=0, enable_foc=False)
+        self.detected_torque = 0
+        self.intake_status = self.Status.OFF
 
     def reset_position(self):
         self.deploy_motor.set_position(self.Position.HOME)
 
-    def get_torque(self):
+    def get_deploy_torque(self):
+        return self.deploy_motor.get_torque_current().value
+
+    def get_intake_torque(self):
         return self.deploy_motor.get_torque_current().value
 
     def stop_homing(self):
-        return abs(self.get_torque()) > self.homing_torque_limit
+        return abs(self.get_deploy_torque()) > self.homing_torque_limit
 
     def set_home(self) -> Command:
         return (
@@ -102,16 +119,62 @@ class Intake(Subsystem):
             .andThen(self.runOnce(self.reset_position))
         )
 
-    def deploy(self) -> Command:
+    def run_intake(self):
+        self.upper_motor.set_control(VoltageOut(2.5, enable_foc=False))
+        self.lower_motor.set_control(VoltageOut(1.5, enable_foc=False))
+
+    def stop_intake(self):
+        self.upper_motor.stopMotor()
+        self.lower_motor.stopMotor()
+
+    ### COMMANDS
+
+    def move(self, position) -> Command:
         return self.runOnce(
             lambda: self.deploy_motor.set_control(
-                self.deploy_control().with_position(self.Position.DEPLOYED)
+                self.deploy_control().with_position(position)
             )
         )
 
-    def retract(self) -> Command:
-        return self.runOnce(
-            lambda: self.deploy_motor.set_control(
-                self.deploy_control().with_position(self.Position.HOME)
-            )
+    def start(self) -> Command:
+        return self.runOnce(self.run_intake)
+
+    def stop(self) -> Command:
+        return self.runOnce(self.stop_intake)
+
+    def at_position(self, position):
+        return (
+            abs(self.deploy_motor.get_position() - position)
+            < self.deploy_position_tolerance
         )
+
+    def coral_cleared(self):
+        return self.intake_status == self.Status.CORAL_CLEARED
+
+    def get_deployed_trigger(self):
+        return Trigger(lambda: self.at_position(self.Position.DEPLOYED))
+
+    def get_home_trigger(self):
+        return Trigger(lambda: self.at_position(self.Position.HOME))
+
+    def get_coral_cleared_trigger(self):
+        return Trigger(lambda: self.coral_cleared())
+
+    def registerIntakeTriggers(self):
+        self.get_deployed_trigger().onTrue(self.runOnce(self.run_intake()))
+
+        self.get_coral_cleared_trigger().onTrue(
+            self.runOnce(self.stop_intake).andThen(self.retract())
+        )
+
+    def periodic(self):
+        previous_torque = self.detected_torque
+        self.detected_torque = self.get_intake_torque()
+        if self.detected_torque > previous_torque and self.detected_torque > 9:
+            self.intake_status = self.Status.CORAL_DETECTED
+        elif (
+            self.detected_torque < previous_torque
+            and self.detected_torque < 9
+            and self.intake_status == self.Status.CORAL_DETECTED
+        ):
+            self.intake_status = self.Status.CORAL_CLEARED

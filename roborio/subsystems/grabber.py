@@ -56,6 +56,7 @@ class Grabber(Subsystem):
         )
 
         self.motor_intake = VoltageOut(output=5.0, enable_foc=False)
+        self.motor_eject = VoltageOut(output=8.0, enable_foc=False)
         self.motor_stop = StaticBrake()
         self.motor_voltage = 5
         nt_table = f"Subsystems/{self.__class__.__name__}"
@@ -106,16 +107,28 @@ class Grabber(Subsystem):
             # start running the motor
             lambda: self.motor.set_control(self.motor_intake),
             # stop the motor
-            lambda: self.motor.set_control(VoltageOut(0, enable_foc=False)),
+            lambda: self.motor.stopMotor(),
         ).until(self.detecting_coral)
 
-    def intake_algae(self) -> Command:
+    def eject_coral(self) -> Command:
         return self.startEnd(
             # start running the motor
-            lambda: self.motor.set_control(self.motor_intake),
+            lambda: self.motor.set_control(self.motor_eject),
             # stop the motor
-            lambda: self.motor.set_control(VoltageOut(0, enable_foc=False)),
-        ).until(self.detecting_algae)
+            lambda: self.motor.stopMotor(),
+        ).until(not self.detecting_coral)
+
+    def intake_algae(self) -> Command:
+        return self.runOnce(
+            # start running the motor
+            lambda: self.motor.set_control(self.motor_intake),
+        )
+
+    def eject_algae(self) -> Command:
+        return self.runOnce(
+            # start running the motor
+            lambda: self.motor.set_control(-self.motor_eject),
+        ).until(not self.detecting_algae)
 
     def periodic(self):
         self._range_pub.set(self.get_range())

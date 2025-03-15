@@ -10,7 +10,7 @@ from phoenix6.configs import (
     MotionMagicConfigs,
 )
 from phoenix6.signals import NeutralModeValue, GravityTypeValue
-from phoenix6.controls import Follower, VelocityVoltage, PositionVoltage, VoltageOut
+from phoenix6.controls import Follower, VoltageOut, MotionMagicVoltage
 from typing import Callable
 from commands2 import Command
 from commands2.sysid import SysIdRoutine
@@ -21,6 +21,15 @@ from wpimath.units import volts
 class Lift(Subsystem):
     # States
     # home,  coralLvl1, coralLvl2 coralLvl3, algeLvl1, algeLvl2 algelLvl3,
+
+    class Position:
+        HOME = 0
+        LEVEL1 = 3
+        LEVEL2 = 5
+        LEVEL3 = 7
+        LEVEL4 = 9
+        ALGAE2 = 7
+        ALGAE3 = 9
 
     def __init__(self):
 
@@ -44,14 +53,14 @@ class Lift(Subsystem):
                 .with_motion_magic_cruise_velocity(12)
                 .with_motion_magic_acceleration(24)
                 .with_motion_magic_jerk(48)
-            )
-            .with_software_limit_switch(
-                SoftwareLimitSwitchConfigs()
-                .with_reverse_soft_limit_enable(True)
-                .with_reverse_soft_limit_threshold(0.1)
-                .with_forward_soft_limit_enable(True)
-                .with_forward_soft_limit_threshold(13.5)
             ),
+            # .with_software_limit_switch(
+            #     SoftwareLimitSwitchConfigs()
+            #     .with_reverse_soft_limit_enable(True)
+            #     .with_reverse_soft_limit_threshold(0.1)
+            #     .with_forward_soft_limit_enable(True)
+            #     .with_forward_soft_limit_threshold(13.5)
+            # ),
             parent_nt="Lift",
             motor_name="motor",
         )
@@ -59,25 +68,8 @@ class Lift(Subsystem):
         # set the follower's control to ALWAYS follow the main motor
         self._follower.set_control(Follower(self.motor.device_id, False))
 
-        self.sys_id_routine = SysIdRoutine(
-            SysIdRoutine.Config(),
-            SysIdRoutine.Mechanism(
-                self.sysid_move_motor,
-                self.sysid_log_motor,
-                self,
-            ),
-        )
-
-    def sysid_move_motor(self, voltage: volts) -> None:
-        self.motor.set_control(VoltageOut(output=voltage, enable_foc=False))
-
-    def sysid_log_motor(self, sys_id_routine: SysIdRoutineLog) -> None:
-        # Record a frame for each module.  Since these share an encoder, we consider
-        # the entire group to be one motor.
-        with self.motor as m:
-            sys_id_routine.motor("Lift_motor").voltage(
-                m.get_motor_voltage().value
-            ).position(m.get_position().value).velocity(m.get_velocity().value)
+        self.position_tolerance = 0.1
+        self.control = MotionMagicVoltage(0, slot=0, enable_foc=False)
 
     def joystick_move_command(self, control: Callable[[], float]) -> Command:
         """Returns a command that takes a joystick control giving values between
@@ -91,7 +83,7 @@ class Lift(Subsystem):
             Command: The command that will cause the motor to move from joystick control.
         """
         return self.run(
-            lambda: self.motor.set_control(VoltageOut(control() * 11, enable_foc=False))
+            lambda: self.motor.set_control(VoltageOut(control() * 10, enable_foc=False))
         )
 
     def lift_is_at_home(self):
@@ -99,19 +91,29 @@ class Lift(Subsystem):
 
     def reset_lift_to_home(self):
         self.motor.set_position(0)
+        self.motor.config.with_software_limit_switch(
+            SoftwareLimitSwitchConfigs()
+            .with_reverse_soft_limit_enable(True)
+            .with_reverse_soft_limit_threshold(0.0)
+            .with_forward_soft_limit_enable(True)
+            .with_forward_soft_limit_threshold(13.5)
+        )
+        self.motor.configurator.apply(self.motor.comfig)
 
     def home(self) -> Command:
         return (
             self.startEnd(
                 lambda: self.motor.set_control(VoltageOut(-0.25, enable_foc=False)),
-                lambda: self.motor.set_control(VoltageOut(0, enable_foc=False)),
+                lambda: self.motor.stopMotor(),
             )
             .until(self.lift_is_at_home)
             .andThen(self.runOnce(self.reset_lift_to_home))
         )
 
-    def sys_id_quasistatic(self, direction: SysIdRoutine.Direction) -> Command:
-        return self.sys_id_routine.quasistatic(direction)
+    def move(self, position) -> Command:
+        return self.runOnce(
+            lambda: self.motor.set_control(self.control().with_position(position))
+        )
 
-    def sys_id_dynamic(self, direction: SysIdRoutine.Direction) -> Command:
-        return self.sys_id_routine.dynamic(direction)
+    def at_position(self, position):
+        return abs(self.motor.get_position() - position) < self.position_tolerance

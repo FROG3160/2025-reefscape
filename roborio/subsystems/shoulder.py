@@ -17,7 +17,7 @@ from phoenix6.configs import (
 )
 from phoenix6.signals import NeutralModeValue, GravityTypeValue
 from phoenix6.signals.spn_enums import FeedbackSensorSourceValue, SensorDirectionValue
-from phoenix6.controls import Follower, VelocityVoltage, PositionVoltage, VoltageOut
+from phoenix6.controls import Follower, VoltageOut, MotionMagicVoltage
 from typing import Callable
 from commands2 import Command
 from configs.ctre import motorOutputCWPandBrake, motorOutputCCWPandBrake
@@ -26,6 +26,15 @@ from configs.ctre import motorOutputCWPandBrake, motorOutputCCWPandBrake
 class Shoulder(Subsystem):
     # States
     # home, coralLvl1, coralLvl2, coralLvl3, algeLvl1, algeLvl2, algeLvl3, processor
+
+    class Position:
+        HOME = 0
+        LEVEL1 = -0.15
+        LEVEL2 = 0.1
+        LEVEL3 = 0.1
+        LEVEL4 = 0.125
+        ALGAE2 = -0.1
+        ALGAE3 = -0.1
 
     def __init__(self):
         self.shoulder_encoder = FROGCanCoder(
@@ -65,6 +74,9 @@ class Shoulder(Subsystem):
         # set the follower's control to ALWAYS follow the main motor
         self._follower.set_control(Follower(self.motor.device_id, False))
 
+        self.position_tolerance = 0.1
+        self.control = MotionMagicVoltage(0, slot=0, enable_foc=False)
+
     def joystick_move_command(self, control: Callable[[], float]) -> Command:
         """Returns a command that takes a joystick control giving values between
         -1.0 and 1.0 and calls it to apply motor voltage of -10 to 10 volts.
@@ -79,3 +91,11 @@ class Shoulder(Subsystem):
         return self.run(
             lambda: self.motor.set_control(VoltageOut(control() * 10, enable_foc=False))
         )
+
+    def move(self, position) -> Command:
+        return self.runOnce(
+            lambda: self.motor.set_control(self.control().with_position(position))
+        )
+
+    def at_position(self, position):
+        return abs(self.motor.get_position() - position) < self.position_tolerance
