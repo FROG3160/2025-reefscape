@@ -26,6 +26,9 @@ from configs.ctre import (
 
 
 class Intake(Subsystem):
+    # States
+    # upAndOff, downAndOn
+
     class Position:
         HOME = 0.3
         DEPLOYED = 0.0
