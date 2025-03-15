@@ -10,7 +10,7 @@ from commands2 import Command
 
 class Arm(Subsystem):
     def __init__(self):
-        self.arm = FROGTalonFX(
+        self.motor = FROGTalonFX(
             id=constants.kArmMotorID,
             motor_config=FROGTalonFXConfig(
                 feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(90),
@@ -21,7 +21,6 @@ class Arm(Subsystem):
             parent_nt="Arm",
             motor_name="motor",
         )
-
         self.limitswitch = None
 
     def joystick_retract_command(self, retract_control: Callable[[], float]) -> Command:
