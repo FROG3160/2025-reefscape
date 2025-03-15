@@ -150,10 +150,20 @@ class RobotContainer:
         #     runOnce(lambda: self.driveSubsystem.setFieldPositionFromVision())
         # )
         self.driverController.rightBumper().onTrue(
-            runOnce(lambda: self.intake.run_intake())
+            runOnce(lambda: self.grabber.intake_coral())
+        )
+        self.driverController.rightBumper().onFalse(
+            runOnce(lambda: self.grabber.eject_coral())
         )
         self.driverController.leftBumper().onTrue(
-            runOnce(lambda: self.intake.stop_intake())
+            runOnce(lambda: self.intake.run_intake()).alongWith(
+                runOnce(lambda: self.intake.move(self.intake.Position.DEPLOYED))
+            )
+        )
+        self.driverController.leftBumper().onFalse(
+            runOnce(lambda: self.intake.stop_intake()).alongWith(
+                runOnce(lambda: self.intake.move(self.intake.Position.HOME))
+            )
         )
 
     def configureOperatorControls(self):
@@ -168,16 +178,26 @@ class RobotContainer:
         self.tacticalController.povUp().onTrue(
             runOnce(lambda: self.shoulder.move(0.125))
         )
-        self.tacticalController.x().onTrue(runOnce(lambda: self.grabber.intake_coral()))
-        self.tacticalController.x().onFalse(runOnce(lambda: self.grabber.eject_coral()))
-        self.tacticalController.y().onTrue(
-            runOnce(lambda: self.intake.run_intake()).alongWith(
-                runOnce(lambda: self.intake.move(self.intake.Position.DEPLOYED))
+        self.tacticalController.leftBumper().onTrue(
+            runOnce(lambda: self.arm.Position.CORAL_PICKUP)
+        )
+        self.tacticalController.leftBumper().onFalse(
+            runOnce(lambda: self.arm.Position.RETRACTED)
+        )
+        self.tacticalController.a().onTrue(
+            runOnce(lambda: self.shoulder.Position.LEVEL1)
+        )
+        self.tacticalController.b().onTrue(
+            runOnce(lambda: self.shoulder.Position.LEVEL2).andThen(
+                runOnce(lambda: self.arm.Position.CORAL_L2_PLACE)
             )
         )
-        self.tacticalController.y().onFalse(
-            runOnce(lambda: self.intake.stop_intake()).alongWith(
-                runOnce(lambda: self.intake.move(self.intake.Position.HOME))
+        self.tacticalController.x().onTrue(
+            runOnce(lambda: self.shoulder.Position.LEVEL3)
+        )
+        self.tacticalController.y().onTrue(
+            runOnce(lambda: self.shoulder.Position.LEVEL4).andThen(
+                runOnce(lambda: self.arm.Position.CORAL_L4_PLACE)
             )
         )
 
