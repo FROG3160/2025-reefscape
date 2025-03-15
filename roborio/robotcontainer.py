@@ -72,8 +72,8 @@ class RobotContainer:
         self.positioningCameras = []
 
         # Create all positioning cameras here
-        self.camera1 = VisionPose(kCamera1Name, robotToCamera)
-        self.camera2 = VisionPose(kCamera2Name, robotToCamera2)
+        # self.camera1 = VisionPose(kCamera1Name, robotToCamera)
+        # self.camera2 = VisionPose(kCamera2Name, robotToCamera2)
 
         # Sensors/Cameras
         # Add each positioning camera to the positioningCameras list
@@ -132,37 +132,7 @@ class RobotContainer:
     def configureSysIDButtonBindings(self):
         # Bind full set of SysId routine tests to buttons; a complete routine should run each of these
         # once.
-
-        with self.arm as sub:
-            self.driverController.a().whileTrue(
-                sub.sysIdQuasistaticDrive(SysIdRoutine.Direction.kForward)
-            )
-            self.driverController.b().whileTrue(
-                sub.sysIdQuasistaticDrive(SysIdRoutine.Direction.kReverse)
-            )
-            self.driverController.x().whileTrue(
-                sub.sysIdDynamicDrive(SysIdRoutine.Direction.kForward)
-            )
-            self.driverController.y().whileTrue(
-                sub.sysIdDynamicDrive(SysIdRoutine.Direction.kReverse)
-            )
-
-            wpilib.SmartDashboard.putData(
-                "Quasistatic Forward",
-                sub.sysIdQuasistaticDrive(SysIdRoutine.Direction.kForward),
-            )
-            wpilib.SmartDashboard.putData(
-                "Quasistatic Reverse",
-                sub.sysIdQuasistaticDrive(SysIdRoutine.Direction.kReverse),
-            )
-            wpilib.SmartDashboard.putData(
-                "Dynamic Forward",
-                sub.sysIdDynamicDrive(SysIdRoutine.Direction.kForward),
-            )
-            wpilib.SmartDashboard.putData(
-                "Dynamic Reverse",
-                sub.sysIdDynamicDrive(SysIdRoutine.Direction.kReverse),
-            )
+        pass
 
     def configureHomeRoutines(self):
         wpilib.SmartDashboard.putData("Home Elevator", self.elevator.home())
