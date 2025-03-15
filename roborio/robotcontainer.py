@@ -38,7 +38,7 @@ from subsystems.lift import Lift
 from subsystems.shoulder import Shoulder
 from subsystems.grabber import Grabber
 from subsystems.arm import Arm
-from subsystems.intake import Intake
+from subsystems.Intake import Intake
 from subsystems.climber import Climber
 
 from commands.drive.field_oriented import (
@@ -63,6 +63,10 @@ class RobotContainer:
             kDebouncePeriod,
             kTranslationSlew,
             kRotSlew,
+        )
+        self.tacticalController = FROGXboxTactical(
+            kOperatorControllerPort,
+            kDeadband,
         )
         # self.operatorController = FROGXboxOperator(kOperatorControllerPort, kDeadband)
 
@@ -145,11 +149,17 @@ class RobotContainer:
         # self.driverController.start().onTrue(
         #     runOnce(lambda: self.driveSubsystem.setFieldPositionFromVision())
         # )
-        self.driverController.rightBumper().onTrue(
-            runOnce(lambda: self.intake.run_intake())
-        )
+        self.driverController.rightBumper().onTrue(self.grabber.intake_coral())
+        self.driverController.rightBumper().onFalse(self.grabber.eject_coral())
         self.driverController.leftBumper().onTrue(
-            runOnce(lambda: self.intake.stop_intake())
+            runOnce(self.intake.run_intake()).alongWith(
+                self.intake.move(self.intake.Position.DEPLOYED)
+            )
+        )
+        self.driverController.leftBumper().onFalse(
+            runOnce(self.intake.stop_intake()).alongWith(
+                self.intake.move(self.intake.Position.HOME)
+            )
         )
 
     def configureOperatorControls(self):
@@ -157,6 +167,31 @@ class RobotContainer:
         # wpilib.SmartDashboard.putData("Deploy Intake", self.intake.deploy_)
         # wpilib.SmartDashboard.putData("Retract Intake",
         # self.intake.retract())
+        self.tacticalController.povDown().onTrue(self.shoulder.move(-0.25))
+        self.tacticalController.povLeft().onTrue(self.shoulder.move(0))
+        self.tacticalController.povUp().onTrue(self.shoulder.move(0.125))
+        self.tacticalController.leftBumper().onTrue(
+            self.arm.move(self.arm.Position.CORAL_PICKUP)
+        )
+        self.tacticalController.leftBumper().onFalse(
+            self.arm.move(self.arm.Position.RETRACTED)
+        )
+        self.tacticalController.a().onTrue(
+            self.shoulder.move(self.shoulder.Position.LEVEL1)
+        )
+        self.tacticalController.b().onTrue(
+            self.shoulder.move(self.shoulder.Position.LEVEL2).andThen(
+                self.arm.move(self.arm.Position.CORAL_L2_PLACE)
+            )
+        )
+        self.tacticalController.x().onTrue(
+            self.shoulder.move(self.shoulder.Position.LEVEL3)
+        )
+        self.tacticalController.y().onTrue(
+            self.shoulder.move(self.shoulder.Position.LEVEL4).andThen(
+                self.arm.move(self.arm.Position.CORAL_L4_PLACE)
+            )
+        )
 
     def getAutonomousCommand(self):
 
