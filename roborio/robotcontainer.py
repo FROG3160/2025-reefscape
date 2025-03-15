@@ -38,7 +38,7 @@ from subsystems.lift import Lift
 from subsystems.shoulder import Shoulder
 from subsystems.grabber import Grabber
 from subsystems.arm import Arm
-from subsystems.intake import Intake
+from subsystems.Intake import Intake
 from subsystems.climber import Climber
 
 from commands.drive.field_oriented import (
@@ -63,6 +63,10 @@ class RobotContainer:
             kDebouncePeriod,
             kTranslationSlew,
             kRotSlew,
+        )
+        self.tacticalController = FROGXboxTactical(
+            kOperatorControllerPort,
+            kDeadband,
         )
         # self.operatorController = FROGXboxOperator(kOperatorControllerPort, kDeadband)
 
@@ -157,6 +161,25 @@ class RobotContainer:
         # wpilib.SmartDashboard.putData("Deploy Intake", self.intake.deploy_)
         # wpilib.SmartDashboard.putData("Retract Intake",
         # self.intake.retract())
+        self.tacticalController.povDown().onTrue(
+            runOnce(lambda: self.shoulder.move(-0.25))
+        )
+        self.tacticalController.povLeft().onTrue(runOnce(lambda: self.shoulder.move(0)))
+        self.tacticalController.povUp().onTrue(
+            runOnce(lambda: self.shoulder.move(0.125))
+        )
+        self.tacticalController.x().onTrue(runOnce(lambda: self.grabber.intake_coral()))
+        self.tacticalController.x().onFalse(runOnce(lambda: self.grabber.eject_coral()))
+        self.tacticalController.y().onTrue(
+            runOnce(lambda: self.intake.run_intake()).alongWith(
+                runOnce(lambda: self.intake.move(self.intake.Position.DEPLOYED))
+            )
+        )
+        self.tacticalController.y().onFalse(
+            runOnce(lambda: self.intake.stop_intake()).alongWith(
+                runOnce(lambda: self.intake.move(self.intake.Position.HOME))
+            )
+        )
 
     def getAutonomousCommand(self):
 
