@@ -1,6 +1,6 @@
 from enum import Enum
 from commands2.subsystem import Subsystem
-from roborio.FROGlib.ctre import FROGTalonFX, FROGTalonFXConfig, FROGFeedbackConfig
+from FROGlib.ctre import FROGTalonFX, FROGTalonFXConfig, FROGFeedbackConfig
 import constants
 from phoenix6.configs import (
     Slot0Configs,
@@ -9,7 +9,13 @@ from phoenix6.configs import (
     MotionMagicConfigs,
 )
 from phoenix6.signals import NeutralModeValue, GravityTypeValue
-from phoenix6.controls import Follower, VelocityVoltage, PositionVoltage, VoltageOut
+from phoenix6.controls import (
+    Follower,
+    VelocityVoltage,
+    PositionVoltage,
+    VoltageOut,
+    MotionMagicVoltage,
+)
 from typing import Callable
 from commands2 import Command
 from configs.ctre import (
@@ -20,7 +26,9 @@ from configs.ctre import (
 
 
 class Intake(Subsystem):
-    HOME_POSITION = 0.3
+    class Position:
+        HOME = 0.3
+        DEPLOYED = 0.0
 
     def __init__(self):
         self.lower_motor = FROGTalonFX(
@@ -45,7 +53,7 @@ class Intake(Subsystem):
             id=constants.kIntakeDeployMotorID,
             motor_config=FROGTalonFXConfig(
                 feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(48),
-                slot1gains=Slot1Configs()
+                slot0gains=Slot0Configs()
                 .with_gravity_type(GravityTypeValue.ARM_COSINE)
                 .with_k_p(12)
                 .with_k_s(0.2)
@@ -63,11 +71,13 @@ class Intake(Subsystem):
             motor_name="deploy_motor",
         )
         # when the robot is powered on, the intake should be in the upright position
-        self.deploy_motor.set_position(self.HOME_POSITION)
+        self._position = self.Position.HOME
+        self.reset_position()
         self.homing_torque_limit = 8.0
+        self.deploy_control = MotionMagicVoltage(0, slot=0, enable_foc=False)
 
     def reset_position(self):
-        self.deploy_motor.set_position(self.HOME_POSITION)
+        self.deploy_motor.set_position(self.Position.HOME)
 
     def get_torque(self):
         return self.deploy_motor.get_torque_current().value
@@ -87,4 +97,18 @@ class Intake(Subsystem):
             )
             .until(self.stop_homing)
             .andThen(self.runOnce(self.reset_position))
+        )
+
+    def deploy(self) -> Command:
+        return self.runOnce(
+            lambda: self.deploy_motor.set_control(
+                self.deploy_control().with_position(self.Position.DEPLOYED)
+            )
+        )
+
+    def retract(self) -> Command:
+        return self.runOnce(
+            lambda: self.deploy_motor.set_control(
+                self.deploy_control().with_position(self.Position.HOME)
+            )
         )
