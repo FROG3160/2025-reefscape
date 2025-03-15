@@ -22,7 +22,7 @@ kFrontLeftOffset = 0.168701  # -0.246338
 kFrontRightOffset = -0.260986  # 0.036377
 kBackLeftOffset = 0.383057  # 0.478027
 kBackRightOffset = -0.244141  # 0.207031
-KShoulderOffset = -0.05859375  # offset with arm parallel to the floor
+KShoulderOffset = 0.123047  # -0.05859375  # offset with arm parallel to the floor
 
 # steer motor gains
 kSteerP = 39.236  # 2.402346
@@ -75,6 +75,8 @@ kGrabberSensorID = 49
 kIntakeDeployMotorID = 51
 kIntakeLowerMotorID = 52
 kIntakeUpperMotorID = 53
+
+kClimberMotorID = 61
 
 kLiftGearReduction = 5.0  # 4:1 x 2.5:1 x 1:2
 kShoulderGearReduction = 90

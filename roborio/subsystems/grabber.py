@@ -26,7 +26,7 @@ from phoenix6.controls import (
 from phoenix6.hardware import CANrange
 from typing import Callable
 from commands2 import Command
-from configs.ctre import motorOutputCCWPandBrake
+from configs.ctre import motorOutputCWPandBrake
 from ntcore import NetworkTableInstance
 
 
@@ -43,7 +43,7 @@ class Grabber(Subsystem):
                 .with_brushed_motor_wiring(BrushedMotorWiringValue.LEADS_A_AND_B)
                 .with_motor_arrangement(MotorArrangementValue.BRUSHED_DC)
             )
-            .with_motor_output(motorOutputCCWPandBrake)
+            .with_motor_output(motorOutputCWPandBrake)
         )
 
         self.range = CANrange(constants.kGrabberSensorID)

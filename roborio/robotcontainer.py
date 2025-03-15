@@ -39,6 +39,7 @@ from subsystems.shoulder import Shoulder
 from subsystems.grabber import Grabber
 from subsystems.arm import Arm
 from subsystems.intake import Intake
+from subsystems.climber import Climber
 
 from commands.drive.field_oriented import (
     ManualDrive,
@@ -77,8 +78,9 @@ class RobotContainer:
 
         # Sensors/Cameras
         # Add each positioning camera to the positioningCameras list
-        self.positioningCameras.append(self.camera1)
-        self.positioningCameras.append(self.camera2)
+        # self.positioningCameras.append(self.camera1)
+        # self.positioningCameras.append(self.camera2)
+        self.positioningCameras = []
 
         self.positioning = Position()
 
@@ -89,6 +91,7 @@ class RobotContainer:
         self.arm = Arm()
         self.grabber = Grabber()
         self.intake = Intake()
+        self.climber = Climber()
 
         self.registerNamedCommands()
 
@@ -142,11 +145,18 @@ class RobotContainer:
         # self.driverController.start().onTrue(
         #     runOnce(lambda: self.driveSubsystem.setFieldPositionFromVision())
         # )
+        self.driverController.rightBumper().onTrue(
+            runOnce(lambda: self.intake.run_intake())
+        )
+        self.driverController.leftBumper().onTrue(
+            runOnce(lambda: self.intake.stop_intake())
+        )
 
     def configureOperatorControls(self):
         """OPERATOR CONTROLS"""
-        wpilib.SmartDashboard.putData("Deploy Intake", self.intake.deploy())
-        wpilib.SmartDashboard.putData("Retract Intake", self.intake.retract())
+        # wpilib.SmartDashboard.putData("Deploy Intake", self.intake.deploy_)
+        # wpilib.SmartDashboard.putData("Retract Intake",
+        # self.intake.retract())
 
     def getAutonomousCommand(self):
 

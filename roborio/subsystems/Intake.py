@@ -121,7 +121,7 @@ class Intake(Subsystem):
 
     def run_intake(self):
         self.upper_motor.set_control(VoltageOut(2.5, enable_foc=False))
-        self.lower_motor.set_control(VoltageOut(1.5, enable_foc=False))
+        self.lower_motor.set_control(VoltageOut(2.0, enable_foc=False))
 
     def stop_intake(self):
         self.upper_motor.stopMotor()
