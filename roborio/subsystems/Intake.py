@@ -8,6 +8,7 @@ from phoenix6.configs import (
     Slot1Configs,
     MotorOutputConfigs,
     MotionMagicConfigs,
+    SoftwareLimitSwitchConfigs,
 )
 from phoenix6.signals import NeutralModeValue, GravityTypeValue
 from phoenix6.controls import (
@@ -31,7 +32,7 @@ class Intake(Subsystem):
     # upAndOff, downAndOn
 
     class Position:
-        HOME = 0.3
+        HOME = 0.32
         DEPLOYED = 0.0
 
     class Status:
@@ -95,6 +96,14 @@ class Intake(Subsystem):
 
     def reset_position(self):
         self.deploy_motor.set_position(self.Position.HOME)
+        self.deploy_motor.config.with_software_limit_switch(
+            SoftwareLimitSwitchConfigs()
+            .with_reverse_soft_limit_enable(True)
+            .with_reverse_soft_limit_threshold(0.0)
+            .with_forward_soft_limit_enable(True)
+            .with_forward_soft_limit_threshold(0.33)
+        )
+        self.deploy_motor.configurator.apply(self.deploy_motor.config)
 
     def get_deploy_torque(self):
         return self.deploy_motor.get_torque_current().value
@@ -109,11 +118,11 @@ class Intake(Subsystem):
         return (
             self.startEnd(
                 # START
-                lambda: self.motor.set_control(
+                lambda: self.deploy_motor.set_control(
                     VoltageOut(self.homing_voltage, enable_foc=False)
                 ),
                 # END
-                lambda: self.motor.set_control(VoltageOut(0, enable_foc=False)),
+                lambda: self.deploy_motor.stopMotor(),
             )
             .until(self.stop_homing)
             .andThen(self.runOnce(self.reset_position))
@@ -132,7 +141,7 @@ class Intake(Subsystem):
     def move(self, position) -> Command:
         return self.runOnce(
             lambda: self.deploy_motor.set_control(
-                self.deploy_control().with_position(position)
+                self.deploy_control.with_position(position)
             )
         )
 

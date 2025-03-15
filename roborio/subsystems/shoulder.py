@@ -94,7 +94,7 @@ class Shoulder(Subsystem):
 
     def move(self, position) -> Command:
         return self.runOnce(
-            lambda: self.motor.set_control(self.control().with_position(position))
+            lambda: self.motor.set_control(self.control.with_position(position))
         )
 
     def at_position(self, position):

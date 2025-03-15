@@ -98,7 +98,7 @@ class Lift(Subsystem):
             .with_forward_soft_limit_enable(True)
             .with_forward_soft_limit_threshold(13.5)
         )
-        self.motor.configurator.apply(self.motor.comfig)
+        self.motor.configurator.apply(self.motor.config)
 
     def home(self) -> Command:
         return (
@@ -112,7 +112,7 @@ class Lift(Subsystem):
 
     def move(self, position) -> Command:
         return self.runOnce(
-            lambda: self.motor.set_control(self.control().with_position(position))
+            lambda: self.motor.set_control(self.control.with_position(position))
         )
 
     def at_position(self, position):
