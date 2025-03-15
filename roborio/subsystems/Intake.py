@@ -132,7 +132,7 @@ class Intake(Subsystem):
     def move(self, position) -> Command:
         return self.runOnce(
             lambda: self.deploy_motor.set_control(
-                self.deploy_control().with_position(position)
+                self.deploy_control.with_position(position)
             )
         )
 

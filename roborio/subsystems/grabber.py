@@ -57,7 +57,6 @@ class Grabber(Subsystem):
 
         self.motor_intake = VoltageOut(output=5.0, enable_foc=False)
         self.motor_eject = VoltageOut(output=8.0, enable_foc=False)
-        self.motor_stop = StaticBrake()
         self.motor_voltage = 5
         nt_table = f"Subsystems/{self.__class__.__name__}"
         self._range_pub = (
@@ -99,8 +98,14 @@ class Grabber(Subsystem):
     def detecting_coral(self) -> bool:
         return self.range.get_is_detected().value == 1
 
+    def not_detecting_coral(self) -> bool:
+        return not self.detecting_coral()
+
     def detecting_algae(self) -> bool:
         return 0.15 > self.get_range() > 0.055
+
+    def not_detecting_algae(self) -> bool:
+        return not self.detecting_algae()
 
     def intake_coral(self) -> Command:
         return self.startEnd(
@@ -116,7 +121,7 @@ class Grabber(Subsystem):
             lambda: self.motor.set_control(self.motor_eject),
             # stop the motor
             lambda: self.motor.stopMotor(),
-        ).until(not self.detecting_coral)
+        ).until(self.not_detecting_coral)
 
     def intake_algae(self) -> Command:
         return self.runOnce(
@@ -128,7 +133,7 @@ class Grabber(Subsystem):
         return self.runOnce(
             # start running the motor
             lambda: self.motor.set_control(-self.motor_eject),
-        ).until(not self.detecting_algae)
+        ).until(self.not_detecting_algae)
 
     def periodic(self):
         self._range_pub.set(self.get_range())

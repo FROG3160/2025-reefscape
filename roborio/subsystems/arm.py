@@ -6,6 +6,7 @@ from phoenix6.configs import (
     Slot1Configs,
     MotorOutputConfigs,
     SoftwareLimitSwitchConfigs,
+    MotionMagicConfigs,
 )
 from phoenix6.signals import NeutralModeValue, InvertedValue
 from phoenix6.controls import (
@@ -33,10 +34,18 @@ class Arm(Subsystem):
             id=constants.kArmMotorID,
             motor_config=FROGTalonFXConfig(
                 feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(16),
-                slot0gains=Slot0Configs(),
+                slot0gains=Slot0Configs()
+                .with_k_a(0.1)
+                .with_k_p(8)
+                .with_k_s(0.19)
+                .with_k_v(1.9),
             )
             # Inverting the motor so positive voltage extends
-            .with_motor_output(motorOutputCWPandBrake)
+            .with_motor_output(motorOutputCWPandBrake).with_motion_magic(
+                MotionMagicConfigs()
+                .with_motion_magic_cruise_velocity(6)
+                .with_motion_magic_acceleration(18)
+            )
             # Adding software limit so we don't break the nut AGAIN!
             .with_software_limit_switch(
                 SoftwareLimitSwitchConfigs()
@@ -95,7 +104,7 @@ class Arm(Subsystem):
 
     def move(self, position) -> Command:
         return self.runOnce(
-            lambda: self.motor.set_control(self.control().with_position(position))
+            lambda: self.motor.set_control(self.control.with_position(position))
         )
 
     def at_position(self, position):
