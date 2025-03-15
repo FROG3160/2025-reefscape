@@ -24,7 +24,7 @@ from wpimath.units import volts
 class Arm(Subsystem):
     class Position:
         RETRACTED = 0
-        CORAL_PICKUP = 2
+        CORAL_PICKUP = 0.6
         CORAL_L2_PLACE = 4
         CORAL_L4_PLACE = 5
         ALGAE_PICKUP = 3
@@ -45,17 +45,18 @@ class Arm(Subsystem):
                 MotionMagicConfigs()
                 .with_motion_magic_cruise_velocity(6)
                 .with_motion_magic_acceleration(18)
-            )
-            # Adding software limit so we don't break the nut AGAIN!
-            .with_software_limit_switch(
-                SoftwareLimitSwitchConfigs()
-                .with_forward_soft_limit_enable(True)
-                .with_forward_soft_limit_threshold(7)
             ),
+            # Adding software limit so we don't break the nut AGAIN!
+            # .with_software_limit_switch(
+            #     SoftwareLimitSwitchConfigs()
+            #     .with_forward_soft_limit_enable(True)
+            #     .with_forward_soft_limit_threshold(7)
+            # ),
             parent_nt="Arm",
             motor_name="motor",
         )
         self.motor.get_position().set_update_frequency(50)
+        self.motor.get_torque_current().set_update_frequency(50)
         self.motor.optimize_bus_utilization()
         self.limitswitch = None
         self.homing_voltage = -0.25  # motor is inverted, negative values retract
@@ -81,6 +82,14 @@ class Arm(Subsystem):
 
     def reset_position(self):
         self.motor.set_position(0)
+        self.motor.config.with_software_limit_switch(
+            SoftwareLimitSwitchConfigs()
+            .with_reverse_soft_limit_enable(True)
+            .with_reverse_soft_limit_threshold(0.0)
+            .with_forward_soft_limit_enable(True)
+            .with_forward_soft_limit_threshold(7)
+        )
+        self.motor.configurator.apply(self.motor.config)
 
     def get_torque(self):
         return self.motor.get_torque_current().value
@@ -96,7 +105,7 @@ class Arm(Subsystem):
                     VoltageOut(self.homing_voltage, enable_foc=False)
                 ),
                 # END
-                lambda: self.motor.set_control(VoltageOut(0, enable_foc=False)),
+                lambda: self.motor.stopMotor(),
             )
             .until(self.stop_homing)
             .andThen(self.runOnce(self.reset_position))

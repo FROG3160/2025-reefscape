@@ -98,7 +98,7 @@ class Lift(Subsystem):
             .with_forward_soft_limit_enable(True)
             .with_forward_soft_limit_threshold(13.5)
         )
-        self.motor.configurator.apply(self.motor.comfig)
+        self.motor.configurator.apply(self.motor.config)
 
     def home(self) -> Command:
         return (

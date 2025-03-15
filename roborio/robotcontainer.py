@@ -118,6 +118,7 @@ class RobotContainer:
         """
         self.configureDriverControls()
         self.configureOperatorControls()
+        self.configureHomeRoutines()
 
     def configureTestBindings(self):
         self.elevator.setDefaultCommand(
@@ -152,14 +153,10 @@ class RobotContainer:
         self.driverController.rightBumper().onTrue(self.grabber.intake_coral())
         self.driverController.rightBumper().onFalse(self.grabber.eject_coral())
         self.driverController.leftBumper().onTrue(
-            runOnce(self.intake.run_intake()).alongWith(
-                self.intake.move(self.intake.Position.DEPLOYED)
-            )
+            self.intake.start().andThen(self.intake.move(self.intake.Position.DEPLOYED))
         )
         self.driverController.leftBumper().onFalse(
-            runOnce(self.intake.stop_intake()).alongWith(
-                self.intake.move(self.intake.Position.HOME)
-            )
+            self.intake.stop().andThen(self.intake.move(self.intake.Position.HOME))
         )
 
     def configureOperatorControls(self):
