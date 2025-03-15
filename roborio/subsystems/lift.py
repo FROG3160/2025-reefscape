@@ -19,6 +19,8 @@ from wpimath.units import volts
 
 
 class Lift(Subsystem):
+    # States
+    # home,  coralLvl1, coralLvl2 coralLvl3, algeLvl1, algeLvl2 algelLvl3,
 
     def __init__(self):
 
