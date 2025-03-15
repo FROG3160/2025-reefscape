@@ -38,6 +38,7 @@ from subsystems.lift import Lift
 from subsystems.shoulder import Shoulder
 from subsystems.grabber import Grabber
 from subsystems.arm import Arm
+from subsystems.intake import Intake
 
 from commands.drive.field_oriented import (
     ManualDrive,
@@ -87,6 +88,7 @@ class RobotContainer:
         self.shoulder = Shoulder()
         self.arm = Arm()
         self.grabber = Grabber()
+        self.intake = Intake()
 
         self.registerNamedCommands()
 
@@ -162,6 +164,11 @@ class RobotContainer:
                 sub.sysIdDynamicDrive(SysIdRoutine.Direction.kReverse),
             )
 
+    def configureHomeRoutines(self):
+        wpilib.SmartDashboard.putData("Home Elevator", self.elevator.home())
+        wpilib.SmartDashboard.putData("Home Arm", self.arm.set_home())
+        wpilib.SmartDashboard.putData("Home Intake", self.intake.set_home())
+
     def configureDriverControls(self):
         """DRIVER CONTROLS"""
         # self.driverController.start().onTrue(
@@ -170,7 +177,8 @@ class RobotContainer:
 
     def configureOperatorControls(self):
         """OPERATOR CONTROLS"""
-        pass
+        wpilib.SmartDashboard.putData("Deploy Intake", self.intake.deploy())
+        wpilib.SmartDashboard.putData("Retract Intake", self.intake.retract())
 
     def getAutonomousCommand(self):
 
