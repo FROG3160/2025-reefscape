@@ -120,11 +120,9 @@ class RobotContainer:
             self.shoulder.joystick_move_command(self.driverController.getRightY)
         )
         self.arm.setDefaultCommand(
-            self.arm.joystick_retract_command(self.driverController.getLeftTriggerAxis)
+            self.arm.joystick_move_command(self.driverController.getRightX)
         )
-        self.driverController.rightTrigger().whileTrue(
-            self.arm.joystick_extend_command(self.driverController.getRightTriggerAxis)
-        )
+
         self.driverController.back().onTrue(self.elevator.home())
         self.driverController.a().onTrue(self.grabber.intake_algae())
         self.driverController.b().onTrue(self.grabber.intake_coral())
