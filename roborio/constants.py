@@ -187,22 +187,22 @@ class Tags:
             RIGHT = 3
 
 
-robotToCamera = Transform3d(
+robotToCamera1 = Transform3d(
     Translation3d(
-        inchesToMeters(15.5),  # Forward from center
-        inchesToMeters(0),  # Left from center
-        inchesToMeters(3.6),  # Up from the floor
+        inchesToMeters(-8.125),  # Forward from center
+        inchesToMeters(5.625),  # Left from center
+        inchesToMeters(11.375),  # Up from the floor
     ),
-    Rotation3d(0, 0, 0),
+    Rotation3d(0, -math.pi / 2, math.pi),
 )
 
 robotToCamera2 = Transform3d(
     Translation3d(
-        inchesToMeters(-15.5),  # Forward from center
-        inchesToMeters(0),  # Left from center
-        inchesToMeters(3.6),  # Up from the floor
+        inchesToMeters(8.125),  # Forward from center
+        inchesToMeters(7.0625),  # Left from center
+        inchesToMeters(27.25),  # Up from the floor
     ),
-    Rotation3d(0, 0, math.pi),
+    Rotation3d(0, math.pi / 2, 0),
 )
 
 

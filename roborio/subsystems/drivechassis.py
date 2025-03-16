@@ -189,7 +189,6 @@ class DriveChassis(SwerveBase):
         )
 
         # Updates pose estimator with target data from positioning cameras.
-        # Initial implementation without confidence/stdev calculations.
         for camera in self.positioningCameras:
             self.cameraPose = camera.periodic()
             if self.cameraPose is not None:
