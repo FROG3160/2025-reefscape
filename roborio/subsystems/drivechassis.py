@@ -15,6 +15,8 @@ from wpimath.geometry import (
 from wpimath.units import volts
 from wpilib.sysid import SysIdRoutineLog
 
+from FROGlib import field
+
 # from subsystems.vision import PositioningSubsystem
 # from subsystems.elevation import ElevationSubsystem
 from wpilib import SmartDashboard
@@ -22,6 +24,7 @@ from commands2 import Subsystem, Command
 from commands2.sysid import SysIdRoutine
 from FROGlib.utils import RobotRelativeTarget, remap
 import constants
+
 from wpimath.units import degreesToRadians, lbsToKilograms, inchesToMeters
 from wpimath.controller import ProfiledPIDControllerRadians
 from wpimath.trajectory import TrapezoidProfileRadians
@@ -38,6 +41,7 @@ from pathplannerlib.config import RobotConfig, PIDConstants, ModuleConfig, DCMot
 
 # from subsystems.leds import LEDSubsystem
 from subsystems.vision import VisionPose
+from subsystems.positioning import Position
 
 
 class DriveChassis(SwerveBase):
@@ -61,7 +65,6 @@ class DriveChassis(SwerveBase):
         self.resetController = True
 
         self.positioningCameras = positioningCameras
-
         # initializing the estimator to 0, 0, 0
         self.estimatorPose = Pose2d(0, 0, Rotation2d(0))
 
@@ -202,6 +205,15 @@ class DriveChassis(SwerveBase):
                 cameraPoseObject.setPose(self.cameraPose.estimatedPose.toPose2d())
 
         self.field.setRobotPose(self.estimator.getEstimatedPosition())
+        self.distancesToTags = []
+        self.positionCalcs = Position()
+        for aprilTag in self.positionCalcs.getTags():
+            self.distancesToTags.append(
+                self.estimator.getEstimatedPosition()
+                .translation()
+                .distance(aprilTag.pose.toPose2d().translation())
+            )
+        SmartDashboard.putNumberArray("Tag Distances!!!", self.distancesToTags)
         SmartDashboard.putNumberArray(
             "Drive Pose",
             [

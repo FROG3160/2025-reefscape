@@ -38,7 +38,7 @@ from subsystems.lift import Lift
 from subsystems.shoulder import Shoulder
 from subsystems.grabber import Grabber
 from subsystems.arm import Arm
-from subsystems.intake import Intake
+from subsystems.Intake import Intake
 from subsystems.climber import Climber
 
 from commands.drive.field_oriented import (

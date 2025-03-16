@@ -14,6 +14,12 @@ class Position(FROGField):
     def getTagPose(self, tag_id: int):
         return self._layout.getTagPose(tag_id)
 
+    def getTags(self):
+        # self.poses = {}
+        # for num in self._layout.getTags():
+        #     self.poses[num, self.getTagPose(num.ID)]
+        return self._layout.getTags()
+
     def getClosestReefPosition(self, robot_pose: Pose3d) -> Pose3d:
         """returns the tag number of the closest side of the Reef
 
