@@ -22,7 +22,7 @@ from constants import (
     kRotSlew,
     kCamera1Name,
     kCamera2Name,
-    robotToCamera,
+    robotToCamera1,
     robotToCamera2,
 )
 from commands2.cmd import runOnce, startEnd, waitUntil
@@ -77,13 +77,13 @@ class RobotContainer:
         self.positioningCameras = []
 
         # Create all positioning cameras here
-        # self.camera1 = VisionPose(kCamera1Name, robotToCamera)
-        # self.camera2 = VisionPose(kCamera2Name, robotToCamera2)
+        self.camera1 = VisionPose(kCamera1Name, robotToCamera1)
+        self.camera2 = VisionPose(kCamera2Name, robotToCamera2)
 
         # Sensors/Cameras
         # Add each positioning camera to the positioningCameras list
-        # self.positioningCameras.append(self.camera1)
-        # self.positioningCameras.append(self.camera2)
+        self.positioningCameras.append(self.camera1)
+        self.positioningCameras.append(self.camera2)
         self.positioningCameras = []
 
         self.positioning = Position()
