@@ -20,6 +20,7 @@ from phoenix6.signals.spn_enums import FeedbackSensorSourceValue, SensorDirectio
 from phoenix6.controls import Follower, VoltageOut, MotionMagicVoltage
 from typing import Callable
 from commands2 import Command
+from commands2.button import Trigger
 from configs.ctre import motorOutputCWPandBrake, motorOutputCCWPandBrake
 
 
@@ -28,7 +29,8 @@ class Shoulder(Subsystem):
     # home, coralLvl1, coralLvl2, coralLvl3, algeLvl1, algeLvl2, algeLvl3, processor
 
     class Position:
-        HOME = 0
+        LOAD = -0.25
+        READY = -0.15
         LEVEL1 = -0.15
         LEVEL2 = 0.1
         LEVEL3 = 0.1
@@ -74,7 +76,7 @@ class Shoulder(Subsystem):
         # set the follower's control to ALWAYS follow the main motor
         self._follower.set_control(Follower(self.motor.device_id, False))
 
-        self.position_tolerance = 0.1
+        self.position_tolerance = 0.05
         self.control = MotionMagicVoltage(0, slot=0, enable_foc=False)
 
     def joystick_move_command(self, control: Callable[[], float]) -> Command:
@@ -92,10 +94,13 @@ class Shoulder(Subsystem):
             lambda: self.motor.set_control(VoltageOut(control() * 10, enable_foc=False))
         )
 
+    def at_position(self, position) -> bool:
+        return Trigger(
+            lambda: abs(self.motor.get_position().value - position)
+            < self.position_tolerance
+        )
+
     def move(self, position) -> Command:
         return self.runOnce(
             lambda: self.motor.set_control(self.control.with_position(position))
         )
-
-    def at_position(self, position):
-        return abs(self.motor.get_position() - position) < self.position_tolerance

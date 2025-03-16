@@ -116,4 +116,4 @@ class Lift(Subsystem):
         )
 
     def at_position(self, position):
-        return abs(self.motor.get_position() - position) < self.position_tolerance
+        return abs(self.motor.get_position().value - position) < self.position_tolerance
