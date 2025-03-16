@@ -63,6 +63,7 @@ class MyRobot(commands2.TimedCommandRobot):
         """This autonomous runs the autonomous command selected by your RobotContainer class."""
         self.container.positioning.setReefTags(DriverStation.getAlliance())
         self.autonomousCommand = self.container.getAutonomousCommand()
+        self.container.home_subsystems()
 
     def autonomousPeriodic(self) -> None:
         """This function is called periodically during autonomous"""
@@ -71,6 +72,7 @@ class MyRobot(commands2.TimedCommandRobot):
         # set's the driver X, Y output based on which alliance we are on
         self.container.driverController.set_alliance(DriverStation.getAlliance())
         self.container.positioning.setReefTags(DriverStation.getAlliance())
+        self.container.home_subsystems()
 
         # make sure the drive is enabled
         self.container.driveSubsystem.enable()

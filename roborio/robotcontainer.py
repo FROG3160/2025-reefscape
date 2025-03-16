@@ -106,6 +106,7 @@ class RobotContainer:
         self.driveSubsystem.setDefaultCommand(
             ManualDrive(self.driverController, self.driveSubsystem)
         )
+        self.subsystems_homed = False
 
     def registerNamedCommands(self):
         pass
@@ -118,7 +119,7 @@ class RobotContainer:
         """
         self.configureDriverControls()
         self.configureOperatorControls()
-        self.configureHomeRoutines()
+        self.configureAutomationBindings()
 
     def configureTestBindings(self):
         self.elevator.setDefaultCommand(
@@ -140,23 +141,55 @@ class RobotContainer:
         # once.
         pass
 
-    def configureHomeRoutines(self):
-        wpilib.SmartDashboard.putData("Home Elevator", self.elevator.home())
-        wpilib.SmartDashboard.putData("Home Arm", self.arm.set_home())
-        wpilib.SmartDashboard.putData("Home Intake", self.intake.set_home())
+    def home_subsystems(self):
+        if not self.subsystems_homed:
+            self.elevator.home().schedule()
+            self.arm.set_home().schedule()
+            self.intake.set_home().schedule()
+            self.systems_homed = True
+
+    def configureAutomationBindings(self):
+
+        self.intake.intake_deployed().onTrue(
+            self.shoulder.move(self.shoulder.Position.READY).andThen(
+                self.intake.start_intake()
+            )
+        )
+
+        # self.intake.coral_detected_trigger().onFalse(
+        #     self.intake.set_intake_loaded().andThen(
+        #         PrintCommand("CORAL DETECTED WENT FALSE")
+        #     )
+        # )
+
+        """CORAL LOADED TRIGGER CAN BE REPLACED WITH HAS_STATE LIKE LINE 172"""
+        self.intake.has_state(self.intake.State.CORAL_LOADED).onTrue(
+            self.intake.stop_intake().andThen(
+                self.shoulder.move(self.shoulder.Position.LOAD)
+            )
+        )
+        self.shoulder.at_position(self.shoulder.Position.LOAD).and_(
+            self.intake.has_state(self.intake.State.CORAL_LOADED)
+        ).onTrue(
+            self.grabber.intake_coral().andThen(
+                self.arm.move(self.arm.Position.CORAL_PICKUP)
+            )
+        )
 
     def configureDriverControls(self):
         """DRIVER CONTROLS"""
         # self.driverController.start().onTrue(
         #     runOnce(lambda: self.driveSubsystem.setFieldPositionFromVision())
         # )
-        self.driverController.rightBumper().onTrue(self.grabber.intake_coral())
-        self.driverController.rightBumper().onFalse(self.grabber.eject_coral())
-        self.driverController.leftBumper().onTrue(
-            self.intake.start().andThen(self.intake.move(self.intake.Position.DEPLOYED))
+        self.driverController.rightBumper().onTrue(
+            self.intake.move_intake(self.intake.Position.DEPLOYED)
         )
-        self.driverController.leftBumper().onFalse(
-            self.intake.stop().andThen(self.intake.move(self.intake.Position.HOME))
+        self.driverController.leftBumper().onTrue(
+            self.intake.move_intake(self.intake.Position.HOME).andThen(
+                self.shoulder.move(self.shoulder.Position.READY).andThen(
+                    self.intake.stop_intake()
+                )
+            )
         )
 
     def configureOperatorControls(self):

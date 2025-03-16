@@ -19,7 +19,7 @@ from phoenix6.controls import (
     MotionMagicVoltage,
 )
 from typing import Callable
-from commands2 import Command
+from commands2 import Command, WaitCommand, WaitUntilCommand
 from configs.ctre import (
     motorOutputCWPandBrake,
     motorOutputCCWPandCoast,
@@ -32,14 +32,14 @@ class Intake(Subsystem):
     # upAndOff, downAndOn
 
     class Position:
-        HOME = 0.32
+        HOME = 0.33
         DEPLOYED = 0.0
 
-    class Status:
-        OFF = 0
-        ON = 1
+    class State:
+        EMPTY = 1
         CORAL_DETECTED = 2
         CORAL_CLEARED = 3
+        CORAL_LOADED = 4
 
     def __init__(self):
         self.lower_motor = FROGTalonFX(
@@ -70,7 +70,7 @@ class Intake(Subsystem):
                 .with_k_s(0.2)
                 .with_k_v(3.0)
                 .with_k_a(0.1)
-                .with_k_g(0.7),
+                .with_k_g(0.4),
             )
             .with_motor_output(motorOutputCWPandBrake)
             .with_motion_magic(
@@ -86,15 +86,15 @@ class Intake(Subsystem):
         self.deploy_motor.optimize_bus_utilization()
         # when the robot is powered on, the intake should be in the upright position
         self._position = self.Position.HOME
-        self.deploy_position_tolerance = 0.01
-        self.reset_position()
+        self.deploy_position_tolerance = 0.02
         self.homing_torque_limit = 8.0
         self.homing_voltage = 1.0
         self.deploy_control = MotionMagicVoltage(0, slot=0, enable_foc=False)
         self.detected_torque = 0
-        self.intake_status = self.Status.OFF
+        self.intake_state = self.State.EMPTY
+        self.watch_intake_torque = False
 
-    def reset_position(self):
+    def _reset_position(self):
         self.deploy_motor.set_position(self.Position.HOME)
         self.deploy_motor.config.with_software_limit_switch(
             SoftwareLimitSwitchConfigs()
@@ -105,14 +105,45 @@ class Intake(Subsystem):
         )
         self.deploy_motor.configurator.apply(self.deploy_motor.config)
 
-    def get_deploy_torque(self):
+    def _at_position(self, position) -> bool:
+        return (
+            abs(self.deploy_motor.get_position().value - position)
+            < self.deploy_position_tolerance
+        )
+
+    # def _coral_detected(self):
+    #     return self.intake_state == self.State.CORAL_DETECTED
+
+    # def _coral_loaded(self):
+    #     return self.intake_state == self.State.CORAL_LOADED
+
+    def _get_deploy_torque(self):
         return self.deploy_motor.get_torque_current().value
 
-    def get_intake_torque(self):
-        return self.deploy_motor.get_torque_current().value
+    def _get_intake_torque(self):
+        return self.upper_motor.get_torque_current().value
 
-    def stop_homing(self):
-        return abs(self.get_deploy_torque()) > self.homing_torque_limit
+    def _stop_homing(self):
+        return abs(self._get_deploy_torque()) > self.homing_torque_limit
+
+    def _run_intake_motors(self):
+        self.upper_motor.set_control(VoltageOut(2.5, enable_foc=False))
+        self.lower_motor.set_control(VoltageOut(2.0, enable_foc=False))
+
+    def _stop_intake_motors(self):
+        self.upper_motor.stopMotor()
+        self.lower_motor.stopMotor()
+
+    def _set_intake_state(self, state):
+        self.intake_state = state
+
+    def _enable_watch_torque(self):
+        self.watch_intake_torque = True
+
+    def _disable_watch_torque(self):
+        self.watch_intake_torque = False
+
+    ### COMMANDS
 
     def set_home(self) -> Command:
         return (
@@ -124,66 +155,69 @@ class Intake(Subsystem):
                 # END
                 lambda: self.deploy_motor.stopMotor(),
             )
-            .until(self.stop_homing)
-            .andThen(self.runOnce(self.reset_position))
+            .until(self._stop_homing)
+            .andThen(self.runOnce(self._reset_position))
         )
 
-    def run_intake(self):
-        self.upper_motor.set_control(VoltageOut(2.5, enable_foc=False))
-        self.lower_motor.set_control(VoltageOut(2.0, enable_foc=False))
-
-    def stop_intake(self):
-        self.upper_motor.stopMotor()
-        self.lower_motor.stopMotor()
-
-    ### COMMANDS
-
-    def move(self, position) -> Command:
+    def move_intake(self, position) -> Command:
         return self.runOnce(
             lambda: self.deploy_motor.set_control(
                 self.deploy_control.with_position(position)
             )
         )
 
-    def start(self) -> Command:
-        return self.runOnce(self.run_intake)
+    def start_intake(self) -> Command:
+        return (
+            self.runOnce(self._run_intake_motors)
+            .andThen(WaitCommand(0.1))
+            .andThen(self.runOnce(self._enable_watch_torque))
+        )
 
-    def stop(self) -> Command:
-        return self.runOnce(self.stop_intake)
+    def stop_intake(self) -> Command:
+        return self.runOnce(self._stop_intake_motors).andthen(
+            self.runOnce(self._disable_watch_torque)
+        )
+
+    def set_intake_loaded(self) -> Command:
+        return self.runOnce(self._set_intake_state(self.State.CORAL_LOADED))
+
+    def set_intake_empty(self) -> Command:
+        return self.runOnce(self._set_intake_state(self.State.CORAL_CLEARED))
+
+    # TRIGGERS
+
+    def has_state(self, state):
+        return Trigger(lambda: self.intake_state == state)
 
     def at_position(self, position):
-        return (
-            abs(self.deploy_motor.get_position() - position)
-            < self.deploy_position_tolerance
-        )
+        return Trigger(lambda: self._at_position(position))
 
-    def coral_cleared(self):
-        return self.intake_status == self.Status.CORAL_CLEARED
+    """at_position above COULD take the place of the two more specific
+        triggers below"""
 
-    def get_deployed_trigger(self):
-        return Trigger(lambda: self.at_position(self.Position.DEPLOYED))
+    def intake_deployed(self):
+        return Trigger(lambda: self._at_position(self.Position.DEPLOYED))
 
-    def get_home_trigger(self):
-        return Trigger(lambda: self.at_position(self.Position.HOME))
+    def intake_retracted(self):
+        return Trigger(lambda: self._at_position(self.Position.HOME))
 
-    def get_coral_cleared_trigger(self):
-        return Trigger(lambda: self.coral_cleared())
+    # def coral_detected(self):
+    #     # return Trigger(self._coral_detected)
+    #     return self.has_state(self.State.CORAL_DETECTED)
 
-    def registerIntakeTriggers(self):
-        self.get_deployed_trigger().onTrue(self.runOnce(self.run_intake()))
-
-        self.get_coral_cleared_trigger().onTrue(
-            self.runOnce(self.stop_intake).andThen(self.retract())
-        )
+    # def coral_loaded(self):
+    #     # return Trigger(self._coral_loaded)
+    #     return self.has_state(self.State.CORAL_LOADED)
 
     def periodic(self):
-        previous_torque = self.detected_torque
-        self.detected_torque = self.get_intake_torque()
-        if self.detected_torque > previous_torque and self.detected_torque > 9:
-            self.intake_status = self.Status.CORAL_DETECTED
-        elif (
-            self.detected_torque < previous_torque
-            and self.detected_torque < 9
-            and self.intake_status == self.Status.CORAL_DETECTED
-        ):
-            self.intake_status = self.Status.CORAL_CLEARED
+        if self.watch_intake_torque:
+            if (
+                self.intake_state != self.State.CORAL_DETECTED
+                and self._get_intake_torque() > 10
+            ):
+                self._set_intake_state(self.State.CORAL_DETECTED)
+            elif (
+                self.intake_state == self.State.CORAL_DETECTED
+                and self._get_intake_torque() < 8
+            ):
+                self._set_intake_state(self.State.CORAL_LOADED)
