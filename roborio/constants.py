@@ -189,20 +189,20 @@ class Tags:
 
 robotToCamera1 = Transform3d(
     Translation3d(
-        inchesToMeters(-8.125),  # Forward from center
-        inchesToMeters(5.625),  # Left from center
+        inchesToMeters(5.625),  # Forward from center
+        inchesToMeters(-8.125),  # Left from center
         inchesToMeters(11.375),  # Up from the floor
     ),
-    Rotation3d(0, -math.pi / 2, math.pi),
+    Rotation3d(0, 0, -math.pi / 2),
 )
 
 robotToCamera2 = Transform3d(
     Translation3d(
-        inchesToMeters(8.125),  # Forward from center
-        inchesToMeters(7.0625),  # Left from center
+        inchesToMeters(7.0625),  # Forward from center
+        inchesToMeters(8.125),  # Left from center
         inchesToMeters(27.25),  # Up from the floor
     ),
-    Rotation3d(0, math.pi / 2, 0),
+    Rotation3d(0, 0, math.pi / 2),
 )
 
 
