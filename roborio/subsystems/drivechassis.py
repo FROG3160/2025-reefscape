@@ -82,6 +82,9 @@ class DriveChassis(SwerveBase):
         self.field = Field2d()
         SmartDashboard.putData("DrivePose", self.field)
 
+        self.distancesToTags = []
+        self.positionCalcs = Position()
+
         ab_config = RobotConfig(
             massKG=constants.kRobotKilograms,
             MOI=constants.kMOI,
@@ -205,8 +208,7 @@ class DriveChassis(SwerveBase):
                 cameraPoseObject.setPose(self.cameraPose.estimatedPose.toPose2d())
 
         self.field.setRobotPose(self.estimator.getEstimatedPosition())
-        self.distancesToTags = []
-        self.positionCalcs = Position()
+
         for aprilTag in self.positionCalcs.getTags():
             self.distancesToTags.append(
                 self.estimator.getEstimatedPosition()
