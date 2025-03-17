@@ -160,27 +160,6 @@ class RobotContainer:
             DeferredCommand(lambda: self.test_move_all()),
         )
         test_tab = Shuffleboard.getTab("Test")
-        self.shuffleboard_elevator = (
-            test_tab.add("Elevator", 0).withWidget(BuiltInWidgets.kNumberSlider)
-            # .withProperties({"min": 0, "max": 1})
-            .getEntry()
-        )
-        self.shuffleboard_shoulder = (
-            test_tab.add("Shoulder", 0).withWidget(BuiltInWidgets.kNumberSlider)
-            # .withProperties({"min": -0.25, "max": 0.25})
-            .getEntry()
-        )
-        self.shuffleboard_arm = (
-            test_tab.add("Arm", 0).withWidget(BuiltInWidgets.kNumberSlider)
-            # .withProperties({"min": 0, "max": 7})
-            .getEntry()
-        )
-        self.shuffleboard_grabber = (
-            test_tab.add("Grabber Voltage", 0).withWidget(BuiltInWidgets.kNumberSlider)
-            # .withProperties({"min": -12, "max": 12})
-            .getEntry()
-        )
-
         self.driverController.a().onTrue(
             self.elevator.move(self.shuffleboard_elevator.get())
         )
