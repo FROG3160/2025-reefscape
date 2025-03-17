@@ -61,6 +61,12 @@ class RobotContainer:
     subsystems, commands, and button mappings) should be declared here.
     """
 
+    first_shoulder = "First Shoulder Pos"
+    second_shoulder = "Second Shoulder Pos"
+    elevator = "Elevator Pos"
+    arm = "Arm Pos"
+    grabber = "Grabber Voltage"
+
     def __init__(self) -> None:
 
         # The driver's controller
@@ -145,21 +151,30 @@ class RobotContainer:
     def configureTestBindings(self):
         # Bind full set of SysId routine tests to buttons; a complete routine should run each of these
         # once.
-        first_shoulder = "First Shoulder Pos"
-        second_shoulder = "Second Shoulder Pos"
-        elevator = "Elevator Pos"
-        arm = "Arm Pos"
-
-        SmartDashboard.putNumber(first_shoulder, 0.2)
-        SmartDashboard.putNumber(second_shoulder, 0.08)
-        SmartDashboard.putNumber(elevator, 8)
-        SmartDashboard.putNumber(arm, 0)
+        SmartDashboard.putNumber(self.first_shoulder, 0.2)
+        SmartDashboard.putNumber(self.second_shoulder, 0.08)
+        SmartDashboard.putNumber(self.elevator, 8)
+        SmartDashboard.putNumber(self.arm, 0)
+        SmartDashboard.putNumber(self.grabber, 0)
 
         SmartDashboard.putData(
             "Position For Coral Placement",
             DeferredCommand(lambda: self.test_move_all()),
         )
-        test_tab = Shuffleboard.getTab("Test")
+        SmartDashboard.putData(
+            "Run Grabber", DeferredCommand(lambda: self.test_run_grabber())
+        )
+        SmartDashboard.putData(
+            "Move Elevator To Pos", DeferredCommand(lambda: self.test_move_elevator())
+        )
+        SmartDashboard.putData(
+            "Move Shoulder to second Pos",
+            DeferredCommand(lambda: self.test_move_shoulder()),
+        )
+        SmartDashboard.putData(
+            "Move Arm to Pos", DeferredCommand(lambda: self.test_move_arm())
+        )
+
         self.driverController.a().onTrue(
             self.elevator.move(self.shuffleboard_elevator.get())
         )
@@ -195,14 +210,11 @@ class RobotContainer:
         )
 
     def test_move_all(self) -> Command:
-        first_shoulder = "First Shoulder Pos"
-        second_shoulder = "Second Shoulder Pos"
-        elevator = "Elevator Pos"
-        arm = "Arm Pos"
-        first_shoulder_pos = SmartDashboard.getNumber(first_shoulder, -0.25)
-        elevator_pos = SmartDashboard.getNumber(elevator, 0)
-        second_shoulder_pos = SmartDashboard.getNumber(second_shoulder, -0.25)
-        arm_pos = SmartDashboard.getNumber(arm, 0)
+
+        first_shoulder_pos = SmartDashboard.getNumber(self.first_shoulder, -0.25)
+        elevator_pos = SmartDashboard.getNumber(self.elevator, 0)
+        second_shoulder_pos = SmartDashboard.getNumber(self.second_shoulder, -0.25)
+        arm_pos = SmartDashboard.getNumber(self.arm, 0)
 
         return (
             self.shoulder.move(first_shoulder_pos)
@@ -212,6 +224,22 @@ class RobotContainer:
             .andThen(self.shoulder.move(second_shoulder_pos))
             .andThen(self.arm.move(arm_pos))
         )
+
+    def test_run_grabber(self) -> Command:
+        grabber_voltage = SmartDashboard.getNumber(self.grabber, 0)
+        return self.grabber.run_motor(grabber_voltage)
+
+    def test_move_elevator(self) -> Command:
+        elevator_pos = SmartDashboard.getNumber(self.elevator, 0)
+        return self.elevator.move(elevator_pos)
+
+    def test_move_shoulder(self) -> Command:
+        shoulder_pos = SmartDashboard.getNumber(self.second_shoulder)
+        return self.shoulder.move(shoulder_pos)
+
+    def test_move_arm(self) -> Command:
+        arm_pos = SmartDashboard.getNumber(self.arm)
+        return self.arm.move(arm_pos)
 
     def home_subsystems(self):
         if not self.subsystems_homed:
