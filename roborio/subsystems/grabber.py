@@ -136,7 +136,9 @@ class Grabber(Subsystem):
         ).until(self.not_detecting_algae)
 
     def run_motor(self, voltage) -> Command:
-        return self.runOnce(lambda: self.motor.set_control(voltage))
+        return self.runOnce(
+            lambda: self.motor.set_control(VoltageOut(voltage, enable_foc=False))
+        )
 
     def periodic(self):
         self._range_pub.set(self.get_range())
