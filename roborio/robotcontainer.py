@@ -5,7 +5,7 @@
 #
 import os
 import wpilib
-from wpilib import DriverStation
+from wpilib import DriverStation, SmartDashboard
 from wpilib.interfaces import GenericHID
 from wpimath.units import degreesToRadians
 from wpimath.geometry import Pose2d, Rotation2d
@@ -26,10 +26,17 @@ from constants import (
     robotToCamera2,
 )
 from commands2.cmd import runOnce, startEnd, waitUntil
-from commands2 import DeferredCommand, PrintCommand, RepeatCommand, InterruptionBehavior
+from commands2 import (
+    DeferredCommand,
+    PrintCommand,
+    RepeatCommand,
+    InterruptionBehavior,
+    Command,
+)
 from commands2.sysid import SysIdRoutine
 
 from FROGlib.xbox import FROGXboxDriver, FROGXboxTactical
+from wpilib.shuffleboard import BuiltInWidgets, Shuffleboard
 
 from subsystems.drivechassis import DriveChassis
 from subsystems.positioning import Position
@@ -84,7 +91,6 @@ class RobotContainer:
         # Add each positioning camera to the positioningCameras list
         self.positioningCameras.append(self.camera1)
         self.positioningCameras.append(self.camera2)
-        self.positioningCameras = []
 
         self.positioning = Position()
 
@@ -136,10 +142,97 @@ class RobotContainer:
         self.driverController.a().onTrue(self.grabber.intake_algae())
         self.driverController.b().onTrue(self.grabber.intake_coral())
 
-    def configureSysIDButtonBindings(self):
+    def configureTestBindings(self):
         # Bind full set of SysId routine tests to buttons; a complete routine should run each of these
         # once.
-        pass
+        first_shoulder = "First Shoulder Pos"
+        second_shoulder = "Second Shoulder Pos"
+        elevator = "Elevator Pos"
+        arm = "Arm Pos"
+
+        SmartDashboard.putNumber(first_shoulder, 0.2)
+        SmartDashboard.putNumber(second_shoulder, 0.08)
+        SmartDashboard.putNumber(elevator, 8)
+        SmartDashboard.putNumber(arm, 0)
+
+        SmartDashboard.putData(
+            "Position For Coral Placement",
+            DeferredCommand(lambda: self.test_move_all()),
+        )
+        test_tab = Shuffleboard.getTab("Test")
+        self.shuffleboard_elevator = (
+            test_tab.add("Elevator", 0).withWidget(BuiltInWidgets.kNumberSlider)
+            # .withProperties({"min": 0, "max": 1})
+            .getEntry()
+        )
+        self.shuffleboard_shoulder = (
+            test_tab.add("Shoulder", 0).withWidget(BuiltInWidgets.kNumberSlider)
+            # .withProperties({"min": -0.25, "max": 0.25})
+            .getEntry()
+        )
+        self.shuffleboard_arm = (
+            test_tab.add("Arm", 0).withWidget(BuiltInWidgets.kNumberSlider)
+            # .withProperties({"min": 0, "max": 7})
+            .getEntry()
+        )
+        self.shuffleboard_grabber = (
+            test_tab.add("Grabber Voltage", 0).withWidget(BuiltInWidgets.kNumberSlider)
+            # .withProperties({"min": -12, "max": 12})
+            .getEntry()
+        )
+
+        self.driverController.a().onTrue(
+            self.elevator.move(self.shuffleboard_elevator.get())
+        )
+        self.driverController.b().onTrue(
+            self.shoulder.move(self.shuffleboard_shoulder.get())
+        )
+        self.driverController.x().onTrue(self.arm.move(self.shuffleboard_arm.get()))
+        self.driverController.rightBumper().whileTrue(
+            self.grabber.run_motor(self.shuffleboard_grabber.get())
+        )
+        self.driverController.leftBumper().whileTrue(self.grabber.run_motor(0))
+
+        # rotate Arm up
+        # raise elevator
+        # rotate arm down
+        # extend arm
+        # run grabber
+
+    def position_for_coral_placement(
+        self, first_shoulder_pos, elevator_pos, second_shoulder_pos, arm_pos
+    ) -> Command:
+        # first_shoulder_pos = 0.2
+        # elevator_pos = 8
+        # second_shoulder_pos = 0.08
+        # arm_pos = 0
+        return (
+            self.shoulder.move(first_shoulder_pos)
+            .andThen(waitUntil(lambda: self.shoulder.at_position(first_shoulder_pos)))
+            .andThen(self.elevator.move(elevator_pos))
+            .andThen(waitUntil(lambda: self.elevator.at_position(elevator_pos)))
+            .andThen(self.shoulder.move(second_shoulder_pos))
+            .andThen(self.arm.move(arm_pos))
+        )
+
+    def test_move_all(self) -> Command:
+        first_shoulder = "First Shoulder Pos"
+        second_shoulder = "Second Shoulder Pos"
+        elevator = "Elevator Pos"
+        arm = "Arm Pos"
+        first_shoulder_pos = SmartDashboard.getNumber(first_shoulder, -0.25)
+        elevator_pos = SmartDashboard.getNumber(elevator, 0)
+        second_shoulder_pos = SmartDashboard.getNumber(second_shoulder, -0.25)
+        arm_pos = SmartDashboard.getNumber(arm, 0)
+
+        return (
+            self.shoulder.move(first_shoulder_pos)
+            .andThen(waitUntil(lambda: self.shoulder.at_position(first_shoulder_pos)))
+            .andThen(self.elevator.move(elevator_pos))
+            .andThen(waitUntil(lambda: self.elevator.at_position(elevator_pos)))
+            .andThen(self.shoulder.move(second_shoulder_pos))
+            .andThen(self.arm.move(arm_pos))
+        )
 
     def home_subsystems(self):
         if not self.subsystems_homed:
