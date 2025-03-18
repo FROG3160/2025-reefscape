@@ -47,6 +47,7 @@ from subsystems.grabber import Grabber
 from subsystems.arm import Arm
 from subsystems.intake import Intake
 from subsystems.climber import Climber
+from pathplannerlib.auto import AutoBuilder
 
 from commands.drive.field_oriented import (
     ManualDrive,
@@ -120,6 +121,10 @@ class RobotContainer:
         )
         self.subsystems_homed = False
 
+        # AUTO CHOOSER
+        self.autochooser = AutoBuilder.buildAutoChooser()
+        SmartDashboard.putData("PathPlanner Autos", self.autochooser)
+
     def registerNamedCommands(self):
         pass
 
@@ -178,19 +183,14 @@ class RobotContainer:
 
         self.driverController.leftBumper().whileTrue(self.grabber.run_motor(0))
 
-        # rotate Arm up
-        # raise elevator
-        # rotate arm down
-        # extend arm
-        # run grabber
+        # PathPlanner test commands
+        SmartDashboard.putData(
+            "Drive Barge to Processor", self.driveSubsystem.driveToProcessor()
+        )
 
     def position_for_coral_placement(
         self, first_shoulder_pos, elevator_pos, second_shoulder_pos, arm_pos
     ) -> Command:
-        # first_shoulder_pos = 0.2
-        # elevator_pos = 8
-        # second_shoulder_pos = 0.08
-        # arm_pos = 0
         return (
             self.shoulder.move(first_shoulder_pos)
             .andThen(waitUntil(lambda: self.shoulder.at_position(first_shoulder_pos)))

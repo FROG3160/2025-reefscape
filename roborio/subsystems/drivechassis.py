@@ -35,6 +35,7 @@ from phoenix6.controls import (
 from pathplannerlib.auto import AutoBuilder
 from pathplannerlib.controller import PPHolonomicDriveController
 from pathplannerlib.config import RobotConfig, PIDConstants, ModuleConfig, DCMotor
+from pathplannerlib.path import PathPlannerPath, PathConstraints
 
 # from subsystems.leds import LEDSubsystem
 from subsystems.vision import VisionPose
@@ -97,12 +98,12 @@ class DriveChassis(SwerveBase):
             self.getPose,  # Robot pose supplier
             self.resetPose,  # Method to reset odometry (will be called if your auto has a starting pose)
             self.getRobotRelativeSpeeds,  # ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            lambda speeds, feedforwards: self.driveRobotRelative(
+            lambda speeds, feedforwards: self.setChassisSpeeds(
                 speeds
             ),  # Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also outputs individual module feedforwards
             PPHolonomicDriveController(  # PPHolonomicController is the built in path following controller for holonomic drive trains
-                PIDConstants(5.0, 0.0, 0.0),  # Translation PID constants
-                PIDConstants(5.0, 0.0, 0.0),  # Rotation PID constants
+                PIDConstants(1.0, 0.0, 0.0),  # Translation PID constants
+                PIDConstants(0.4, 0.0, 0.0),  # Rotation PID constants
             ),
             ab_config,  # The robot configuration
             self.shouldFlipPath,  # Supplier to control path flipping based on alliance color
@@ -170,6 +171,13 @@ class DriveChassis(SwerveBase):
 
     def sysIdDynamicSteer(self, direction: SysIdRoutine.Direction) -> Command:
         return self.sys_id_routine_steer.dynamic(direction)
+
+    # PathPlanner Auto Commands
+
+    def driveToProcessor(self) -> Command:
+        return AutoBuilder.followPath(
+            PathPlannerPath.fromPathFile("Barge to Processor")
+        )
 
     def resetRotationController(self):
         self.profiledRotationController.reset(

@@ -451,8 +451,8 @@ class SwerveBase(Subsystem):
             ChassisSpeeds(vX, vY, vT), self.loopTime
         )
 
-    def setChassisSpeeds(self, chassis_speeds):
-        self.chassisSpeeds = ChassisSpeeds.discretize(chassis_speeds, self.loopTime)
+    def setChassisSpeeds(self, speeds: ChassisSpeeds):
+        self.chassisSpeeds = ChassisSpeeds.discretize(speeds, self.loopTime)
 
     def setModuleStates(self, states):
         self.moduleStates = states
