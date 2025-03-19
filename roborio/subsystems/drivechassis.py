@@ -179,6 +179,11 @@ class DriveChassis(SwerveBase):
             PathPlannerPath.fromPathFile("Barge to Processor")
         )
 
+    def driveToDSRightReef(self) -> Command:
+        return AutoBuilder.followPath(
+            PathPlannerPath.fromPathFile("Move to driver-side right")
+        )
+
     def resetRotationController(self):
         self.profiledRotationController.reset(
             self.getRotation2d().radians(),
@@ -200,6 +205,7 @@ class DriveChassis(SwerveBase):
         for camera in self.positioningCameras:
             self.cameraPose = camera.periodic()
             if self.cameraPose is not None:
+
                 self.estimator.addVisionMeasurement(
                     self.cameraPose.estimatedPose.toPose2d(),
                     self.cameraPose.timestampSeconds,
