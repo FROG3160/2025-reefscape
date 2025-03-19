@@ -227,6 +227,13 @@ class RobotContainer:
             .until(self.grabber.detecting_coral())
         )
 
+    def hold_coral_during_travel(self) -> Command:
+        return (
+            self.grabber.run_motor(0)
+            .andThen(self.arm.move(0))
+            .alongWith(self.shoulder.move(-0.2))
+        )
+
     def move_all(self) -> Command:
 
         first_shoulder_pos = self.scoringConfig.shoulder_start_pos
