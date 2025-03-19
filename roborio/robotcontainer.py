@@ -275,6 +275,12 @@ class RobotContainer:
         # self.driverController.start().onTrue(
         #     runOnce(lambda: self.driveSubsystem.setFieldPositionFromVision())
         # )
+        self.driverController.y().onTrue(
+            "Drive Barge to Processor", self.driveSubsystem.driveToProcessor()
+        )
+        self.driverController.a().onTrue(
+            "Drive to Reef DS Right", self.driveSubsystem.driveToDSRightReef()
+        )
         # self.driverController.rightBumper().onTrue(
         #     self.intake.move_intake(self.intake.Position.DEPLOYED)
         # )
