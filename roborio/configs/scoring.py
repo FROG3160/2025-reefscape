@@ -1,11 +1,11 @@
 class ScoringConfigs:
     def __init__(
         self,
-        elevator_pos: float,
-        shoulder_start_pos: float,
-        shoulder_end_pos: float,
-        arm_pos: float,
-        grabber_v: float,
+        elevator_pos: float = 0.0,
+        shoulder_start_pos: float = -0.25,
+        shoulder_end_pos: float = -0.25,
+        arm_pos: float = 0.0,
+        grabber_v: float = 0.0,
     ):
         self.elevator_pos = elevator_pos
         self.shoulder_start_pos = shoulder_start_pos

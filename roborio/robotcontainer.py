@@ -37,7 +37,16 @@ from commands2.sysid import SysIdRoutine
 
 from FROGlib.xbox import FROGXboxDriver, FROGXboxTactical
 from wpilib.shuffleboard import BuiltInWidgets, Shuffleboard
-from configs.scoring import ScoringConfigs
+from configs.scoring import (
+    ScoringConfigs,
+    L1_shoot,
+    L2_shoot,
+    L3_shootV1,
+    L3_shootV2,
+    L3_dunk,
+    L4_shoot,
+    L4_dunk,
+)
 from subsystems.drivechassis import DriveChassis
 from subsystems.positioning import Position
 from subsystems.vision import VisionPose
@@ -192,9 +201,12 @@ class RobotContainer:
             "Drive to Reef DS Right", self.driveSubsystem.driveToDSRightReef()
         )
 
-    def setScoringAction(self, scoringConfig) -> Command: 
-        return runOnce(lambda: self.scoringConfig = scoringConfig)
-    
+    def setScoringConfig(self, scoringConfig: ScoringConfigs):
+        self.scoringConfig = scoringConfig
+
+    def setScoringAction(self, scoringConfig) -> Command:
+        return runOnce(lambda: self.setScoringConfig(scoringConfig))
+
     def position_for_coral_placement(
         self, first_shoulder_pos, elevator_pos, second_shoulder_pos, arm_pos
     ) -> Command:
@@ -238,7 +250,7 @@ class RobotContainer:
             .andThen(self.shoulder.move(second_shoulder_pos))
             .andThen(self.arm.move(arm_pos))
         )
-    
+
     def test_run_grabber(self) -> Command:
         grabber_voltage = SmartDashboard.getNumber(self.grabber_str, 0)
         return self.grabber.run_motor(grabber_voltage)
@@ -302,18 +314,25 @@ class RobotContainer:
         #     self.intake.move_intake(self.intake.Position.HOME).andThen(
         #         self.shoulder.move(self.shoulder.Position.READY).andThen(
         #             self.intake.stop_intake()
-        #         )
+        #         )a
         #     )
         # )
+        self.driverController.x().onTrue(self.move_all())
 
     def configureOperatorControls(self):
         """OPERATOR CONTROLS"""
         # wpilib.SmartDashboard.putData("Deploy Intake", self.intake.deploy_)
         # wpilib.SmartDashboard.putData("Retract Intake",
         # self.intake.retract())
-        self.tacticalController.povDown().onTrue(self.shoulder.move(-0.25))
-        self.tacticalController.povLeft().onTrue(self.shoulder.move(0))
-        self.tacticalController.povUp().onTrue(self.shoulder.move(0.125))
+        self.tacticalController.povDown().onTrue(
+            self.setScoringAction(L3_shootV1)
+        )  # self.shoulder.move(-0.25))
+        self.tacticalController.povLeft().onTrue(
+            self.setScoringAction(L3_dunk)
+        )  # self.shoulder.move(0))
+        self.tacticalController.povUp().onTrue(
+            self.setScoringAction(L4_dunk)
+        )  # self.shoulder.move(0.125))
         self.tacticalController.leftBumper().onTrue(
             self.arm.move(self.arm.Position.CORAL_PICKUP)
         )
@@ -321,20 +340,24 @@ class RobotContainer:
             self.arm.move(self.arm.Position.RETRACTED)
         )
         self.tacticalController.a().onTrue(
-            self.shoulder.move(self.shoulder.Position.LEVEL1)
+            self.setScoringAction(L1_shoot)
+            # self.shoulder.move(self.shoulder.Position.LEVEL1)
         )
         self.tacticalController.b().onTrue(
-            self.shoulder.move(self.shoulder.Position.LEVEL2).andThen(
-                self.arm.move(self.arm.Position.CORAL_L2_PLACE)
-            )
+            self.setScoringAction(L2_shoot)
+            # self.shoulder.move(self.shoulder.Position.LEVEL2).andThen(
+            #     self.arm.move(self.arm.Position.CORAL_L2_PLACE)
+            # )
         )
         self.tacticalController.x().onTrue(
-            self.shoulder.move(self.shoulder.Position.LEVEL3)
+            self.setScoringAction(L3_shootV2)
+            # self.shoulder.move(self.shoulder.Position.LEVEL3)
         )
         self.tacticalController.y().onTrue(
-            self.shoulder.move(self.shoulder.Position.LEVEL4).andThen(
-                self.arm.move(self.arm.Position.CORAL_L4_PLACE)
-            )
+            self.setScoringAction(L4_shoot)
+            # self.shoulder.move(self.shoulder.Position.LEVEL4).andThen(
+            #     self.arm.move(self.arm.Position.CORAL_L4_PLACE)
+            # )
         )
 
     def getAutonomousCommand(self):
