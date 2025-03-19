@@ -217,6 +217,16 @@ class RobotContainer:
             .andThen(self.arm.move(arm_pos))
         )
 
+    def grab_coral_from_trough(self) -> Command:
+        return (
+            self.arm.move(0)
+            .andThen(waitUntil(lambda: self.arm.at_position(0)))
+            .alongWith(self.shoulder.move(-0.25))
+            .andThen(self.arm.move(0.4))
+            .alongWith(self.grabber.run_motor(5))
+            .until(self.grabber.detecting_coral())
+        )
+
     def move_all(self) -> Command:
 
         first_shoulder_pos = self.scoringConfig.shoulder_start_pos
@@ -311,7 +321,6 @@ class RobotContainer:
         self.driverController.a().whileTrue(
             self.driveSubsystem.driveAutoPath("New Path")
         )
-
 
     def configureOperatorControls(self):
         """Configures triggers for manual control by tactical"""
