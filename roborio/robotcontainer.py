@@ -187,6 +187,9 @@ class RobotContainer:
         SmartDashboard.putData(
             "Drive Barge to Processor", self.driveSubsystem.driveToProcessor()
         )
+        SmartDashboard.putData(
+            "Drive to Reef DS Right", self.driveSubsystem.driveToDSRightReef()
+        )
 
     def position_for_coral_placement(
         self, first_shoulder_pos, elevator_pos, second_shoulder_pos, arm_pos
