@@ -106,7 +106,7 @@ class RobotContainer:
         # Add each positioning camera to the positioningCameras list
         self.positioningCameras.append(self.camera1)
         self.positioningCameras.append(self.camera2)
-
+        self.scoringConfig = ScoringConfigs()
         self.positioning = Position()
 
         # Subsystems
@@ -128,8 +128,6 @@ class RobotContainer:
             ManualDrive(self.driverController, self.driveSubsystem)
         )
         self.subsystems_homed = False
-
-        self.scoringConfig = ScoringConfigs()
 
         # AUTO CHOOSER
         self.autochooser = AutoBuilder.buildAutoChooser()
@@ -242,8 +240,8 @@ class RobotContainer:
         second_shoulder_pos = self.scoringConfig.shoulder_end_pos
         arm_pos = self.scoringConfig.arm_pos
 
-        return (
-            self.shoulder.move(first_shoulder_pos)
+        return DeferredCommand(
+            lambda: self.shoulder.move(first_shoulder_pos)
             .andThen(waitUntil(lambda: self.shoulder.at_position(first_shoulder_pos)))
             .andThen(self.elevator.move(elevator_pos))
             .andThen(waitUntil(lambda: self.elevator.at_position(elevator_pos)))
@@ -340,7 +338,7 @@ class RobotContainer:
             self.arm.move(self.arm.Position.RETRACTED)
         )
         self.tacticalController.a().onTrue(
-            self.setScoringAction(L1_shoot)
+            self.setScoringAction(L1_shoot).andThen(PrintCommand("ring ring"))
             # self.shoulder.move(self.shoulder.Position.LEVEL1)
         )
         self.tacticalController.b().onTrue(
