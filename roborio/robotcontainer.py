@@ -169,10 +169,11 @@ class RobotContainer:
 
         # PathPlanner test commands
         SmartDashboard.putData(
-            "Drive Barge to Processor", self.driveSubsystem.driveToProcessor()
+            "Drive Barge to Processor",
+            self.driveSubsystem.driveAutoPath("Barge to Processor"),
         )
         SmartDashboard.putData(
-            "Drive to Reef DS Right", self.driveSubsystem.driveToDSRightReef()
+            "Drive to Reef DS Right", self.driveSubsystem.driveAutoPath("New Path")
         )
 
     def position_for_coral_placement(
@@ -262,12 +263,14 @@ class RobotContainer:
         # self.driverController.start().onTrue(
         #     runOnce(lambda: self.driveSubsystem.setFieldPositionFromVision())
         # )
-        self.driverController.y().whileTrue(
-            self.driveSubsystem.driveAutoPath("Barge to Processor")
-        )
-        self.driverController.a().whileTrue(
-            self.driveSubsystem.driveAutoPath("New Path")
-        )
+        self.configureSysIDButtonBindings()
+
+        # self.driverController.y().whileTrue(
+        #     self.driveSubsystem.driveAutoPath("Barge to Processor")
+        # )
+        # self.driverController.a().whileTrue(
+        #     self.driveSubsystem.driveAutoPath("New Path")
+        # )
 
     def configureOperatorControls(self):
         """Configures triggers for manual control by tactical"""
@@ -303,21 +306,17 @@ class RobotContainer:
     def configureSysIDButtonBindings(self):
         # Bind full set of SysId routine tests to buttons; a complete routine should run each of these
         # once.
-        wpilib.SmartDashboard.putData(
-            "Quasistatic Forward",
-            self.driveSubsystem.sysIdQuasistaticDrive(SysIdRoutine.Direction.kForward),
+        self.driverController.a().whileTrue(
+            self.driveSubsystem.sysIdQuasistaticDrive(SysIdRoutine.Direction.kForward)
         )
-        wpilib.SmartDashboard.putData(
-            "Quasistatic Reverse",
-            self.driveSubsystem.sysIdQuasistaticDrive(SysIdRoutine.Direction.kReverse),
+        self.driverController.b().whileTrue(
+            self.driveSubsystem.sysIdQuasistaticDrive(SysIdRoutine.Direction.kReverse)
         )
-        wpilib.SmartDashboard.putData(
-            "Dynamic Forward",
-            self.driveSubsystem.sysIdDynamicDrive(SysIdRoutine.Direction.kForward),
+        self.driverController.x().whileTrue(
+            self.driveSubsystem.sysIdDynamicDrive(SysIdRoutine.Direction.kForward)
         )
-        wpilib.SmartDashboard.putData(
-            "Dynamic Reverse",
-            self.driveSubsystem.sysIdDynamicDrive(SysIdRoutine.Direction.kReverse),
+        self.driverController.y().whileTrue(
+            self.driveSubsystem.sysIdDynamicDrive(SysIdRoutine.Direction.kReverse)
         )
 
     def getAutonomousCommand(self):
