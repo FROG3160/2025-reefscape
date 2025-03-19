@@ -299,7 +299,7 @@ class RobotContainer:
         # self.driverController.start().onTrue(
         #     runOnce(lambda: self.driveSubsystem.setFieldPositionFromVision())
         # )
-        self.configureSysIDButtonBindings()
+        # self.configureSysIDButtonBindings()
 
         # self.driverController.y().whileTrue(
         #     self.driveSubsystem.driveAutoPath("Barge to Processor")
