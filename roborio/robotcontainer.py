@@ -240,8 +240,8 @@ class RobotContainer:
         second_shoulder_pos = self.scoringConfig.shoulder_end_pos
         arm_pos = self.scoringConfig.arm_pos
 
-        return DeferredCommand(
-            lambda: self.shoulder.move(first_shoulder_pos)
+        return (
+            self.shoulder.move(first_shoulder_pos)
             .andThen(waitUntil(lambda: self.shoulder.at_position(first_shoulder_pos)))
             .andThen(self.elevator.move(elevator_pos))
             .andThen(waitUntil(lambda: self.elevator.at_position(elevator_pos)))
@@ -315,7 +315,7 @@ class RobotContainer:
         #         )a
         #     )
         # )
-        self.driverController.x().onTrue(self.move_all())
+        self.driverController.x().onTrue(DeferredCommand(lambda: self.move_all()))
 
     def configureOperatorControls(self):
         """OPERATOR CONTROLS"""
