@@ -222,7 +222,14 @@ class RobotContainer:
             self.grabber.run_motor(0)
             .andThen(waitUntil(lambda: self.arm.at_position(0)))
             .andThen(self.elevator.move(0))
-            .alongWith(self.shoulder.move(-0.25))
+            .alongWith(self.shoulder.move(-0.2))
+        )
+
+    def move_to_station(self) -> Command:
+        return (
+            self.arm.move(0)
+            .andThen(self.shoulder.move(-0.2))
+            .alongWith(self.elevator.move(10))
         )
 
     def move_to_position(self) -> Command:
@@ -326,9 +333,8 @@ class RobotContainer:
         self.driverController.b().onFalse(
             DeferredCommand(lambda: self.grabber.run_motor(0))
         )
-        self.driverController.start().onTrue(
-            DeferredCommand(lambda: self.move_to_home())
-        )
+        self.driverController.start().onTrue(self.move_to_home())
+        self.driverController.leftBumper().onTrue(self.move_to_station())
         self.driverController.y().whileTrue(
             self.driveSubsystem.driveAutoPath("Barge to Processor")
         )
