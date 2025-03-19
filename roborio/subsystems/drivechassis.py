@@ -174,15 +174,8 @@ class DriveChassis(SwerveBase):
 
     # PathPlanner Auto Commands
 
-    def driveToProcessor(self) -> Command:
-        return AutoBuilder.followPath(
-            PathPlannerPath.fromPathFile("Barge to Processor")
-        )
-
-    def driveToDSRightReef(self) -> Command:
-        return AutoBuilder.followPath(
-            PathPlannerPath.fromPathFile("Move to driver-side right")
-        )
+    def driveAutoPath(self, pathname) -> Command:
+        return AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathname))
 
     def resetRotationController(self):
         self.profiledRotationController.reset(
