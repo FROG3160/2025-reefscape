@@ -224,7 +224,23 @@ class RobotContainer:
             .andThen(self.arm.move(arm_pos))
         )
 
-    def move_all(self) -> Command:
+    def move_to_home(self) -> Command:
+        return (
+            self.grabber.run_motor(0)
+            .andThen(self.arm.move(0))
+            .andThen(waitUntil(lambda: self.arm.at_position(0)))
+            .andThen(self.elevator.move(0))
+            .alongWith(self.shoulder.move(-0.2))
+        )
+
+    def move_to_station(self) -> Command:
+        return (
+            self.arm.move(0)
+            .andThen(self.shoulder.move(-0.2))
+            .alongWith(self.elevator.move(10))
+        )
+
+    def move_to_position(self) -> Command:
 
         first_shoulder_pos = self.scoringConfig.shoulder_start_pos
         elevator_pos = self.scoringConfig.elevator_pos
@@ -236,9 +252,17 @@ class RobotContainer:
             .andThen(waitUntil(lambda: self.shoulder.at_position(first_shoulder_pos)))
             .andThen(self.elevator.move(elevator_pos))
             .andThen(waitUntil(lambda: self.elevator.at_position(elevator_pos)))
-            .andThen(self.shoulder.move(second_shoulder_pos))
             .andThen(self.arm.move(arm_pos))
         )
+
+    def move_to_score(self) -> Command:
+        second_shoulder_pos = self.scoringConfig.shoulder_end_pos
+        grabber_voltage = self.scoringConfig.grabber_v
+
+        if self.scoringConfig == L3_dunk or self.scoringConfig == L4_dunk:
+            return self.shoulder.move(second_shoulder_pos)
+        else:
+            return self.grabber.run_motor(grabber_voltage)
 
     def test_run_grabber(self) -> Command:
         grabber_voltage = SmartDashboard.getNumber(self.grabber_str, 0)
@@ -318,8 +342,15 @@ class RobotContainer:
         #         )a
         #     )
         # )
-        self.driverController.x().onTrue(DeferredCommand(lambda: self.move_all()))
-
+        self.driverController.x().onTrue(
+            DeferredCommand(lambda: self.move_to_position())
+        )
+        self.driverController.b().onTrue(DeferredCommand(lambda: self.move_to_score()))
+        self.driverController.b().onFalse(
+            DeferredCommand(lambda: self.grabber.run_motor(0))
+        )
+        self.driverController.start().onTrue(self.move_to_home())
+        self.driverController.leftBumper().onTrue(self.move_to_station())
         self.driverController.y().whileTrue(
             self.driveSubsystem.driveAutoPath("Barge to Processor")
         )
@@ -348,7 +379,7 @@ class RobotContainer:
             self.arm.move(self.arm.Position.RETRACTED)
         )
         self.tacticalController.a().onTrue(
-            self.setScoringAction(L1_shoot).andThen(PrintCommand("ring ring"))
+            self.setScoringAction(L1_shoot)
             # self.shoulder.move(self.shoulder.Position.LEVEL1)
         )
         self.tacticalController.b().onTrue(
