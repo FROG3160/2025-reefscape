@@ -8,11 +8,7 @@ from phoenix6.hardware import TalonFXS
 from phoenix6.configs import (
     Slot0Configs,
     Slot1Configs,
-    MotorOutputConfigs,
-    TalonFXSConfiguration,
-    CommutationConfigs,
-    CANrangeConfiguration,
-    ProximityParamsConfigs,
+    HardwareLimitSwitchConfigs
 )
 from phoenix6.signals import NeutralModeValue
 from phoenix6.signals.spn_enums import BrushedMotorWiringValue, MotorArrangementValue
@@ -26,7 +22,7 @@ from phoenix6.controls import (
 from phoenix6.hardware import CANrange
 from typing import Callable
 from commands2 import Command
-from configs.ctre import motorOutputCCWPandBrake
+from configs.ctre import motorOutputCWPandBrake
 from ntcore import NetworkTableInstance
 
 
@@ -42,17 +38,18 @@ class Climber(Subsystem):
                 slot0gains=Slot0Configs(),
                 slot1gains=Slot1Configs(),
             )
-            # Inverting the motor so positive voltage extends
-            .with_motor_output(motorOutputCCWPandBrake),
-            # Adding software limit so we don't break the nut AGAIN!
-            # .with_software_limit_switch(
-            #     SoftwareLimitSwitchConfigs()
-            #     .with_forward_soft_limit_enable(True)
-            #     .with_forward_soft_limit_threshold(7)
-            # ),
+            # Inverting the motor so positive voltage winches the climber up
+            .with_motor_output(motorOutputCWPandBrake)
+            .with_hardware_limit_switch(HardwareLimitSwitchConfigs().with_forward_limit_enable().with_
+                                        )
             parent_nt="Climber",
             motor_name="motor",
         )
 
-        self.motor_intake = VoltageOut(output=1.0, enable_foc=False)
-        self.motor.set_position(0)
+        self.motor_request = VoltageOut(output=2.0, enable_foc=False)
+
+    
+    def run_motor(self) -> Command:
+        return self.runOnce(
+            lambda: self.motor.set_control(self.motor_request)
+        )
