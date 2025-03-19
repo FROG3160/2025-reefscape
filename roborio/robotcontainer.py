@@ -37,7 +37,16 @@ from commands2.sysid import SysIdRoutine
 
 from FROGlib.xbox import FROGXboxDriver, FROGXboxTactical
 from wpilib.shuffleboard import BuiltInWidgets, Shuffleboard
-
+from configs.scoring import (
+    ScoringConfigs,
+    L1_shoot,
+    L2_shoot,
+    L3_shootV1,
+    L3_shootV2,
+    L3_dunk,
+    L4_shoot,
+    L4_dunk,
+)
 from subsystems.drivechassis import DriveChassis
 from subsystems.positioning import Position
 from subsystems.vision import VisionPose
@@ -45,7 +54,6 @@ from subsystems.lift import Lift
 from subsystems.shoulder import Shoulder
 from subsystems.grabber import Grabber
 from subsystems.arm import Arm
-from subsystems.intake import Intake
 from subsystems.climber import Climber
 from pathplannerlib.auto import AutoBuilder
 
@@ -98,7 +106,7 @@ class RobotContainer:
         # Add each positioning camera to the positioningCameras list
         self.positioningCameras.append(self.camera1)
         self.positioningCameras.append(self.camera2)
-
+        self.scoringConfig = ScoringConfigs()
         self.positioning = Position()
 
         # Subsystems
@@ -176,6 +184,18 @@ class RobotContainer:
             "Drive to Reef DS Right", self.driveSubsystem.driveAutoPath("New Path")
         )
 
+    def setScoringConfig(self, scoringConfig: ScoringConfigs):
+        self.scoringConfig = scoringConfig
+
+    def setScoringAction(self, scoringConfig) -> Command:
+        return runOnce(lambda: self.setScoringConfig(scoringConfig))
+
+    def setScoringConfig(self, scoringConfig: ScoringConfigs):
+        self.scoringConfig = scoringConfig
+
+    def setScoringAction(self, scoringConfig) -> Command:
+        return runOnce(lambda: self.setScoringConfig(scoringConfig))
+
     def position_for_coral_placement(
         self, first_shoulder_pos, elevator_pos, second_shoulder_pos, arm_pos
     ) -> Command:
@@ -194,6 +214,22 @@ class RobotContainer:
         elevator_pos = SmartDashboard.getNumber(self.elevator_str, 0)
         second_shoulder_pos = SmartDashboard.getNumber(self.second_shoulder_str, -0.25)
         arm_pos = SmartDashboard.getNumber(self.arm_str, 0)
+
+        return (
+            self.shoulder.move(first_shoulder_pos)
+            .andThen(waitUntil(lambda: self.shoulder.at_position(first_shoulder_pos)))
+            .andThen(self.elevator.move(elevator_pos))
+            .andThen(waitUntil(lambda: self.elevator.at_position(elevator_pos)))
+            .andThen(self.shoulder.move(second_shoulder_pos))
+            .andThen(self.arm.move(arm_pos))
+        )
+
+    def move_all(self) -> Command:
+
+        first_shoulder_pos = self.scoringConfig.shoulder_start_pos
+        elevator_pos = self.scoringConfig.elevator_pos
+        second_shoulder_pos = self.scoringConfig.shoulder_end_pos
+        arm_pos = self.scoringConfig.arm_pos
 
         return (
             self.shoulder.move(first_shoulder_pos)
@@ -272,14 +308,39 @@ class RobotContainer:
         #     self.driveSubsystem.driveAutoPath("New Path")
         # )
 
+        # self.driverController.rightBumper().onTrue(
+        #     self.intake.move_intake(self.intake.Position.DEPLOYED)
+        # )
+        # self.driverController.leftBumper().onTrue(
+        #     self.intake.move_intake(self.intake.Position.HOME).andThen(
+        #         self.shoulder.move(self.shoulder.Position.READY).andThen(
+        #             self.intake.stop_intake()
+        #         )a
+        #     )
+        # )
+        self.driverController.x().onTrue(DeferredCommand(lambda: self.move_all()))
+
+        self.driverController.y().whileTrue(
+            self.driveSubsystem.driveAutoPath("Barge to Processor")
+        )
+        self.driverController.a().whileTrue(
+            self.driveSubsystem.driveAutoPath("New Path")
+        )
+
     def configureOperatorControls(self):
         """Configures triggers for manual control by tactical"""
         # wpilib.SmartDashboard.putData("Deploy Intake", self.intake.deploy_)
         # wpilib.SmartDashboard.putData("Retract Intake",
         # self.intake.retract())
-        self.tacticalController.povDown().onTrue(self.shoulder.move(-0.25))
-        self.tacticalController.povLeft().onTrue(self.shoulder.move(0))
-        self.tacticalController.povUp().onTrue(self.shoulder.move(0.125))
+        self.tacticalController.povDown().onTrue(
+            self.setScoringAction(L3_shootV1)
+        )  # self.shoulder.move(-0.25))
+        self.tacticalController.povLeft().onTrue(
+            self.setScoringAction(L3_dunk)
+        )  # self.shoulder.move(0))
+        self.tacticalController.povUp().onTrue(
+            self.setScoringAction(L4_dunk)
+        )  # self.shoulder.move(0.125))
         self.tacticalController.leftBumper().onTrue(
             self.arm.move(self.arm.Position.CORAL_PICKUP)
         )
@@ -287,20 +348,24 @@ class RobotContainer:
             self.arm.move(self.arm.Position.RETRACTED)
         )
         self.tacticalController.a().onTrue(
-            self.shoulder.move(self.shoulder.Position.LEVEL1)
+            self.setScoringAction(L1_shoot).andThen(PrintCommand("ring ring"))
+            # self.shoulder.move(self.shoulder.Position.LEVEL1)
         )
         self.tacticalController.b().onTrue(
-            self.shoulder.move(self.shoulder.Position.LEVEL2).andThen(
-                self.arm.move(self.arm.Position.CORAL_L2_PLACE)
-            )
+            self.setScoringAction(L2_shoot)
+            # self.shoulder.move(self.shoulder.Position.LEVEL2).andThen(
+            #     self.arm.move(self.arm.Position.CORAL_L2_PLACE)
+            # )
         )
         self.tacticalController.x().onTrue(
-            self.shoulder.move(self.shoulder.Position.LEVEL3)
+            self.setScoringAction(L3_shootV2)
+            # self.shoulder.move(self.shoulder.Position.LEVEL3)
         )
         self.tacticalController.y().onTrue(
-            self.shoulder.move(self.shoulder.Position.LEVEL4).andThen(
-                self.arm.move(self.arm.Position.CORAL_L4_PLACE)
-            )
+            self.setScoringAction(L4_shoot)
+            # self.shoulder.move(self.shoulder.Position.LEVEL4).andThen(
+            #     self.arm.move(self.arm.Position.CORAL_L4_PLACE)
+            # )
         )
 
     def configureSysIDButtonBindings(self):
