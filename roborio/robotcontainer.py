@@ -37,7 +37,7 @@ from commands2.sysid import SysIdRoutine
 
 from FROGlib.xbox import FROGXboxDriver, FROGXboxTactical
 from wpilib.shuffleboard import BuiltInWidgets, Shuffleboard
-
+from configs.scoring import ScoringConfigs
 from subsystems.drivechassis import DriveChassis
 from subsystems.positioning import Position
 from subsystems.vision import VisionPose
@@ -45,7 +45,6 @@ from subsystems.lift import Lift
 from subsystems.shoulder import Shoulder
 from subsystems.grabber import Grabber
 from subsystems.arm import Arm
-from subsystems.intake import Intake
 from subsystems.climber import Climber
 from pathplannerlib.auto import AutoBuilder
 
@@ -121,6 +120,8 @@ class RobotContainer:
         )
         self.subsystems_homed = False
 
+        self.scoringConfig = ScoringConfigs()
+
         # AUTO CHOOSER
         self.autochooser = AutoBuilder.buildAutoChooser()
         SmartDashboard.putData("PathPlanner Autos", self.autochooser)
@@ -191,6 +192,9 @@ class RobotContainer:
             "Drive to Reef DS Right", self.driveSubsystem.driveToDSRightReef()
         )
 
+    def setScoringAction(self, scoringConfig) -> Command: 
+        return runOnce(lambda: self.scoringConfig = scoringConfig)
+    
     def position_for_coral_placement(
         self, first_shoulder_pos, elevator_pos, second_shoulder_pos, arm_pos
     ) -> Command:
@@ -219,6 +223,22 @@ class RobotContainer:
             .andThen(self.arm.move(arm_pos))
         )
 
+    def move_all(self) -> Command:
+
+        first_shoulder_pos = self.scoringConfig.shoulder_start_pos
+        elevator_pos = self.scoringConfig.elevator_pos
+        second_shoulder_pos = self.scoringConfig.shoulder_end_pos
+        arm_pos = self.scoringConfig.arm_pos
+
+        return (
+            self.shoulder.move(first_shoulder_pos)
+            .andThen(waitUntil(lambda: self.shoulder.at_position(first_shoulder_pos)))
+            .andThen(self.elevator.move(elevator_pos))
+            .andThen(waitUntil(lambda: self.elevator.at_position(elevator_pos)))
+            .andThen(self.shoulder.move(second_shoulder_pos))
+            .andThen(self.arm.move(arm_pos))
+        )
+    
     def test_run_grabber(self) -> Command:
         grabber_voltage = SmartDashboard.getNumber(self.grabber_str, 0)
         return self.grabber.run_motor(grabber_voltage)
