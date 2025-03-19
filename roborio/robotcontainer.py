@@ -220,6 +220,7 @@ class RobotContainer:
     def move_to_home(self) -> Command:
         return (
             self.grabber.run_motor(0)
+            .andThen(self.arm.move(0))
             .andThen(waitUntil(lambda: self.arm.at_position(0)))
             .andThen(self.elevator.move(0))
             .alongWith(self.shoulder.move(-0.2))
