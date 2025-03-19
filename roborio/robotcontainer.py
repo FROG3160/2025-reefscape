@@ -147,23 +147,7 @@ class RobotContainer:
         self.configureAutomationBindings()
 
     def configureTestBindings(self):
-        self.elevator.setDefaultCommand(
-            self.elevator.joystick_move_command(self.driverController.getLeftY)
-        )
-        self.shoulder.setDefaultCommand(
-            self.shoulder.joystick_move_command(self.driverController.getRightY)
-        )
-        self.arm.setDefaultCommand(
-            self.arm.joystick_move_command(self.driverController.getRightX)
-        )
-
-        self.driverController.back().onTrue(self.elevator.home())
-        self.driverController.a().onTrue(self.grabber.intake_algae())
-        self.driverController.b().onTrue(self.grabber.intake_coral())
-
-    def configureTestBindings(self):
-        # Bind full set of SysId routine tests to buttons; a complete routine should run each of these
-        # once.
+        """Configures trigger bindings for use in test mode"""
         SmartDashboard.putNumber(self.first_shoulder_str, 0.2)
         SmartDashboard.putNumber(self.second_shoulder_str, 0.08)
         SmartDashboard.putNumber(self.elevator_str, 8)
@@ -273,6 +257,9 @@ class RobotContainer:
             self.systems_homed = True
 
     def configureAutomationBindings(self):
+        """Configures all triggers that are watching states or conditions
+        of various subsystems.
+        """
 
         # self.intake.intake_deployed().onTrue(
         #     self.shoulder.move(self.shoulder.Position.READY).andThen(
@@ -301,10 +288,11 @@ class RobotContainer:
         # )
 
     def configureDriverControls(self):
-        """DRIVER CONTROLS"""
+        """Configures triggers for manual control by the driver"""
         # self.driverController.start().onTrue(
         #     runOnce(lambda: self.driveSubsystem.setFieldPositionFromVision())
         # )
+
         # self.driverController.rightBumper().onTrue(
         #     self.intake.move_intake(self.intake.Position.DEPLOYED)
         # )
@@ -317,8 +305,16 @@ class RobotContainer:
         # )
         self.driverController.x().onTrue(DeferredCommand(lambda: self.move_all()))
 
+        self.driverController.y().whileTrue(
+            self.driveSubsystem.driveAutoPath("Barge to Processor")
+        )
+        self.driverController.a().whileTrue(
+            self.driveSubsystem.driveAutoPath("New Path")
+        )
+
+
     def configureOperatorControls(self):
-        """OPERATOR CONTROLS"""
+        """Configures triggers for manual control by tactical"""
         # wpilib.SmartDashboard.putData("Deploy Intake", self.intake.deploy_)
         # wpilib.SmartDashboard.putData("Retract Intake",
         # self.intake.retract())
@@ -356,6 +352,26 @@ class RobotContainer:
             # self.shoulder.move(self.shoulder.Position.LEVEL4).andThen(
             #     self.arm.move(self.arm.Position.CORAL_L4_PLACE)
             # )
+        )
+
+    def configureSysIDButtonBindings(self):
+        # Bind full set of SysId routine tests to buttons; a complete routine should run each of these
+        # once.
+        wpilib.SmartDashboard.putData(
+            "Quasistatic Forward",
+            self.driveSubsystem.sysIdQuasistaticDrive(SysIdRoutine.Direction.kForward),
+        )
+        wpilib.SmartDashboard.putData(
+            "Quasistatic Reverse",
+            self.driveSubsystem.sysIdQuasistaticDrive(SysIdRoutine.Direction.kReverse),
+        )
+        wpilib.SmartDashboard.putData(
+            "Dynamic Forward",
+            self.driveSubsystem.sysIdDynamicDrive(SysIdRoutine.Direction.kForward),
+        )
+        wpilib.SmartDashboard.putData(
+            "Dynamic Reverse",
+            self.driveSubsystem.sysIdDynamicDrive(SysIdRoutine.Direction.kReverse),
         )
 
     def getAutonomousCommand(self):

@@ -302,9 +302,9 @@ class SwerveBase(Subsystem):
             .getStructTopic(f"{nt_table}/chassisSpeedsError", ChassisSpeeds)
             .publish()
         )
-        self._estimatedPositionPub = (
+        self._estimatorPosePub = (
             NetworkTableInstance.getDefault()
-            .getStructTopic(f"{nt_table}/estimatedPosition", Pose2d)
+            .getStructTopic(f"{nt_table}/estimatorPose", Pose2d)
             .publish()
         )
 
@@ -420,11 +420,11 @@ class SwerveBase(Subsystem):
             module.setState(SwerveModuleState(0, moduleAngle))
 
     def logTelemetry(self):
-        # self._actualChassisSpeeds = self.getActualChassisSpeeds()
-        # self._chassisSpeedsActualPub.set(self._actualChassisSpeeds)
-        # self._chassisSpeedsPub.set(self.chassisSpeeds)
-        # self._chassisSpeedsErrorPub.set(self.chassisSpeeds - self._actualChassisSpeeds)
-        self._estimatedPositionPub.set(self.estimator.getEstimatedPosition())
+        self._actualChassisSpeeds = self.getActualChassisSpeeds()
+        self._chassisSpeedsActualPub.set(self._actualChassisSpeeds)
+        self._chassisSpeedsPub.set(self.chassisSpeeds)
+        self._chassisSpeedsErrorPub.set(self.chassisSpeeds - self._actualChassisSpeeds)
+        self._estimatorPosePub.set(self.estimator.getEstimatedPosition())
 
     def periodic(self):
         self.newTime = self.timer.get()

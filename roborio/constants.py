@@ -35,13 +35,7 @@ kDriveFeedForward = 0.53
 kDutyCycleDriveV = 0.00916
 kDutyCycleDriveS = 0.01125
 
-# These numbers were calculated from the SYSID characterization tool
-# The SYSID tool calculates kV, kA, kP as values per meter
-# these numbers come from determining that a meter of travel
-# requires the motor to rotate 25+ times.  This was determined by
-# factoring in the wheel diameter (4 inches) and the 8.14 gear reduction
-# resulting in a value of 25.5024 rotations for every meter of travel
-# The calculated kV was near 3, so 3/25.5024 = 0.117
+
 kVoltageDriveV = 1.928
 kVoltageDriveS = 0.14
 kVoltageDriveP = 2.0
