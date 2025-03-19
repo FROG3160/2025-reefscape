@@ -266,7 +266,7 @@ class RobotContainer:
             self.driveSubsystem.driveAutoPath("Barge to Processor")
         )
         self.driverController.a().whileTrue(
-            self.driveSubsystem.driveAutoPath("Move to driver-side right")
+            self.driveSubsystem.driveAutoPath("New Path")
         )
 
     def configureOperatorControls(self):
