@@ -46,6 +46,9 @@ from configs.scoring import (
     L3_dunk,
     L4_shoot,
     L4_dunk,
+    algae_L23,
+    algae_L34,
+    algae_process,
 )
 from subsystems.drivechassis import DriveChassis
 from subsystems.positioning import Position
@@ -257,6 +260,9 @@ class RobotContainer:
             .alongWith(self.elevator.move(10))
         )
 
+    def hold_algae_during_travel(self) -> Command:
+        return self.arm.move(0).alongWith(self.shoulder.move(-0.15))
+
     def move_to_position(self) -> Command:
 
         first_shoulder_pos = self.scoringConfig.shoulder_start_pos
@@ -380,8 +386,9 @@ class RobotContainer:
         # wpilib.SmartDashboard.putData("Deploy Intake", self.intake.deploy_)
         # wpilib.SmartDashboard.putData("Retract Intake",
         # self.intake.retract())
+        self.tacticalController.povRight().onTrue(self.setScoringAction(algae_L34))
         self.tacticalController.povDown().onTrue(
-            self.setScoringAction(L3_shootV1)
+            self.setScoringAction(algae_L23)
         )  # self.shoulder.move(-0.25))
         self.tacticalController.povLeft().onTrue(
             self.setScoringAction(L3_dunk)
@@ -390,10 +397,7 @@ class RobotContainer:
             self.setScoringAction(L4_dunk)
         )  # self.shoulder.move(0.125))
         self.tacticalController.leftBumper().onTrue(
-            self.arm.move(self.arm.Position.CORAL_PICKUP)
-        )
-        self.tacticalController.leftBumper().onFalse(
-            self.arm.move(self.arm.Position.RETRACTED)
+            self.setScoringAction(algae_process)
         )
         self.tacticalController.a().onTrue(
             self.setScoringAction(L1_shoot)
