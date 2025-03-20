@@ -80,20 +80,22 @@ class DriveChassis(SwerveBase):
         self.field = Field2d()
         SmartDashboard.putData("DrivePose", self.field)
 
-        ab_config = RobotConfig(
-            massKG=constants.kRobotKilograms,
-            MOI=constants.kMOI,
-            moduleConfig=ModuleConfig(
-                wheelRadiusMeters=inchesToMeters(constants.kWheelDiameter / 2),
-                maxDriveVelocityMPS=constants.kMaxMetersPerSecond,
-                wheelCOF=1.0,
-                driveMotor=DCMotor.krakenX60(1),
-                driveCurrentLimit=120,
-                numMotors=1,
-            ),
-            moduleOffsets=[module.location for module in self.modules],
-            trackwidthMeters=constants.kTrackWidthMeters,
-        )
+        # ab_config = RobotConfig(
+        #     massKG=constants.kRobotKilograms,
+        #     MOI=constants.kMOI,
+        #     moduleConfig=ModuleConfig(
+        #         wheelRadiusMeters=inchesToMeters(constants.kWheelDiameter / 2),
+        #         maxDriveVelocityMPS=constants.kMaxMetersPerSecond,
+        #         wheelCOF=1.0,
+        #         driveMotor=DCMotor.krakenX60(1),
+        #         driveCurrentLimit=120,
+        #         numMotors=1,
+        #     ),
+        #     moduleOffsets=[module.location for module in self.modules],
+        #     trackwidthMeters=constants.kTrackWidthMeters,
+        # )
+        autobuilder_config = RobotConfig.fromGUISettings()
+
         AutoBuilder.configure(
             self.getPose,  # Robot pose supplier
             self.resetPose,  # Method to reset odometry (will be called if your auto has a starting pose)
@@ -103,9 +105,9 @@ class DriveChassis(SwerveBase):
             ),  # Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also outputs individual module feedforwards
             PPHolonomicDriveController(  # PPHolonomicController is the built in path following controller for holonomic drive trains
                 PIDConstants(1.0, 0.0, 0.0),  # Translation PID constants
-                PIDConstants(0.4, 0.0, 0.0),  # Rotation PID constants
+                PIDConstants(1.0, 0.0, 0.0),  # Rotation PID constants
             ),
-            ab_config,  # The robot configuration
+            autobuilder_config,  # The robot configuration
             self.shouldFlipPath,  # Supplier to control path flipping based on alliance color
             self,  # Reference to this subsystem to set requirements
         )
