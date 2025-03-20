@@ -446,9 +446,12 @@ class SwerveBase(Subsystem):
             pose,
         )
 
-    def robotOrientedDrive(self, vX, vY, vT):
+    def robotOrientedDrive(self, vX, vY, vT, throttle=1.0):
+        xSpeed = vX * self.max_speed * throttle
+        ySpeed = vY * self.max_speed * throttle
+        rotSpeed = vT * self.max_rotation_speed
         self.chassisSpeeds = ChassisSpeeds.discretize(
-            ChassisSpeeds(vX, vY, vT), self.loopTime
+            ChassisSpeeds(xSpeed, ySpeed, rotSpeed), self.loopTime
         )
 
     def setChassisSpeeds(self, speeds: ChassisSpeeds):
