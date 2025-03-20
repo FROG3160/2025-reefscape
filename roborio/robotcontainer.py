@@ -380,9 +380,6 @@ class RobotContainer:
         self.driverController.povDown().onTrue(self.hold_algae_during_travel())
         self.driverController.start().onTrue(self.move_to_home())
         self.driverController.leftBumper().onTrue(self.move_to_station())
-        self.driverController.y().whileTrue(
-            self.driveSubsystem.driveAutoPath("Barge to Processor")
-        )
         self.driverController.a().onTrue(
             self.grab_coral_from_trough()
             # self.driveSubsystem.driveAutoPath("New Path")
