@@ -58,7 +58,7 @@ from subsystems.shoulder import Shoulder
 from subsystems.grabber import Grabber
 from subsystems.arm import Arm
 from subsystems.climber import Climber
-from pathplannerlib.auto import AutoBuilder
+from pathplannerlib.auto import AutoBuilder, NamedCommands
 
 from commands.drive.field_oriented import (
     ManualDrive,
@@ -140,7 +140,9 @@ class RobotContainer:
         SmartDashboard.putData("PathPlanner Autos", self.autochooser)
 
     def registerNamedCommands(self):
-        pass
+        NamedCommands.registerCommand(
+            "Place L1 coral", self.full_auto_scoring_sequence(L1_shoot)
+        )
 
     def configureButtonBindings(self):
         """
@@ -290,6 +292,13 @@ class RobotContainer:
         else:
             return self.grabber.run_motor(grabber_voltage)
 
+    def full_auto_scoring_sequence(self, scoringConfig: ScoringConfigs) -> Command:
+        return (
+            self.setScoringAction(scoringConfig)
+            .andThen(DeferredCommand(lambda: self.move_to_position()))
+            .andThen(DeferredCommand(lambda: self.move_to_score()))
+        )
+
     def test_run_grabber(self) -> Command:
         grabber_voltage = SmartDashboard.getNumber(self.grabber_str, 0)
         return self.grabber.run_motor(grabber_voltage)
@@ -375,7 +384,7 @@ class RobotContainer:
         self.driverController.b().onFalse(
             DeferredCommand(lambda: self.grabber.run_motor(0))
         )
-        self.driverController.rightBumper().onTrue(self.grab_coral_from_trough())
+        # self.driverController.rightBumper().onTrue(self.grab_coral_from_trough())
         self.driverController.povUp().onTrue(self.hold_coral_during_travel())
         self.driverController.povDown().onTrue(self.hold_algae_during_travel())
         self.driverController.start().onTrue(self.move_to_home())
@@ -383,8 +392,9 @@ class RobotContainer:
         self.driverController.y().whileTrue(
             self.driveSubsystem.driveAutoPath("Barge to Processor")
         )
-        self.driverController.a().whileTrue(
-            self.driveSubsystem.driveAutoPath("New Path")
+        self.driverController.a().onTrue(
+            self.grab_coral_from_trough()
+            # self.driveSubsystem.driveAutoPath("New Path")
         )
         self.driverController.leftStick().whileTrue(
             ManualRobotOrientedDrive(self.driverController, self.driveSubsystem)
