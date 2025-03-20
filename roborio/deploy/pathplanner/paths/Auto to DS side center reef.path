@@ -11,29 +11,24 @@
         "x": 1.354289772727273,
         "y": 7.460213068181819
       },
-      "isLocked": false,
+      "isLocked": true,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.4900568181818183,
-        "y": 2.6937926136363637
+        "x": 3.181663907284768,
+        "y": 4.017735927152317
       },
       "prevControl": {
-        "x": 0.6381818181818186,
-        "y": 1.7265482954595313
+        "x": 1.8813948675496688,
+        "y": 4.664238410596026
       },
       "nextControl": null,
-      "isLocked": false,
-      "linkedName": null
+      "isLocked": true,
+      "linkedName": "DS Center Reef - Centered"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.5,
-      "rotationDegrees": 0.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -47,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 150.0
+    "rotation": 90.0
   },
   "reversed": false,
   "folder": null,
