@@ -15,7 +15,7 @@ from phoenix6.controls import (
 )
 
 from commands2 import Command, waitcommand
-from configs.ctre import motorOutputCCWPandBrake
+from configs.ctre import motorOutputCWPandBrake
 from ntcore import NetworkTableInstance
 
 
@@ -32,7 +32,7 @@ class Climber(Subsystem):
                 slot1gains=Slot1Configs(),
             )
             # Inverting the motor so positive voltage winches the climber up
-            .with_motor_output(motorOutputCCWPandBrake).with_hardware_limit_switch(
+            .with_motor_output(motorOutputCWPandBrake).with_hardware_limit_switch(
                 HardwareLimitSwitchConfigs()
                 .with_reverse_limit_enable(True)
                 .with_reverse_limit_source(ReverseLimitSourceValue.LIMIT_SWITCH_PIN)
