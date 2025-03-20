@@ -55,7 +55,7 @@ class Grabber(Subsystem):
             )
         )
 
-        self.motor_intake = VoltageOut(output=5.0, enable_foc=False)
+        self.motor_intake = VoltageOut(output=8.0, enable_foc=False)
         self.motor_eject = VoltageOut(output=8.0, enable_foc=False)
         self.motor_voltage = 5
         nt_table = f"Subsystems/{self.__class__.__name__}"

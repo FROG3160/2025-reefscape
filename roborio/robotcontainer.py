@@ -237,9 +237,9 @@ class RobotContainer:
             self.arm.move(0)
             .andThen(waitUntil(lambda: self.arm.at_position(0)))
             .alongWith(self.shoulder.move(-0.25))
-            .andThen(self.arm.move(0.45))
-            .alongWith(self.grabber.run_motor(8))
-            .until(self.grabber.detecting_coral)
+            .andThen(self.arm.move(0.55))
+            .alongWith(self.grabber.intake_coral())
+            .andThen(self.arm.move(0))
         )
 
     def hold_coral_during_travel(self) -> Command:
@@ -456,5 +456,4 @@ class RobotContainer:
         )
 
     def getAutonomousCommand(self):
-        # return self.autochooser.getSelected()
-        pass
+        return self.autochooser.getSelected()

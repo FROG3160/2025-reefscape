@@ -63,7 +63,15 @@ class MyRobot(commands2.TimedCommandRobot):
         """This autonomous runs the autonomous command selected by your RobotContainer class."""
         self.container.positioning.setReefTags(DriverStation.getAlliance())
         self.autonomousCommand = self.container.getAutonomousCommand()
-        self.container.home_subsystems()
+        if self.autonomousCommand:
+            # if self.isReal():
+            #     self.container.elevationSubsystem.homeShooterCommand().andThen(
+            #         self.autonomousCommand
+            #     ).withName(self.autonomousCommand.getName()).schedule()
+            # else:
+            #     self.autonomousCommand.schedule()
+
+            self.autonomousCommand.schedule()
 
     def autonomousPeriodic(self) -> None:
         """This function is called periodically during autonomous"""

@@ -11,6 +11,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "Place L1 coral"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Leave DS Center Reef"
