@@ -63,6 +63,9 @@ from pathplannerlib.auto import AutoBuilder
 from commands.drive.field_oriented import (
     ManualDrive,
 )
+from commands.drive.robot_oriented import (
+    ManualRobotOrientedDrive,
+)
 
 
 class RobotContainer:
@@ -379,6 +382,9 @@ class RobotContainer:
         )
         self.driverController.a().whileTrue(
             self.driveSubsystem.driveAutoPath("New Path")
+        )
+        self.driverController.leftStick().whileTrue(
+            ManualRobotOrientedDrive(self.driverController, self.driveSubsystem)
         )
 
     def configureOperatorControls(self):
