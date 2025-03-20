@@ -224,6 +224,23 @@ class RobotContainer:
             .andThen(self.arm.move(arm_pos))
         )
 
+    def grab_coral_from_trough(self) -> Command:
+        return (
+            self.arm.move(0)
+            .andThen(waitUntil(lambda: self.arm.at_position(0)))
+            .alongWith(self.shoulder.move(-0.25))
+            .andThen(self.arm.move(0.4))
+            .alongWith(self.grabber.run_motor(5))
+            .until(self.grabber.detecting_coral())
+        )
+
+    def hold_coral_during_travel(self) -> Command:
+        return (
+            self.grabber.run_motor(0)
+            .andThen(self.arm.move(0))
+            .alongWith(self.shoulder.move(-0.2))
+        )
+
     def move_to_home(self) -> Command:
         return (
             self.grabber.run_motor(0)
