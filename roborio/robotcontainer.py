@@ -418,6 +418,8 @@ class RobotContainer:
         self.tacticalController.leftBumper().onTrue(
             self.setScoringAction(algae_process)
         )
+        self.tacticalController.rightBumper().onTrue(self.climber.deploy_climber(1.5))
+        self.tacticalController.start().onTrue(self.climber.run_motor())
         self.tacticalController.a().onTrue(
             self.setScoringAction(L1_shoot)
             # self.shoulder.move(self.shoulder.Position.LEVEL1)
