@@ -43,7 +43,7 @@ class FROGXboxDriver(CommandXboxController):
         # convert to radians
         return math.atan2(left, forward)
 
-    def getFieldRotation(self) -> float:
+    def getRotation(self) -> float:
         """Get the speed/rate of rotation from the Xbox's right
         stick X axis, with applied deadband.
 
@@ -53,7 +53,7 @@ class FROGXboxDriver(CommandXboxController):
         return applyDeadband(-self.getRightX(), self.deadband)
 
     def getSlewLimitedFieldRotation(self) -> float:
-        return self.rotSlew.calculate(self.getFieldRotation())
+        return self.rotSlew.calculate(self.getRotation())
 
     def getFieldForward(self):
         return applyDeadband(-self.getLeftY() * self.alliance, self.deadband)
@@ -61,11 +61,17 @@ class FROGXboxDriver(CommandXboxController):
     def getSlewLimitedFieldForward(self):
         return self.xSlew.calculate(self.getFieldForward())
 
+    def getRobotForward(self):
+        return applyDeadband(-self.getLeftY(), self.deadband)
+
     def getFieldLeft(self):
         return applyDeadband(-self.getLeftX() * self.alliance, self.deadband)
 
     def getSlewLimitedFieldLeft(self):
         return self.ySlew.calculate(self.getFieldLeft())
+
+    def getRobotLeft(self):
+        return applyDeadband(-self.getLeftX(), self.deadband)
 
     def getFieldThrottle(self):
         return applyDeadband(self.getRightTriggerAxis(), 0)

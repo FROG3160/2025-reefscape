@@ -27,7 +27,7 @@ class ManualRobotOrientedDrive(Command):
 
         self.drive.robotOrientedDrive(
             # self._vX, self._vY, self._vT, self._throttle
-            self.controller.getSlewLimitedFieldForward(),
-            self.controller.getSlewLimitedFieldLeft(),
-            self.controller.getSlewLimitedFieldRotation(),
+            self.controller.getRobotForward(),
+            self.controller.getRobotLeft(),
+            self.controller.getRotation(),
         )
