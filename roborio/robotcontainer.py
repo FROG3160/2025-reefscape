@@ -243,6 +243,9 @@ class RobotContainer:
             .alongWith(self.elevator.move(10))
         )
 
+    def hold_algae_during_travel(self) -> Command:
+        return self.arm.move(0).alongWith(self.shoulder.move(-0.15))
+
     def move_to_position(self) -> Command:
 
         first_shoulder_pos = self.scoringConfig.shoulder_start_pos
