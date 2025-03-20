@@ -183,15 +183,6 @@ class RobotContainer:
 
         self.driverController.leftBumper().whileTrue(self.grabber.run_motor(0))
 
-        # PathPlanner test commands
-        SmartDashboard.putData(
-            "Drive Barge to Processor",
-            self.driveSubsystem.driveAutoPath("Barge to Processor"),
-        )
-        SmartDashboard.putData(
-            "Drive to Reef DS Right", self.driveSubsystem.driveAutoPath("New Path")
-        )
-
     def setScoringConfig(self, scoringConfig: ScoringConfigs):
         self.scoringConfig = scoringConfig
 
