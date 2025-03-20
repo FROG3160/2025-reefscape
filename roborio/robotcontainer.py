@@ -372,6 +372,9 @@ class RobotContainer:
         self.driverController.b().onFalse(
             DeferredCommand(lambda: self.grabber.run_motor(0))
         )
+        self.driverController.rightBumper().onTrue(self.grab_coral_from_trough())
+        self.driverController.povUp().onTrue(self.hold_coral_during_travel())
+        self.driverController.povDown().onTrue(self.hold_algae_during_travel())
         self.driverController.start().onTrue(self.move_to_home())
         self.driverController.leftBumper().onTrue(self.move_to_station())
         self.driverController.y().whileTrue(

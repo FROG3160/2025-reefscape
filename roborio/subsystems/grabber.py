@@ -96,7 +96,7 @@ class Grabber(Subsystem):
         return self.range.get_distance().value
 
     def detecting_coral(self) -> bool:
-        return self.range.get_is_detected().value == 1
+        return Trigger(lambda: self.range.get_is_detected().value == 1)
 
     def not_detecting_coral(self) -> bool:
         return not self.detecting_coral()
