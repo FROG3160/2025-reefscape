@@ -122,3 +122,9 @@ class Arm(Subsystem):
             lambda: abs(self.motor.get_position().value - position)
             < self.position_tolerance
         )
+
+    def above_position(self, position) -> bool:
+        return self.motor.get_position().value > position
+
+    def below_position(self, position) -> bool:
+        return self.motor.get_position().value < position

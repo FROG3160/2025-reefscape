@@ -100,6 +100,12 @@ class Shoulder(Subsystem):
             < self.position_tolerance
         )
 
+    def above_position(self, position):
+        return abs(self.motor.get_position().value > position)
+
+    def below_position(self, position):
+        return abs(self.motor.get_position().value < position)
+
     def move(self, position) -> Command:
         return self.runOnce(
             lambda: self.motor.set_control(self.control.with_position(position))
