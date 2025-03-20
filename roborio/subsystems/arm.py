@@ -1,4 +1,5 @@
 from commands2.subsystem import Subsystem
+from commands2.button import Trigger
 from FROGlib.ctre import FROGTalonFX, FROGTalonFXConfig, FROGFeedbackConfig
 import constants
 from phoenix6.configs import (
@@ -116,5 +117,8 @@ class Arm(Subsystem):
             lambda: self.motor.set_control(self.control.with_position(position))
         )
 
-    def at_position(self, position):
-        return abs(self.motor.get_position().value - position) < self.position_tolerance
+    def at_position(self, position) -> bool:
+        return Trigger(
+            lambda: abs(self.motor.get_position().value - position)
+            < self.position_tolerance
+        )
