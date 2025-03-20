@@ -123,6 +123,14 @@ class Grabber(Subsystem):
             lambda: self.motor.stopMotor(),
         ).until(self.not_detecting_coral)
 
+    def eject_coral_L1(self) -> Command:
+        return self.startEnd(
+            # start running the motor
+            lambda: self.motor.set_control(-12),
+            # stop the motor
+            lambda: self.motor.stopMotor(),
+        ).until(self.not_detecting_coral)
+
     def intake_algae(self) -> Command:
         return self.runOnce(
             # start running the motor
@@ -139,6 +147,9 @@ class Grabber(Subsystem):
         return self.runOnce(
             lambda: self.motor.set_control(VoltageOut(voltage, enable_foc=False))
         )
+
+    def stop_motor(self) -> Command:
+        return self.runOnce(self.motor.stopMotor())
 
     def periodic(self):
         self._range_pub.set(self.get_range())

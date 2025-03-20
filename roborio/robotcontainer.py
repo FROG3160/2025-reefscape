@@ -143,6 +143,8 @@ class RobotContainer:
         NamedCommands.registerCommand(
             "Place L1 coral", self.full_auto_scoring_sequence(L1_shoot)
         )
+        NamedCommands.registerCommand("Stop Grabber", self.grabber.stop_motor())
+        NamedCommands.registerCommand("Home Systems", self.move_to_home())
 
     def configureButtonBindings(self):
         """
@@ -280,6 +282,8 @@ class RobotContainer:
 
         if self.scoringConfig == L3_dunk or self.scoringConfig == L4_dunk:
             return self.shoulder.move(second_shoulder_pos)
+        elif self.scoringConfig == L1_shoot:
+            return self.grabber.eject_coral_L1()
         else:
             return self.grabber.run_motor(grabber_voltage)
 
