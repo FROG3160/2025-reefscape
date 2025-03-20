@@ -50,7 +50,7 @@ class Grabber(Subsystem):
         self.range.configurator.apply(
             CANrangeConfiguration().with_proximity_params(
                 ProximityParamsConfigs()
-                .with_proximity_threshold(0.055)
+                .with_proximity_threshold(0.065)
                 .with_min_signal_strength_for_valid_measurement(4000)
             )
         )
@@ -96,7 +96,7 @@ class Grabber(Subsystem):
         return self.range.get_distance().value
 
     def detecting_coral(self) -> bool:
-        return Trigger(lambda: self.range.get_is_detected().value == 1)
+        return self.range.get_is_detected().value == True
 
     def not_detecting_coral(self) -> bool:
         return not self.detecting_coral()

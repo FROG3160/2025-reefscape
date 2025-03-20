@@ -232,9 +232,9 @@ class RobotContainer:
             self.arm.move(0)
             .andThen(waitUntil(lambda: self.arm.at_position(0)))
             .alongWith(self.shoulder.move(-0.25))
-            .andThen(self.arm.move(0.4))
-            .alongWith(self.grabber.run_motor(5))
-            .until(self.grabber.detecting_coral())
+            .andThen(self.arm.move(0.45))
+            .alongWith(self.grabber.run_motor(8))
+            .until(self.grabber.detecting_coral)
         )
 
     def hold_coral_during_travel(self) -> Command:
