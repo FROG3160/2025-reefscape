@@ -76,7 +76,7 @@ class Shoulder(Subsystem):
         # set the follower's control to ALWAYS follow the main motor
         self._follower.set_control(Follower(self.motor.device_id, False))
 
-        self.position_tolerance = 0.05
+        self.position_tolerance = 0.005
         self.control = MotionMagicVoltage(0, slot=0, enable_foc=False)
 
     def joystick_move_command(self, control: Callable[[], float]) -> Command:
@@ -95,10 +95,11 @@ class Shoulder(Subsystem):
         )
 
     def at_position(self, position) -> bool:
-        return Trigger(
-            lambda: abs(self.motor.get_position().value - position)
-            < self.position_tolerance
-        )
+        # return Trigger(
+        #     lambda: abs(self.motor.get_position().value - position)
+        #     < self.position_tolerance
+        # )
+        return abs(self.motor.get_position().value - position) < self.position_tolerance
 
     def move(self, position) -> Command:
         return self.runOnce(
