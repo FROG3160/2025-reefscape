@@ -251,6 +251,9 @@ class RobotContainer:
             .alongWith(self.shoulder.move(-0.2))
         )
 
+    def grab_coral_then_home(self) -> Command:
+        return self.grab_coral_from_trough().andThen(self.move_to_home())
+
     def move_to_station(self) -> Command:
         return (
             self.arm.move(0)
@@ -385,7 +388,7 @@ class RobotContainer:
         self.driverController.start().onTrue(self.move_to_home())
         self.driverController.leftBumper().onTrue(self.move_to_station())
         self.driverController.a().onTrue(
-            self.grab_coral_from_trough()
+            self.grab_coral_then_home()
             # self.driveSubsystem.driveAutoPath("New Path")
         )
         self.driverController.leftStick().whileTrue(
