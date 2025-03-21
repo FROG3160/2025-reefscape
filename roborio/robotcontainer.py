@@ -41,7 +41,7 @@ from configs.scoring import (
     ScoringConfigs,
     L1_shoot,
     L2_shoot,
-    L3_shootV1,
+    # L3_shootV1,
     L3_shootV2,
     L3_dunk,
     L4_shoot,
