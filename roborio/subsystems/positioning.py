@@ -1,6 +1,15 @@
 from FROGlib.field import FROGField
 from robotpy_apriltag import AprilTagField
-from wpimath.geometry import Transform3d, Translation3d, Rotation3d, Pose3d
+from wpimath.geometry import (
+    Transform3d,
+    Translation3d,
+    Rotation3d,
+    Pose3d,
+    Pose2d,
+    Transform2d,
+    Translation2d,
+    Rotation2d,
+)
 from wpilib import DriverStation
 from constants import kReefTags
 
@@ -14,7 +23,7 @@ class Position(FROGField):
     def getTagPose(self, tag_id: int):
         return self._layout.getTagPose(tag_id)
 
-    def getClosestReefPosition(self, robot_pose: Pose3d) -> Pose3d:
+    def getClosestReefPosition(self, robot_pose: Pose2d) -> Pose2d:
         """returns the tag number of the closest side of the Reef
 
         Args:
@@ -29,12 +38,12 @@ class Position(FROGField):
 
         for tag in self._reef_tags:
             distance = robot_pose.translation().distance(
-                self.getTagPose(tag.value).translation()
+                self.getTagPose(tag.value).toPose2d().translation()
             )
             if distance < closest_distance:
                 closest_distance = distance
                 closest_tag = tag
-        return self.getTagPose(closest_tag.value)
+        return self.getTagPose(closest_tag.value).toPose2d()
         #     print(f"TAG: {tag}, Distance: {distance}")
         # tag_pose = self.getTagPose(closest_tag.value)
         # print(f"CLOSEST TAG: {closest_tag}")
@@ -44,7 +53,7 @@ class Position(FROGField):
     def setReefTags(self, alliance: DriverStation.Alliance):
         self._reef_tags = kReefTags[alliance]["Reef"]
 
-    def getRightSidePose():
+    def getRightSidePose(self, poseToTransform: Pose2d, leftOrRight: str) -> Pose2d:
         import math
 
         # distance from center of robot forward to the centerline of the arm swing
@@ -55,22 +64,28 @@ class Position(FROGField):
         stem_offset = 6.5  # the distance from center of the apriltag to the reef stem
         # this moves the aimpoint to the edge of the robot that we need to match
         # to one of the reef stems
-        robot_aim_point = Transform3d(
-            Translation3d(-robot_forward_adjust, -robot_left_adjust, 0),
+        robot_aim_point = Transform2d(
+            Translation2d(-robot_forward_adjust, -robot_left_adjust),
             Rotation3d(0, 0, -math.pi / 2),
         )
-        rightside_stem_adjust = Transform3d(
-            Translation3d(-robot_left_adjust, -stem_offset + robot_forward_adjust, 0),
-            Rotation3d(),
+        rightside_stem_adjust = Transform2d(
+            Translation2d(-robot_left_adjust, -stem_offset + robot_forward_adjust),
+            Rotation2d(),
         )
-        leftside_stem_adjust = Transform3d(
-            Translation3d(-robot_left_adjust, stem_offset + robot_forward_adjust, 0),
-            Rotation3d(),
+        leftside_stem_adjust = Transform2d(
+            Translation2d(-robot_left_adjust, stem_offset + robot_forward_adjust),
+            Rotation2d(),
         )
-        test = Pose3d(0, 0, 0, Rotation3d()).transformBy(rightside_stem_adjust)
-        test2 = Pose3d(0, 0, 0, Rotation3d()).transformBy(leftside_stem_adjust)
-        print(test)
-        print(test2)
+
+        if leftOrRight == "left":
+            return poseToTransform.transformBy(leftside_stem_adjust)
+        if leftOrRight == "right":
+            return poseToTransform.transformBy(rightside_stem_adjust)
+
+        # test = Pose3d(0, 0, 0, Rotation3d()).transformBy(rightside_stem_adjust)
+        # test2 = Pose3d(0, 0, 0, Rotation3d()).transformBy(leftside_stem_adjust)
+        # print(test)
+        # print(test2)
 
     # print(f"    ANGLE: {}")
 

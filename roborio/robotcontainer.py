@@ -13,6 +13,7 @@ from wpimath.geometry import Pose2d, Rotation2d
 import commands2
 import commands2.button
 import commands2.cmd
+import constants
 from constants import (
     kDriverControllerPort,
     kOperatorControllerPort,
@@ -58,7 +59,12 @@ from subsystems.shoulder import Shoulder
 from subsystems.grabber import Grabber
 from subsystems.arm import Arm
 from subsystems.climber import Climber
-from pathplannerlib.auto import AutoBuilder, NamedCommands
+from pathplannerlib.auto import (
+    AutoBuilder,
+    NamedCommands,
+    PathPlannerPath,
+    PathConstraints,
+)
 
 from commands.drive.field_oriented import (
     ManualDrive,
@@ -142,6 +148,15 @@ class RobotContainer:
     def registerNamedCommands(self):
         NamedCommands.registerCommand(
             "Place L1 coral", self.full_auto_scoring_sequence(L1_shoot)
+        )
+        NamedCommands.registerCommand(
+            "Place L2 coral", self.full_auto_scoring_sequence(L2_shoot)
+        )
+        NamedCommands.registerCommand(
+            "Place L3 coral", self.full_auto_scoring_sequence(L3_shootV1)
+        )
+        NamedCommands.registerCommand(
+            "Place L4 coral", self.full_auto_scoring_sequence(L4_shoot)
         )
         NamedCommands.registerCommand("Stop Grabber", self.grabber.stop_motor())
         NamedCommands.registerCommand("Home Systems", self.move_to_home())
@@ -320,6 +335,30 @@ class RobotContainer:
             # self.intake.set_home().schedule()
             self.systems_homed = True
 
+    def returnReefScoringPose(self, leftOrRight: str) -> Pose2d:
+        self.currentPose = self.driveSubsystem.estimator.getEstimatedPosition()
+        self.goalReefPose = self.positioning.getClosestReefPosition(self.currentPose)
+        if leftOrRight == "left":
+            self.goalScoringPose = self.positioning.getRightSidePose(
+                self.goalReefPose, leftOrRight
+            )
+        if leftOrRight == "right":
+            self.goalScoringPose = self.positioning.getRightSidePose(
+                self.goalReefPose, leftOrRight
+            )
+        return self.goalScoringPose
+
+    def moveToReefScoringPose(self, leftorRight: str) -> Command:
+        return AutoBuilder.pathfindToPose(
+            self.returnReefScoringPose(leftorRight),
+            PathConstraints(
+                constants.kMaxTrajectorySpeed,
+                constants.kMaxTrajectoryAccel,
+                constants.kProfiledRotationMaxVelocity,
+                constants.kProfiledRotationMaxAccel,
+            ),
+        ).withName("PathFindToReefScoringPose")
+
     def configureAutomationBindings(self):
         """Configures all triggers that are watching states or conditions
         of various subsystems.
@@ -375,6 +414,8 @@ class RobotContainer:
         #         )a
         #     )
         # )
+        self.driverController.povLeft().whileTrue(self.moveToReefScoringPose("left"))
+        self.driverController.povRight().whileTrue(self.moveToReefScoringPose("right"))
         self.driverController.x().onTrue(
             DeferredCommand(lambda: self.move_to_position())
         )
