@@ -62,6 +62,7 @@ from pathplannerlib.auto import AutoBuilder, NamedCommands
 
 from commands.drive.field_oriented import (
     ManualDrive,
+    AutoRotateToStationFieldOriented,
 )
 from commands.drive.robot_oriented import (
     ManualRobotOrientedDrive,
@@ -294,6 +295,20 @@ class RobotContainer:
             .andThen(DeferredCommand(lambda: self.move_to_score()))
         )
 
+    def rotate_to_station(self) -> Command:
+        self.currentDriveRotation = self.driveSubsystem.getRotation2d().radians()
+        self.goalRotation = self.driveSubsystem.profiledRotationController.calculate(
+            self.currentDriveRotation, self.driveSubsystem.returnRotationToStation()
+        )
+
+        return AutoRotateToStationFieldOriented(
+            self.driverController, self.driveSubsystem
+        ).until(
+            self.driveSubsystem.returnRotationWithinTolerance(
+                self.currentDriveRotation, self.goalRotation
+            )
+        )
+
     def test_run_grabber(self) -> Command:
         grabber_voltage = SmartDashboard.getNumber(self.grabber_str, 0)
         return self.grabber.run_motor(grabber_voltage)
@@ -383,7 +398,9 @@ class RobotContainer:
         self.driverController.povUp().onTrue(self.hold_coral_during_travel())
         self.driverController.povDown().onTrue(self.hold_algae_during_travel())
         self.driverController.start().onTrue(self.move_to_home())
-        self.driverController.leftBumper().onTrue(self.move_to_station())
+        self.driverController.leftBumper().onTrue(
+            self.move_to_station().alongWith(self.rotate_to_station())
+        )
         self.driverController.a().onTrue(
             self.grab_coral_from_trough()
             # self.driveSubsystem.driveAutoPath("New Path")

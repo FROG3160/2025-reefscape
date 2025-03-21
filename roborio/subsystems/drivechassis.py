@@ -179,11 +179,26 @@ class DriveChassis(SwerveBase):
     def driveAutoPath(self, pathname) -> Command:
         return AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathname))
 
-    def rotateToStation(self) -> Command:
-        # 1. need to determine rotational angle based on robot pose and alliance color
-        # 2. rotate drivetrain to that rotational angle
-        # 3. ends when drivetrain angle reaches a tolerance
-        pass
+    def returnRotationToStation(self) -> float:
+        # Returns heading in radians when robot intake is facing nearest source.
+
+        if DriverStation.getAlliance() == DriverStation.Alliance.kRed:
+
+            if self.estimator.getEstimatedPosition().Y() > (
+                8.21 / 2
+            ):  # Half of field width
+                return constants.kquadrant1 + constants.krobotIntakeHeading
+            else:
+                return constants.kquadrant4 + constants.krobotIntakeHeading
+        else:
+
+            if self.estimator.getEstimatedPosition().Y() > (8.21 / 2):
+                return constants.kquadrant2 + constants.krobotIntakeHeading
+            else:
+                return constants.kquadrant3 + constants.krobotIntakeHeading
+
+    def returnRotationWithinTolerance(self, currentRot, goalRot) -> bool:
+        return abs(goalRot - currentRot) <= constants.kRotationTolerance
 
     def resetRotationController(self):
         self.profiledRotationController.reset(

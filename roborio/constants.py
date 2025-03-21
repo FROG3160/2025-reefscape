@@ -13,7 +13,7 @@ from wpimath.geometry import Translation2d, Translation3d, Transform3d, Rotation
 from enum import Enum
 import math
 import wpilib
-from wpimath.units import feetToMeters, inchesToMeters, lbsToKilograms
+from wpimath.units import feetToMeters, inchesToMeters, lbsToKilograms, degreesToRadians
 from wpilib import DriverStation
 from FROGlib.utils import GearStage
 
@@ -113,6 +113,16 @@ kProfiledRotationMaxAccel = 2 * math.tau  # 2 rotations per second per second
 kProfiledRotationP = 0.4
 kProfiledRotationI = 0.0
 kProfiledRotationD = 0.0
+
+# Rotate to Coral Station Angles Radians, I use cartesian nomenclature with field center as (0,0)
+kquadrant1 = degreesToRadians(234)
+kquadrant2 = degreesToRadians(306)
+kquadrant3 = degreesToRadians(54)
+kquadrant4 = degreesToRadians(126)
+# Robot intake angle radian relative to front side.
+krobotIntakeHeading = degreesToRadians(90)
+# Tolerance for Auto rotation goal
+kRotationTolerance = degreesToRadians(5)
 
 # Xbox controller ports
 kDriverControllerPort = 0

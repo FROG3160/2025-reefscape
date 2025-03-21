@@ -87,3 +87,34 @@ class ManualDrive(Command):
             vT,
             self.controller.getFieldThrottle(),
         )
+
+
+class AutoRotateToStationFieldOriented(Command):
+    def __init__(
+        self, controller: FROGXboxDriver, drive: DriveChassis, table: str = "Undefined"
+    ) -> None:
+        """
+        Args:
+            controller (FROGXboxDriver): The controller used to control the drive.
+            drive (DriveChassis): The drive to be controlled.
+            table (str): The name of the network table telemetry data will go into
+        """
+        self.controller = controller
+        self.drive = drive
+        self.addRequirements(self.drive)
+        self.currentDriveRotation = self.drive.getRotation2d().radians()
+
+        self.vT = self.drive.profiledRotationController.calculate(
+            self.currentDriveRotation, self.drive.returnRotationToStation()
+        )
+
+    def execute(self) -> None:
+        throttle = self.controller.getFieldThrottle()
+        max_speed = self.drive.max_speed
+
+        self.drive.fieldOrientedDrive(
+            # self._vX, self._vY, self._vT, self._throttle
+            self.controller.getSlewLimitedFieldForward(),
+            self.controller.getSlewLimitedFieldLeft(),
+            self.vT,
+        )
