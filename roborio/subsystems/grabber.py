@@ -25,7 +25,7 @@ from phoenix6.controls import (
 )
 from phoenix6.hardware import CANrange
 from typing import Callable
-from commands2 import Command
+from commands2 import Command, WaitCommand
 from configs.ctre import motorOutputCWPandBrake
 from ntcore import NetworkTableInstance
 
@@ -124,12 +124,18 @@ class Grabber(Subsystem):
         ).until(self.not_detecting_coral)
 
     def eject_coral_L1(self) -> Command:
-        return self.startEnd(
-            # start running the motor
-            lambda: self.motor.set_control(-12),
-            # stop the motor
-            lambda: self.motor.stopMotor(),
-        ).until(self.not_detecting_coral)
+        return (
+            self.runOnce(
+                # start running the motor
+                lambda: self.motor.set_control(VoltageOut(-12, enable_foc=False))
+            )
+            .until(self.not_detecting_coral)
+            .andThen(WaitCommand(2))
+            .andThen(
+                # stop the motor
+                lambda: self.motor.stopMotor(),
+            )
+        )
 
     def intake_algae(self) -> Command:
         return self.runOnce(
