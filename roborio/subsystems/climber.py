@@ -14,7 +14,7 @@ from phoenix6.controls import (
     VoltageOut,
 )
 
-from commands2 import Command, waitcommand
+from commands2 import Command, WaitCommand
 from configs.ctre import motorOutputCWPandBrake
 from ntcore import NetworkTableInstance
 
@@ -42,7 +42,7 @@ class Climber(Subsystem):
             motor_name="motor",
         )
 
-        self.motor_winch_request = VoltageOut(output=-2.5, enable_foc=False)
+        self.motor_winch_request = VoltageOut(output=2.5, enable_foc=False)
         self.motor_deploy_request = VoltageOut(output=2.0, enable_foc=False)
 
     def run_motor(self) -> Command:
@@ -54,6 +54,6 @@ class Climber(Subsystem):
     def deploy_climber(self, time) -> Command:
         return (
             self.runOnce(lambda: self.motor.set_control(self.motor_deploy_request))
-            .andThen(waitcommand(time))
+            .andThen(WaitCommand(time))
             .andThen(self.stop_motor())
         )
