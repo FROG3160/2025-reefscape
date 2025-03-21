@@ -335,29 +335,29 @@ class RobotContainer:
             # self.intake.set_home().schedule()
             self.systems_homed = True
 
-    def returnReefScoringPose(self, leftOrRight: str) -> Pose2d:
-        self.currentPose = self.driveSubsystem.estimator.getEstimatedPosition()
-        self.goalReefPose = self.positioning.getClosestReefPosition(self.currentPose)
-        if leftOrRight == "left":
-            self.goalScoringPose = self.positioning.getRightSidePose(
-                self.goalReefPose, leftOrRight
-            )
-        if leftOrRight == "right":
-            self.goalScoringPose = self.positioning.getRightSidePose(
-                self.goalReefPose, leftOrRight
-            )
-        return self.goalScoringPose
+    # def returnReefScoringPose(self, leftOrRight: str) -> Pose2d:
+    #     self.currentPose = self.driveSubsystem.estimator.getEstimatedPosition()
+    #     self.goalReefPose = self.positioning.getClosestReefPosition(self.currentPose)
+    #     if leftOrRight == "left":
+    #         self.goalScoringPose = self.positioning.getRightSidePose(
+    #             self.goalReefPose, leftOrRight
+    #         )
+    #     if leftOrRight == "right":
+    #         self.goalScoringPose = self.positioning.getRightSidePose(
+    #             self.goalReefPose, leftOrRight
+    #         )
+    #     return self.goalScoringPose
 
-    def moveToReefScoringPose(self, leftorRight: str) -> Command:
-        return AutoBuilder.pathfindToPose(
-            self.returnReefScoringPose(leftorRight),
-            PathConstraints(
-                constants.kMaxTrajectorySpeed,
-                constants.kMaxTrajectoryAccel,
-                constants.kProfiledRotationMaxVelocity,
-                constants.kProfiledRotationMaxAccel,
-            ),
-        ).withName("PathFindToReefScoringPose")
+    # def moveToReefScoringPose(self, leftorRight: str) -> Command:
+    #     return AutoBuilder.pathfindToPose(
+    #         self.returnReefScoringPose(leftorRight),
+    #         PathConstraints(
+    #             constants.kMaxTrajectorySpeed,
+    #             constants.kMaxTrajectoryAccel,
+    #             constants.kProfiledRotationMaxVelocity,
+    #             constants.kProfiledRotationMaxAccel,
+    #         ),
+    #     ).withName("PathFindToReefScoringPose")
 
     def configureAutomationBindings(self):
         """Configures all triggers that are watching states or conditions
@@ -414,8 +414,8 @@ class RobotContainer:
         #         )a
         #     )
         # )
-        self.driverController.povLeft().whileTrue(self.moveToReefScoringPose("left"))
-        self.driverController.povRight().whileTrue(self.moveToReefScoringPose("right"))
+        # self.driverController.povLeft().whileTrue(self.moveToReefScoringPose("left"))
+        # self.driverController.povRight().whileTrue(self.moveToReefScoringPose("right"))
         self.driverController.x().onTrue(
             DeferredCommand(lambda: self.move_to_position())
         )
