@@ -193,6 +193,7 @@ class RobotContainer:
 
     def setScoringConfig(self, scoringConfig: ScoringConfigs):
         self.scoringConfig = scoringConfig
+        SmartDashboard.putString("Scoring Config value", self.scoringConfig.configName)
 
     def setScoringAction(self, scoringConfig) -> Command:
         return runOnce(lambda: self.setScoringConfig(scoringConfig))
