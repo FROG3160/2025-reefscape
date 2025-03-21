@@ -433,6 +433,8 @@ class RobotContainer:
             #     self.arm.move(self.arm.Position.CORAL_L4_PLACE)
             # )
         )
+        self.tacticalController.rightTrigger().onTrue(self.elevator.increment_offset())
+        self.tacticalController.leftTrigger().onTrue(self.elevator.decrement_offset())
 
     def configureSysIDButtonBindings(self):
         # Bind full set of SysId routine tests to buttons; a complete routine should run each of these

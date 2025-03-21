@@ -70,7 +70,7 @@ class Lift(Subsystem):
         self._follower.set_control(Follower(self.motor.device_id, False))
 
         self.position_tolerance = 0.1
-        self.position_offset = -1.5
+        self.position_offset = -2.25
         SmartDashboard.putNumber("Elevator Offset", self.position_offset)
         self.control = MotionMagicVoltage(0, slot=0, enable_foc=False)
 
@@ -124,15 +124,17 @@ class Lift(Subsystem):
 
     def _increment_offset(self):
         self.position_offset += 0.25
+        SmartDashboard.putNumber("Elevator Offset", self.position_offset)
 
     def _decrement_offset(self):
         self.position_offset -= 0.25
+        SmartDashboard.putNumber("Elevator Offset", self.position_offset)
 
     def increment_offset(self) -> Command:
-        self.runOnce(self._increment_offset)
+        return self.runOnce(self._increment_offset)
 
     def decrement_offset(self) -> Command:
-        return self.runOnce(self.decrement_offset)
+        return self.runOnce(self._decrement_offset)
 
     def at_position(self, position) -> bool:
         return abs(self.motor.get_position().value - position) < self.position_tolerance
