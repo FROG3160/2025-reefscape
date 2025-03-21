@@ -143,6 +143,9 @@ class RobotContainer:
         NamedCommands.registerCommand(
             "Place L1 coral", self.full_auto_scoring_sequence(L1_shoot)
         )
+        NamedCommands.registerCommand("Set L1 Scoring", self.setScoringConfig(L1_shoot))
+        NamedCommands.registerCommand("Move to Position", self.move_to_position())
+        NamedCommands.registerCommand("Move to Score", self.move_to_score())
         NamedCommands.registerCommand("Stop Grabber", self.grabber.stop_motor())
         NamedCommands.registerCommand("Home Systems", self.move_to_home())
 
@@ -187,9 +190,6 @@ class RobotContainer:
 
     def setScoringConfig(self, scoringConfig: ScoringConfigs):
         self.scoringConfig = scoringConfig
-
-    def setScoringAction(self, scoringConfig) -> Command:
-        return runOnce(lambda: self.setScoringConfig(scoringConfig))
 
     def setScoringConfig(self, scoringConfig: ScoringConfigs):
         self.scoringConfig = scoringConfig
