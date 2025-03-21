@@ -228,8 +228,9 @@ class RobotContainer:
     def grab_coral_from_trough(self) -> Command:
         return (
             self.arm.move(0)
-            .andThen(waitUntil(lambda: self.arm.at_position(0)))
-            .alongWith(self.shoulder.move(-0.25))
+            .andThen(waitUntil(self.arm.at_home))
+            .andThen(self.shoulder.move(-0.25))
+            .andThen(waitUntil(lambda: self.shoulder.at_position(-0.25)))
             .andThen(self.arm.move(0.55))
             .alongWith(self.grabber.intake_coral())
             .andThen(self.arm.move(0))
@@ -244,9 +245,9 @@ class RobotContainer:
 
     def move_to_home(self) -> Command:
         return (
-            self.grabber.run_motor(0)
+            self.grabber.stop_motor()
             .andThen(self.arm.move(0))
-            .andThen(waitUntil(lambda: self.arm.at_position(0)))
+            .andThen(waitUntil(self.arm.at_home))
             .andThen(self.elevator.move(0))
             .alongWith(self.shoulder.move(-0.2))
         )
