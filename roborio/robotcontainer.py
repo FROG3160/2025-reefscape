@@ -231,8 +231,8 @@ class RobotContainer:
             .andThen(waitUntil(self.arm.at_home))
             .andThen(self.shoulder.move(-0.25))
             .andThen(waitUntil(lambda: self.shoulder.at_position(-0.25)))
-            .andThen(self.arm.move(0.55))
-            .alongWith(self.grabber.intake_coral())
+            .andThen(self.arm.move(0.8))
+            .andThen(self.grabber.intake_coral())
             .andThen(self.arm.move(0))
         )
 
