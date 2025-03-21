@@ -1,4 +1,5 @@
 from commands2.subsystem import Subsystem
+from ntcore import NetworkTableInstance
 from FROGlib.ctre import FROGTalonFX, FROGTalonFXConfig, FROGFeedbackConfig
 import constants
 from configs.ctre import motorOutputCCWPandBrake
@@ -70,6 +71,12 @@ class Lift(Subsystem):
 
         self.position_tolerance = 0.1
         self.control = MotionMagicVoltage(0, slot=0, enable_foc=False)
+        nt_table = f"Subsystems/{self.__class__.__name__}"
+        self._position_pub = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/position")
+            .publish()
+        )
 
     def joystick_move_command(self, control: Callable[[], float]) -> Command:
         """Returns a command that takes a joystick control giving values between
@@ -117,3 +124,6 @@ class Lift(Subsystem):
 
     def at_position(self, position):
         return abs(self.motor.get_position().value - position) < self.position_tolerance
+
+    def periodic(self):
+        self._position_pub.set(self.motor.get_position().value)

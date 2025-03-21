@@ -138,6 +138,9 @@ class RobotContainer:
         # AUTO CHOOSER
         self.autochooser = AutoBuilder.buildAutoChooser()
         SmartDashboard.putData("PathPlanner Autos", self.autochooser)
+        SmartDashboard.putData("Elevator", self.elevator)
+        SmartDashboard.putData("Shoulder", self.shoulder)
+        SmartDashboard.putData("Arm", self.arm)
 
     def registerNamedCommands(self):
         NamedCommands.registerCommand(
