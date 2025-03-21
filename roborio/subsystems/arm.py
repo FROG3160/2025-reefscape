@@ -118,7 +118,7 @@ class Arm(Subsystem):
         )
 
     def at_position(self, position) -> bool:
-        return Trigger(
-            lambda: abs(self.motor.get_position().value - position)
-            < self.position_tolerance
-        )
+        return abs(self.motor.get_position().value - position) < self.position_tolerance
+
+    def at_home(self) -> bool:
+        return abs(self.motor.get_position().value - 0) < self.position_tolerance
