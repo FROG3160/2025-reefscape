@@ -16,6 +16,7 @@ from commands2 import Command
 from commands2.sysid import SysIdRoutine
 from wpilib.sysid import SysIdRoutineLog
 from wpimath.units import volts
+from wpilib import SmartDashboard
 
 
 class Lift(Subsystem):
@@ -69,6 +70,8 @@ class Lift(Subsystem):
         self._follower.set_control(Follower(self.motor.device_id, False))
 
         self.position_tolerance = 0.1
+        self.position_offset = -1.5
+        SmartDashboard.putNumber("Elevator Offset", self.position_offset)
         self.control = MotionMagicVoltage(0, slot=0, enable_foc=False)
 
     def joystick_move_command(self, control: Callable[[], float]) -> Command:
@@ -111,9 +114,28 @@ class Lift(Subsystem):
         )
 
     def move(self, position) -> Command:
+        if position + self.position_offset < 0:
+            offset_position = 0
+        else:
+            offset_position = position + self.position_offset
         return self.runOnce(
-            lambda: self.motor.set_control(self.control.with_position(position))
+            lambda: self.motor.set_control(self.control.with_position(offset_position))
         )
 
-    def at_position(self, position):
+    def _increment_offset(self):
+        self.position_offset += 0.25
+
+    def _decrement_offset(self):
+        self.position_offset -= 0.25
+
+    def increment_offset(self) -> Command:
+        self.runOnce(self._increment_offset)
+
+    def decrement_offset(self) -> Command:
+        return self.runOnce(self.decrement_offset)
+
+    def at_position(self, position) -> bool:
         return abs(self.motor.get_position().value - position) < self.position_tolerance
+
+    def periodic(self):
+        self.position_offset = SmartDashboard.getNumber("Elevator Offset", 0)
