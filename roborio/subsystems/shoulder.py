@@ -113,5 +113,12 @@ class Shoulder(Subsystem):
             lambda: self.motor.set_control(self.control.with_position(position))
         )
 
+    def move_with_variable(self, callable: Callable[[], float]) -> Command:
+        return self.run(
+            lambda: self.motor.set_control(
+                self.control.with_position(callable())
+            )  # VoltageOut(callable() * 10, enable_foc=False))
+        )
+
     def periodic(self):
         self._position_pub.set(self.motor.get_position().value)

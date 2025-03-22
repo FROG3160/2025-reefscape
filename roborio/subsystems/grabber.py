@@ -154,6 +154,11 @@ class Grabber(Subsystem):
             lambda: self.motor.set_control(VoltageOut(voltage, enable_foc=False))
         )
 
+    def run_motor_with_variable(self, callable: Callable[[], float]) -> Command:
+        return self.runOnce(
+            lambda: self.motor.set_control(VoltageOut(callable(), enable_foc=False))
+        )
+
     def stop_motor(self) -> Command:
         return self.runOnce(self.motor.stopMotor())
 
