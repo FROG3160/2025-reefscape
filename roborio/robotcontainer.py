@@ -291,6 +291,8 @@ class RobotContainer:
             return self.shoulder.move(second_shoulder_pos)
         elif self.scoringConfig == L1_shoot:
             return self.grabber.eject_coral_L1()
+        elif self.scoringConfig == algae_process:
+            return self.grabber.eject_algae()
         else:
             return self.grabber.run_motor(grabber_voltage)
 
@@ -383,9 +385,6 @@ class RobotContainer:
             DeferredCommand(lambda: self.move_to_position())
         )
         self.driverController.b().onTrue(DeferredCommand(lambda: self.move_to_score()))
-        self.driverController.b().onFalse(
-            DeferredCommand(lambda: self.grabber.run_motor(0))
-        )
         # self.driverController.rightBumper().onTrue(self.grab_coral_from_trough())
         self.driverController.povUp().onTrue(self.hold_coral_during_travel())
         self.driverController.povDown().onTrue(self.hold_algae_during_travel())
