@@ -73,6 +73,7 @@ class MyRobot(commands2.TimedCommandRobot):
         #     #     self.autonomousCommand.schedule()
 
         self.autonomousCommand.schedule()
+        self.container.driveSubsystem.enable()
 
     def autonomousPeriodic(self) -> None:
         """This function is called periodically during autonomous"""
