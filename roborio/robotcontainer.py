@@ -272,9 +272,11 @@ class RobotContainer:
         elevator_pos = self.scoringConfig.elevator_pos
         second_shoulder_pos = self.scoringConfig.shoulder_end_pos
         arm_pos = self.scoringConfig.arm_pos
+        print(f"Scoring Config values set using {self.scoringConfig.configName}")
 
         return (
-            self.shoulder.move(first_shoulder_pos)
+            PrintCommand(f"Moving to {self.scoringConfig.configName}")
+            .andThen(self.shoulder.move(first_shoulder_pos))
             .andThen(waitUntil(lambda: self.shoulder.at_position(first_shoulder_pos)))
             .andThen(self.elevator.move(elevator_pos))
             .andThen(waitUntil(lambda: self.elevator.at_position(elevator_pos)))
