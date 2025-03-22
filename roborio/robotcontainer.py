@@ -271,31 +271,55 @@ class RobotContainer:
 
     def move_to_position(self) -> Command:
 
-        first_shoulder_pos = self.scoringConfig.shoulder_start_pos
-        elevator_pos = self.scoringConfig.elevator_pos
-        second_shoulder_pos = self.scoringConfig.shoulder_end_pos
-        arm_pos = self.scoringConfig.arm_pos
+        # first_shoulder_pos = self.scoringConfig.shoulder_start_pos
+        # elevator_pos = self.scoringConfig.elevator_pos
+        # second_shoulder_pos = self.scoringConfig.shoulder_end_pos
+        # arm_pos = self.scoringConfig.arm_pos
         print(f"Scoring Config values set using {self.scoringConfig.configName}")
 
         return (
-            PrintCommand(f"Moving to {self.scoringConfig.configName}")
-            .andThen(self.shoulder.move(first_shoulder_pos))
-            .andThen(waitUntil(lambda: self.shoulder.at_position(first_shoulder_pos)))
-            .andThen(self.elevator.move(elevator_pos))
-            .andThen(waitUntil(lambda: self.elevator.at_position(elevator_pos)))
-            .andThen(self.arm.move(arm_pos))
+            PrintCommand(f"Moving to {self.scoringConfig.get_name()}")
+            .andThen(
+                self.shoulder.move_with_variable(
+                    self.scoringConfig.get_shoulder_start_position
+                )
+            )
+            .andThen(
+                waitUntil(
+                    lambda: self.shoulder.at_position(
+                        self.scoringConfig.get_shoulder_start_position()
+                    )
+                )
+            )
+            .andThen(
+                self.elevator.move_with_variable(
+                    self.scoringConfig.get_elevator_position
+                )
+            )
+            .andThen(
+                waitUntil(
+                    lambda: self.elevator.at_position(
+                        self.scoringConfig.get_elevator_position()
+                    )
+                )
+            )
+            .andThen(self.arm.move_with_variable(self.scoringConfig.get_arm_position))
         )
 
     def move_to_score(self) -> Command:
-        second_shoulder_pos = self.scoringConfig.shoulder_end_pos
-        grabber_voltage = self.scoringConfig.grabber_v
+        # second_shoulder_pos = self.scoringConfig.shoulder_end_pos
+        # grabber_voltage = self.scoringConfig.grabber_v
 
         if self.scoringConfig == L3_dunk or self.scoringConfig == L4_dunk:
-            return self.shoulder.move(second_shoulder_pos)
+            return self.shoulder.move_with_variable(
+                self.scoringConfig.get_shoulder_end_position
+            )
         elif self.scoringConfig == L1_shoot:
             return self.grabber.eject_coral_L1()
         else:
-            return self.grabber.run_motor(grabber_voltage)
+            return self.grabber.run_motor_with_variable(
+                self.scoringConfig.get_grabber_voltage
+            )
 
     # def full_auto_scoring_sequence(self, scoringConfig: ScoringConfigs) -> Command:
     #     return (
@@ -385,10 +409,8 @@ class RobotContainer:
         #         )a
         #     )
         # )
-        self.driverController.x().onTrue(
-            DeferredCommand(lambda: self.move_to_position())
-        )
-        self.driverController.b().onTrue(DeferredCommand(lambda: self.move_to_score()))
+        self.driverController.x().onTrue(self.move_to_position())
+        self.driverController.b().onTrue(self.move_to_score())
         self.driverController.b().onFalse(
             DeferredCommand(lambda: self.grabber.run_motor(0))
         )

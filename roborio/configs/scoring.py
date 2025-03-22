@@ -15,6 +15,24 @@ class ScoringConfigs:
         self.grabber_v = grabber_v
         self.configName = configName
 
+    def get_elevator_position(self):
+        return self.elevator_pos
+
+    def get_shoulder_start_position(self):
+        return self.shoulder_start_pos
+
+    def get_shoulder_end_position(self):
+        return self.shoulder_end_pos
+
+    def get_arm_position(self):
+        return self.arm_pos
+
+    def get_grabber_voltage(self):
+        return self.grabber_v
+
+    def get_name(self):
+        return self.configName
+
 
 L1_shoot = ScoringConfigs(4.0, -0.1, -0.1, 3.0, -12, "L1 Shoot")
 L2_shoot = ScoringConfigs(0, 0.12, 0.12, 0, 12, "L2 Shoot")
