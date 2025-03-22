@@ -87,3 +87,25 @@ class ManualDrive(Command):
             vT,
             self.controller.getFieldThrottle(),
         )
+
+
+class AutoMoveOffLine(Command):
+
+    def __init__(self, drive: DriveChassis) -> None:
+
+        self.drive = drive
+        self.addRequirements(self.drive)
+
+    def execute(self) -> None:
+
+        if DriverStation.getAlliance() == DriverStation.Alliance.kRed:
+            vX = 0.1
+        else:
+            vX = -0.1
+
+        self.drive.fieldOrientedAutoRotateDrive(
+            # self._vX, self._vY, self._vT, self._throttle
+            vX,
+            0,
+            0,
+        )

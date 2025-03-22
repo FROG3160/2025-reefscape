@@ -32,6 +32,7 @@ from commands2 import (
     RepeatCommand,
     InterruptionBehavior,
     Command,
+    WaitCommand,
 )
 from commands2.sysid import SysIdRoutine
 
@@ -62,6 +63,7 @@ from pathplannerlib.auto import AutoBuilder, NamedCommands
 
 from commands.drive.field_oriented import (
     ManualDrive,
+    AutoMoveOffLine,
 )
 from commands.drive.robot_oriented import (
     ManualRobotOrientedDrive,
@@ -321,6 +323,9 @@ class RobotContainer:
             self.arm.set_home().schedule()
             # self.intake.set_home().schedule()
             self.systems_homed = True
+
+    def move_off_line(self) -> Command:
+        return WaitCommand(1.5).deadlineWith(AutoMoveOffLine(self.driveSubsystem))
 
     def configureAutomationBindings(self):
         """Configures all triggers that are watching states or conditions
