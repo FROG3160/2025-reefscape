@@ -32,6 +32,7 @@ from commands2 import (
     RepeatCommand,
     InterruptionBehavior,
     Command,
+    WaitCommand,
 )
 from commands2.sysid import SysIdRoutine
 
@@ -62,6 +63,7 @@ from pathplannerlib.auto import AutoBuilder, NamedCommands
 
 from commands.drive.field_oriented import (
     ManualDrive,
+    AutoMoveOffLine,
 )
 from commands.drive.robot_oriented import (
     ManualRobotOrientedDrive,
@@ -141,11 +143,12 @@ class RobotContainer:
         SmartDashboard.putData("Elevator", self.elevator)
         SmartDashboard.putData("Shoulder", self.shoulder)
         SmartDashboard.putData("Arm", self.arm)
+        SmartDashboard.putData("Grabber", self.grabber)
 
     def registerNamedCommands(self):
-        NamedCommands.registerCommand(
-            "Place L1 coral", self.full_auto_scoring_sequence(L1_shoot)
-        )
+        # NamedCommands.registerCommand(
+        #     "Place L1 coral", self.full_auto_scoring_sequence(L1_shoot)
+        # )
         NamedCommands.registerCommand("Set L1 Scoring", self.setScoringConfig(L1_shoot))
         NamedCommands.registerCommand("Move to Position", self.move_to_position())
         NamedCommands.registerCommand("Move to Score", self.move_to_score())
@@ -294,12 +297,12 @@ class RobotContainer:
         else:
             return self.grabber.run_motor(grabber_voltage)
 
-    def full_auto_scoring_sequence(self, scoringConfig: ScoringConfigs) -> Command:
-        return (
-            self.setScoringAction(scoringConfig)
-            .andThen(DeferredCommand(lambda: self.move_to_position()))
-            .andThen(DeferredCommand(lambda: self.move_to_score()))
-        )
+    # def full_auto_scoring_sequence(self, scoringConfig: ScoringConfigs) -> Command:
+    #     return (
+    #         self.setScoringAction(scoringConfig)
+    #         .andThen(DeferredCommand(lambda: self.move_to_position()))
+    #         .andThen(DeferredCommand(lambda: self.move_to_score()))
+    #     )
 
     def test_run_grabber(self) -> Command:
         grabber_voltage = SmartDashboard.getNumber(self.grabber_str, 0)
@@ -323,6 +326,9 @@ class RobotContainer:
             self.arm.set_home().schedule()
             # self.intake.set_home().schedule()
             self.systems_homed = True
+
+    def move_off_line(self) -> Command:
+        return WaitCommand(1.5).deadlineWith(AutoMoveOffLine(self.driveSubsystem))
 
     def configureAutomationBindings(self):
         """Configures all triggers that are watching states or conditions
@@ -417,7 +423,11 @@ class RobotContainer:
         self.tacticalController.leftBumper().onTrue(
             self.setScoringAction(algae_process)
         )
-        self.tacticalController.rightBumper().onTrue(self.climber.deploy_climber(2))
+        self.tacticalController.rightBumper().onTrue(
+            self.elevator.move(3)
+            .alongWith(self.shoulder.move(0))
+            .andThen(self.climber.deploy_climber(1.7))
+        )
         self.tacticalController.start().onTrue(self.climber.run_motor())
         self.tacticalController.a().onTrue(
             self.setScoringAction(L1_shoot)
