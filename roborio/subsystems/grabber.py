@@ -56,7 +56,7 @@ class Grabber(Subsystem):
         )
 
         self.motor_intake = VoltageOut(output=8.0, enable_foc=False)
-        self.motor_eject = VoltageOut(output=8.0, enable_foc=False)
+        self.motor_eject = VoltageOut(output=-12, enable_foc=False)
         self.motor_voltage = 5
         nt_table = f"Subsystems/{self.__class__.__name__}"
         self._range_pub = (
@@ -146,7 +146,7 @@ class Grabber(Subsystem):
     def eject_algae(self) -> Command:
         return self.runOnce(
             # start running the motor
-            lambda: self.motor.set_control(-self.motor_eject),
+            lambda: self.motor.set_control(self.motor_eject),
         ).until(self.not_detecting_algae)
 
     def run_motor(self, voltage) -> Command:
