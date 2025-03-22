@@ -143,11 +143,12 @@ class RobotContainer:
         SmartDashboard.putData("Elevator", self.elevator)
         SmartDashboard.putData("Shoulder", self.shoulder)
         SmartDashboard.putData("Arm", self.arm)
+        SmartDashboard.putData("Grabber", self.grabber)
 
     def registerNamedCommands(self):
-        NamedCommands.registerCommand(
-            "Place L1 coral", self.full_auto_scoring_sequence(L1_shoot)
-        )
+        # NamedCommands.registerCommand(
+        #     "Place L1 coral", self.full_auto_scoring_sequence(L1_shoot)
+        # )
         NamedCommands.registerCommand("Set L1 Scoring", self.setScoringConfig(L1_shoot))
         NamedCommands.registerCommand("Move to Position", self.move_to_position())
         NamedCommands.registerCommand("Move to Score", self.move_to_score())
@@ -294,12 +295,12 @@ class RobotContainer:
         else:
             return self.grabber.run_motor(grabber_voltage)
 
-    def full_auto_scoring_sequence(self, scoringConfig: ScoringConfigs) -> Command:
-        return (
-            self.setScoringAction(scoringConfig)
-            .andThen(DeferredCommand(lambda: self.move_to_position()))
-            .andThen(DeferredCommand(lambda: self.move_to_score()))
-        )
+    # def full_auto_scoring_sequence(self, scoringConfig: ScoringConfigs) -> Command:
+    #     return (
+    #         self.setScoringAction(scoringConfig)
+    #         .andThen(DeferredCommand(lambda: self.move_to_position()))
+    #         .andThen(DeferredCommand(lambda: self.move_to_score()))
+    #     )
 
     def test_run_grabber(self) -> Command:
         grabber_voltage = SmartDashboard.getNumber(self.grabber_str, 0)
@@ -421,7 +422,9 @@ class RobotContainer:
             self.setScoringAction(algae_process)
         )
         self.tacticalController.rightBumper().onTrue(
-            self.climber.deploy_climber(2).alongWith(self.shoulder.move(0))
+            self.elevator.move(3)
+            .alongWith(self.shoulder.move(0))
+            .andThen(self.climber.deploy_climber(1.7))
         )
         self.tacticalController.start().onTrue(self.climber.run_motor())
         self.tacticalController.a().onTrue(
