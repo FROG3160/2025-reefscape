@@ -17,7 +17,11 @@ from phoenix6.configs import (
     MotionMagicConfigs,
 )
 from phoenix6.signals import NeutralModeValue, GravityTypeValue
-from phoenix6.signals.spn_enums import FeedbackSensorSourceValue, SensorDirectionValue
+from phoenix6.signals.spn_enums import (
+    FeedbackSensorSourceValue,
+    SensorDirectionValue,
+    ControlModeValue,
+)
 from phoenix6.controls import Follower, VoltageOut, MotionMagicVoltage
 from typing import Callable
 from commands2 import Command
@@ -85,6 +89,21 @@ class Shoulder(Subsystem):
             .getFloatTopic(f"{nt_table}/position")
             .publish()
         )
+        self._cl_output_pub = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/cl_output")
+            .publish()
+        )
+        self._cl_error_pub = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/cl_error")
+            .publish()
+        )
+        self._cl_goal_pub = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/cl_goal")
+            .publish()
+        )
 
     def joystick_move_command(self, control: Callable[[], float]) -> Command:
         """Returns a command that takes a joystick control giving values between
@@ -114,7 +133,7 @@ class Shoulder(Subsystem):
         )
 
     def move_with_variable(self, callable: Callable[[], float]) -> Command:
-        return self.run(
+        return self.runOnce(
             lambda: self.motor.set_control(
                 self.control.with_position(callable())
             )  # VoltageOut(callable() * 10, enable_foc=False))
@@ -122,3 +141,8 @@ class Shoulder(Subsystem):
 
     def periodic(self):
         self._position_pub.set(self.motor.get_position().value)
+        self._cl_error_pub.set(self.motor.get_closed_loop_error().value)
+        self._cl_output_pub.set(self.motor.get_closed_loop_output().value)
+        self._cl_goal_pub.set(
+            self.motor.get_position().value + self.motor.get_closed_loop_error().value
+        )
