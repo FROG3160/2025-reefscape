@@ -21,6 +21,7 @@ from configs.ctre import motorOutputCWPandBrake
 from commands2.sysid import SysIdRoutine
 from wpilib.sysid import SysIdRoutineLog
 from wpimath.units import volts
+from configs.scoring import ScoringConfigs
 
 
 class Arm(Subsystem):
@@ -38,9 +39,10 @@ class Arm(Subsystem):
                 feedback_config=FROGFeedbackConfig().with_sensor_to_mechanism_ratio(16),
                 slot0gains=Slot0Configs()
                 .with_k_a(0.1)
-                .with_k_p(8)
+                .with_k_p(12)
                 .with_k_s(0.19)
-                .with_k_v(1.9),
+                .with_k_v(1.7)
+                .with_k_i(0.004),
             )
             # Inverting the motor so positive voltage extends
             .with_motor_output(motorOutputCWPandBrake).with_motion_magic(
@@ -60,16 +62,22 @@ class Arm(Subsystem):
         self.motor.get_position().set_update_frequency(50)
         self.motor.get_torque_current().set_update_frequency(50)
         self.motor.optimize_bus_utilization()
+        self.scoring_config = ScoringConfigs(arm_pos=0)
         self.limitswitch = None
         self.homing_voltage = -0.25  # motor is inverted, negative values retract
         self.homing_torque_limit = 8.0
 
         self.position_tolerance = 0.1
-        self.control = MotionMagicVoltage(0, slot=0, enable_foc=False)
+        self.motion_magic_request = MotionMagicVoltage(0, slot=0, enable_foc=False)
         nt_table = f"Subsystems/{self.__class__.__name__}"
         self._position_pub = (
             NetworkTableInstance.getDefault()
             .getFloatTopic(f"{nt_table}/position")
+            .publish()
+        )
+        self._scoring_config_pub = (
+            NetworkTableInstance.getDefault()
+            .getStringTopic(f"{nt_table}/scoring_config")
             .publish()
         )
 
@@ -119,15 +127,19 @@ class Arm(Subsystem):
             .andThen(self.runOnce(self.reset_position))
         )
 
+    def _move(self, position):
+        self.motor.set_control(self.motion_magic_request.with_position(position))
+
     def move(self, position) -> Command:
-        return self.runOnce(
-            lambda: self.motor.set_control(self.control.with_position(position))
-        )
+        return self.runOnce(lambda: self._move(position))
+
+    def move_to_scoring(self) -> Command:
+        return self.runOnce(lambda: self._move(self.scoring_config.arm_pos))
 
     def move_with_variable(self, callable: Callable[[], float]) -> Command:
         return self.run(
             lambda: self.motor.set_control(
-                self.control.with_position(callable())
+                self.motion_magic_request.with_position(callable())
             )  # VoltageOut(callable() * 10, enable_foc=False))
         )
 
@@ -139,3 +151,4 @@ class Arm(Subsystem):
 
     def periodic(self):
         self._position_pub.set(self.motor.get_position().value)
+        self._scoring_config_pub.set(self.scoring_config.get_name())

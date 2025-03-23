@@ -28,6 +28,7 @@ from typing import Callable
 from commands2 import Command, WaitCommand
 from configs.ctre import motorOutputCWPandBrake
 from ntcore import NetworkTableInstance
+from configs.scoring import ScoringConfigs
 
 
 class Grabber(Subsystem):
@@ -54,10 +55,12 @@ class Grabber(Subsystem):
                 .with_min_signal_strength_for_valid_measurement(4000)
             )
         )
+        self.scoring_config = ScoringConfigs(grabber_v=0)
 
         self.motor_intake = VoltageOut(output=8.0, enable_foc=False)
         self.motor_eject = VoltageOut(output=8.0, enable_foc=False)
         self.motor_voltage = 5
+
         nt_table = f"Subsystems/{self.__class__.__name__}"
         self._range_pub = (
             NetworkTableInstance.getDefault()
@@ -72,6 +75,11 @@ class Grabber(Subsystem):
         self._algae_detected_pub = (
             NetworkTableInstance.getDefault()
             .getBooleanTopic(f"{nt_table}/algae_detected")
+            .publish()
+        )
+        self._scoring_config_pub = (
+            NetworkTableInstance.getDefault()
+            .getStringTopic(f"{nt_table}/scoring_config")
             .publish()
         )
 
@@ -166,3 +174,4 @@ class Grabber(Subsystem):
         self._range_pub.set(self.get_range())
         self._coral_detected_pub.set(self.detecting_coral())
         self._algae_detected_pub.set(self.detecting_algae())
+        self._scoring_config_pub.set(self.scoring_config.get_name())
