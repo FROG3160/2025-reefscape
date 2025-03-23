@@ -114,7 +114,7 @@ class RobotContainer:
         # Add each positioning camera to the positioningCameras list
         self.positioningCameras.append(self.camera1)
         self.positioningCameras.append(self.camera2)
-        self.scoringConfig = ScoringConfigs()
+        self.scoring_config = ScoringConfigs()
         self.positioning = Position()
 
         # Subsystems
@@ -194,15 +194,13 @@ class RobotContainer:
 
         self.driverController.leftBumper().whileTrue(self.grabber.run_motor(0))
 
-    def setScoringConfig(self, scoringConfig: ScoringConfigs):
-        self.scoringConfig = scoringConfig
+    def _set_scoring_config(self, scoringConfig: ScoringConfigs):
+        for sub in [self.shoulder, self.arm, self.elevator, self.grabber, self]:
+            sub.scoring_config = scoringConfig
+        SmartDashboard.putString("Scoring Config value", self.scoring_config.configName)
 
-    def setScoringConfig(self, scoringConfig: ScoringConfigs):
-        self.scoringConfig = scoringConfig
-        SmartDashboard.putString("Scoring Config value", self.scoringConfig.configName)
-
-    def setScoringAction(self, scoringConfig) -> Command:
-        return runOnce(lambda: self.setScoringConfig(scoringConfig))
+    def set_scoring_config(self, scoringConfig) -> Command:
+        return runOnce(lambda: self._set_scoring_config(scoringConfig))
 
     def position_for_coral_placement(
         self, first_shoulder_pos, elevator_pos, second_shoulder_pos, arm_pos
@@ -275,50 +273,43 @@ class RobotContainer:
         # elevator_pos = self.scoringConfig.elevator_pos
         # second_shoulder_pos = self.scoringConfig.shoulder_end_pos
         # arm_pos = self.scoringConfig.arm_pos
-        print(f"Scoring Config values set using {self.scoringConfig.configName}")
+        print(f"Using Scoring Config: {self.scoring_config.configName}")
 
         return (
-            PrintCommand(f"Moving to {self.scoringConfig.get_name()}")
-            .andThen(
-                self.shoulder.move_with_variable(
-                    self.scoringConfig.get_shoulder_start_position
-                )
+            PrintCommand(f"Moving to {self.scoring_config.get_name()}").andThen(
+                self.shoulder.move_to_scoring_start()
             )
-            .andThen(
-                waitUntil(
-                    lambda: self.shoulder.at_position(
-                        self.scoringConfig.get_shoulder_start_position()
-                    )
-                )
-            )
-            .andThen(
-                self.elevator.move_with_variable(
-                    self.scoringConfig.get_elevator_position
-                )
-            )
-            .andThen(
-                waitUntil(
-                    lambda: self.elevator.at_position(
-                        self.scoringConfig.get_elevator_position()
-                    )
-                )
-            )
-            .andThen(self.arm.move_with_variable(self.scoringConfig.get_arm_position))
+            # .andThen(
+            #     waitUntil(
+            #         lambda: self.shoulder.at_position(
+            #             self.scoring_config.get_shoulder_start_position()
+            #         )
+            #     )
+            # )
+            .andThen(self.elevator.move_to_scoring())
+            # .andThen(
+            #     waitUntil(
+            #         lambda: self.elevator.at_position(
+            #             self.scoring_config.get_elevator_position()
+            #         )
+            #     )
+            # )
+            .andThen(self.arm.move_to_scoring())
         )
 
     def move_to_score(self) -> Command:
         # second_shoulder_pos = self.scoringConfig.shoulder_end_pos
         # grabber_voltage = self.scoringConfig.grabber_v
 
-        if self.scoringConfig == L3_dunk or self.scoringConfig == L4_dunk:
+        if self.scoring_config == L3_dunk or self.scoring_config == L4_dunk:
             return self.shoulder.move_with_variable(
-                self.scoringConfig.get_shoulder_end_position
+                self.scoring_config.get_shoulder_end_position
             )
-        elif self.scoringConfig == L1_shoot:
+        elif self.scoring_config == L1_shoot:
             return self.grabber.eject_coral_L1()
         else:
             return self.grabber.run_motor_with_variable(
-                self.scoringConfig.get_grabber_voltage
+                self.scoring_config.get_grabber_voltage
             )
 
     # def full_auto_scoring_sequence(self, scoringConfig: ScoringConfigs) -> Command:
@@ -432,18 +423,18 @@ class RobotContainer:
         # wpilib.SmartDashboard.putData("Deploy Intake", self.intake.deploy_)
         # wpilib.SmartDashboard.putData("Retract Intake",
         # self.intake.retract())
-        self.tacticalController.povRight().onTrue(self.setScoringAction(algae_L34))
+        self.tacticalController.povRight().onTrue(self.set_scoring_config(algae_L34))
         self.tacticalController.povDown().onTrue(
-            self.setScoringAction(algae_L23)
+            self.set_scoring_config(algae_L23)
         )  # self.shoulder.move(-0.25))
         self.tacticalController.povLeft().onTrue(
-            self.setScoringAction(L3_dunk)
+            self.set_scoring_config(L3_dunk)
         )  # self.shoulder.move(0))
         self.tacticalController.povUp().onTrue(
-            self.setScoringAction(L4_dunk)
+            self.set_scoring_config(L4_dunk)
         )  # self.shoulder.move(0.125))
         self.tacticalController.leftBumper().onTrue(
-            self.setScoringAction(algae_process)
+            self.set_scoring_config(algae_process)
         )
         self.tacticalController.rightBumper().onTrue(
             self.elevator.move(3)
@@ -452,21 +443,21 @@ class RobotContainer:
         )
         self.tacticalController.start().onTrue(self.climber.run_motor())
         self.tacticalController.a().onTrue(
-            self.setScoringAction(L1_shoot)
+            self.set_scoring_config(L1_shoot)
             # self.shoulder.move(self.shoulder.Position.LEVEL1)
         )
         self.tacticalController.b().onTrue(
-            self.setScoringAction(L2_shoot)
+            self.set_scoring_config(L2_shoot)
             # self.shoulder.move(self.shoulder.Position.LEVEL2).andThen(
             #     self.arm.move(self.arm.Position.CORAL_L2_PLACE)
             # )
         )
         self.tacticalController.x().onTrue(
-            self.setScoringAction(L3_shootV2)
+            self.set_scoring_config(L3_shootV2)
             # self.shoulder.move(self.shoulder.Position.LEVEL3)
         )
         self.tacticalController.y().onTrue(
-            self.setScoringAction(L4_shoot)
+            self.set_scoring_config(L4_shoot)
             # self.shoulder.move(self.shoulder.Position.LEVEL4).andThen(
             #     self.arm.move(self.arm.Position.CORAL_L4_PLACE)
             # )

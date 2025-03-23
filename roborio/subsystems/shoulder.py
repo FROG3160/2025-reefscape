@@ -27,6 +27,7 @@ from typing import Callable
 from commands2 import Command
 from commands2.button import Trigger
 from configs.ctre import motorOutputCWPandBrake, motorOutputCCWPandBrake
+from configs.scoring import ScoringConfigs
 
 
 class Shoulder(Subsystem):
@@ -61,18 +62,18 @@ class Shoulder(Subsystem):
                 ).with_rotor_to_sensor_ratio(90),
                 slot0gains=Slot0Configs()
                 .with_gravity_type(GravityTypeValue.ARM_COSINE)
-                .with_k_p(24)
+                .with_k_p(20)
                 .with_k_s(0.24)
-                .with_k_v(6)
+                .with_k_v(8.0)
                 .with_k_a(0.01)
-                .with_k_g(0.2),
+                .with_k_g(0.21),
                 slot1gains=Slot1Configs(),
             )
             .with_motor_output(motorOutputCWPandBrake)
             .with_motion_magic(
                 MotionMagicConfigs()
-                .with_motion_magic_cruise_velocity(1)
-                .with_motion_magic_acceleration(2)
+                .with_motion_magic_cruise_velocity(0.5)
+                .with_motion_magic_acceleration(1)
             ),
             parent_nt="Shoulder",
             motor_name="motor",
@@ -82,7 +83,14 @@ class Shoulder(Subsystem):
         self._follower.set_control(Follower(self.motor.device_id, False))
 
         self.position_tolerance = 0.005
-        self.control = MotionMagicVoltage(0, slot=0, enable_foc=False)
+        self.motion_magic_request = MotionMagicVoltage(
+            0, slot=0, enable_foc=False
+        ).with_
+
+        self.scoring_config = ScoringConfigs(
+            shoulder_start_pos=-0.25, shoulder_end_pos=-0.25
+        )
+
         nt_table = f"Subsystems/{self.__class__.__name__}"
         self._position_pub = (
             NetworkTableInstance.getDefault()
@@ -102,6 +110,11 @@ class Shoulder(Subsystem):
         self._cl_goal_pub = (
             NetworkTableInstance.getDefault()
             .getFloatTopic(f"{nt_table}/cl_goal")
+            .publish()
+        )
+        self._scoring_config_pub = (
+            NetworkTableInstance.getDefault()
+            .getStringTopic(f"{nt_table}/scoring_config")
             .publish()
         )
 
@@ -127,15 +140,25 @@ class Shoulder(Subsystem):
         # )
         return abs(self.motor.get_position().value - position) < self.position_tolerance
 
+    def _move(self, position):
+        self.motor.set_control(self.motion_magic_request.with_position(position))
+
     def move(self, position) -> Command:
-        return self.runOnce(
-            lambda: self.motor.set_control(self.control.with_position(position))
-        )
+        return self.runOnce(lambda: self._move(position))
+
+    def move_to_scoring_start(self) -> Command:
+        return self.runOnce(lambda: self._move(self.scoring_config.shoulder_start_pos))
+
+    def move_to_scoring_end(self) -> Command:
+        return self.runOnce(lambda: self._move(self.scoring_config.shoulder_end_pos))
+
+    def set_goal(self, position) -> None:
+        self.scoring_position = position
 
     def move_with_variable(self, callable: Callable[[], float]) -> Command:
         return self.runOnce(
             lambda: self.motor.set_control(
-                self.control.with_position(callable())
+                self.motion_magic_request.with_position(callable())
             )  # VoltageOut(callable() * 10, enable_foc=False))
         )
 
@@ -146,3 +169,4 @@ class Shoulder(Subsystem):
         self._cl_goal_pub.set(
             self.motor.get_position().value + self.motor.get_closed_loop_error().value
         )
+        self._scoring_config_pub.set(self.scoring_config.get_name())
