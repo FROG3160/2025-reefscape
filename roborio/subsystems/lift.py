@@ -17,6 +17,7 @@ from commands2 import Command
 from commands2.sysid import SysIdRoutine
 from wpilib.sysid import SysIdRoutineLog
 from wpimath.units import volts
+from configs.scoring import ScoringConfigs
 
 
 class Lift(Subsystem):
@@ -68,13 +69,19 @@ class Lift(Subsystem):
         self._follower = FROGTalonFX(id=constants.kLiftFollowerID)
         # set the follower's control to ALWAYS follow the main motor
         self._follower.set_control(Follower(self.motor.device_id, False))
+        self.scoring_config = ScoringConfigs(elevator_pos=0)
 
         self.position_tolerance = 0.1
-        self.control = MotionMagicVoltage(0, slot=0, enable_foc=False)
+        self.motion_magic_request = MotionMagicVoltage(0, slot=0, enable_foc=False)
         nt_table = f"Subsystems/{self.__class__.__name__}"
         self._position_pub = (
             NetworkTableInstance.getDefault()
             .getFloatTopic(f"{nt_table}/position")
+            .publish()
+        )
+        self._scoring_config_pub = (
+            NetworkTableInstance.getDefault()
+            .getStringTopic(f"{nt_table}/scoring_config")
             .publish()
         )
 
@@ -117,9 +124,20 @@ class Lift(Subsystem):
             .andThen(self.runOnce(self.reset_lift_to_home))
         )
 
+    def _move(self, position):
+        self.motor.set_control(self.motion_magic_request.with_position(position))
+
     def move(self, position) -> Command:
-        return self.runOnce(
-            lambda: self.motor.set_control(self.control.with_position(position))
+        return self.runOnce(lambda: self._move(position))
+
+    def move_to_scoring(self) -> Command:
+        return self.runOnce(lambda: self._move(self.scoring_config.elevator_pos))
+
+    def move_with_variable(self, callable: Callable[[], float]) -> Command:
+        return self.run(
+            lambda: self.motor.set_control(
+                self.motion_magic_request.with_position(callable())
+            )  # VoltageOut(callable() * 10, enable_foc=False))
         )
 
     def at_position(self, position):
@@ -127,3 +145,4 @@ class Lift(Subsystem):
 
     def periodic(self):
         self._position_pub.set(self.motor.get_position().value)
+        self._scoring_config_pub.set(self.scoring_config.get_name())
