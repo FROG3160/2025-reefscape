@@ -1,4 +1,5 @@
 from itertools import chain, islice
+from collections import deque
 import math
 from wpimath.geometry import (
     Transform3d,
@@ -9,6 +10,7 @@ from wpimath.geometry import (
     Pose2d,
     Transform2d,
 )
+from statistics import stdev
 
 
 def constrain_radians(rads):
@@ -86,6 +88,82 @@ def arrayToPose3d(array):
         array[2],
         Rotation3d.fromDegrees(array[3], array[4], array[5]),
     )
+
+
+class Buffer(deque):
+    def __init__(self, size: int, validLength: int = 1):
+        """Constructor for Buffer
+        Args:
+            size (int): Maximum size of the buffer.  The largest number of values
+                the buffer will keep.
+            validLength (int, optional): The number of values in the buffer needed
+                to treat the amount of data as valid. average() returns None if
+                there aren't enough values.  Defaults to 1.
+        """
+        self.validLength = validLength
+        super().__init__(maxlen=size)
+
+    def _filterList(self):
+        # our calculations can't accept None values
+        return [x for x in self if x is not None]
+
+    def _getBufferLength(self):
+        return len(self._filterList())
+
+    def _isValidData(self):
+        return self._getBufferLength() >= self.validLength
+
+    def average(self) -> float:
+        """Get the average of all values in the buffer.
+        Returns:
+            float: The average of all values in the buffer if the number of values
+                is >= the validLength parameter.
+            None:  Returned if there aren't enough values to be >= the validLength
+                parameter.
+        """
+        if self._isValidData():
+            filteredList = self._filterList()
+            return sum(filteredList) / len(filteredList)
+        else:
+            return None
+
+
+class PoseBuffer(Buffer):
+    def x_average(self):
+        if self._isValidData():
+            return sum([x.X() for x in self._filterList()]) / len(self._filterList())
+
+    def y_average(self):
+        if self._isValidData():
+            return sum([x.Y() for x in self._filterList()]) / len(self._filterList())
+
+    def rotation_average(self):
+        if self._isValidData():
+            return Rotation2d(
+                sum([x.rotation().radians() for x in self._filterList()])
+                / len(self._filterList())
+            ).radians()
+
+    def pose_average(self):
+        return Pose2d(self.x_average(), self.y_average(), self.rotation_average())
+
+    def x_stddev(self):
+        if self._getBufferLength() > 2:
+            return stdev([x.X() for x in self._filterList()])
+        else:
+            return 0.0
+
+    def y_stddev(self):
+        if self._getBufferLength() > 2:
+            return stdev([x.Y() for x in self._filterList()])
+        else:
+            return 0.0
+
+    def rotation_stddev(self):
+        if self._getBufferLength() > 2:
+            return stdev([x.rotation().radians() for x in self._filterList()])
+        else:
+            return 0.0
 
 
 class GearStage:

@@ -198,17 +198,19 @@ class DriveChassis(SwerveBase):
 
         # Updates pose estimator with target data from positioning cameras.
         for camera in self.positioningCameras:
-            self.cameraPose = camera.periodic()
-            if self.cameraPose is not None:
-
+            camera_pose = camera.periodic()
+            if camera_pose is not None:
+                camera_pose2d = camera_pose.estimatedPose.toPose2d()
+                for target in camera_pose.targetsUsed:
+                    target.bestCameraToTarget
                 self.estimator.addVisionMeasurement(
-                    self.cameraPose.estimatedPose.toPose2d(),
-                    self.cameraPose.timestampSeconds,
+                    camera_pose.estimatedPose.toPose2d(),
+                    camera_pose.timestampSeconds,
                 )
                 cameraPoseObject = self.field.getObject(
                     camera.estimator._camera.getName()
                 )
-                cameraPoseObject.setPose(self.cameraPose.estimatedPose.toPose2d())
+                cameraPoseObject.setPose(camera_pose.estimatedPose.toPose2d())
 
         self.field.setRobotPose(self.estimator.getEstimatedPosition())
         SmartDashboard.putNumberArray(
