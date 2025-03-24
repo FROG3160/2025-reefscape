@@ -149,7 +149,9 @@ class RobotContainer:
         # NamedCommands.registerCommand(
         #     "Place L1 coral", self.full_auto_scoring_sequence(L1_shoot)
         # )
-        NamedCommands.registerCommand("Set L1 Scoring", self.setScoringConfig(L1_shoot))
+        NamedCommands.registerCommand(
+            "Set L1 Scoring", self.set_scoring_config(L1_shoot)
+        )
         NamedCommands.registerCommand("Move to Position", self.move_to_position())
         NamedCommands.registerCommand("Move to Score", self.move_to_score())
         NamedCommands.registerCommand("Stop Grabber", self.grabber.stop_motor())

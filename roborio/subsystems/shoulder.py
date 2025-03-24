@@ -83,9 +83,7 @@ class Shoulder(Subsystem):
         self._follower.set_control(Follower(self.motor.device_id, False))
 
         self.position_tolerance = 0.005
-        self.motion_magic_request = MotionMagicVoltage(
-            0, slot=0, enable_foc=False
-        ).with_
+        self.motion_magic_request = MotionMagicVoltage(0, slot=0, enable_foc=False)
 
         self.scoring_config = ScoringConfigs(
             shoulder_start_pos=-0.25, shoulder_end_pos=-0.25
