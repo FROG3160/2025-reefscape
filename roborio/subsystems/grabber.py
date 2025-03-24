@@ -25,9 +25,10 @@ from phoenix6.controls import (
 )
 from phoenix6.hardware import CANrange
 from typing import Callable
-from commands2 import Command
+from commands2 import Command, WaitCommand
 from configs.ctre import motorOutputCWPandBrake
 from ntcore import NetworkTableInstance
+from configs.scoring import ScoringConfigs
 
 
 class Grabber(Subsystem):
@@ -54,10 +55,12 @@ class Grabber(Subsystem):
                 .with_min_signal_strength_for_valid_measurement(4000)
             )
         )
+        self.scoring_config = ScoringConfigs(grabber_v=0)
 
         self.motor_intake = VoltageOut(output=8.0, enable_foc=False)
         self.motor_eject = VoltageOut(output=8.0, enable_foc=False)
         self.motor_voltage = 5
+
         nt_table = f"Subsystems/{self.__class__.__name__}"
         self._range_pub = (
             NetworkTableInstance.getDefault()
@@ -72,6 +75,11 @@ class Grabber(Subsystem):
         self._algae_detected_pub = (
             NetworkTableInstance.getDefault()
             .getBooleanTopic(f"{nt_table}/algae_detected")
+            .publish()
+        )
+        self._scoring_config_pub = (
+            NetworkTableInstance.getDefault()
+            .getStringTopic(f"{nt_table}/scoring_config")
             .publish()
         )
 
@@ -124,12 +132,18 @@ class Grabber(Subsystem):
         ).until(self.not_detecting_coral)
 
     def eject_coral_L1(self) -> Command:
-        return self.startEnd(
-            # start running the motor
-            lambda: self.motor.set_control(-12),
-            # stop the motor
-            lambda: self.motor.stopMotor(),
-        ).until(self.not_detecting_coral)
+        return (
+            self.runOnce(
+                # start running the motor
+                lambda: self.motor.set_control(VoltageOut(-12, enable_foc=False))
+            )
+            .until(self.not_detecting_coral)
+            .andThen(WaitCommand(2))
+            .andThen(
+                # stop the motor
+                lambda: self.motor.stopMotor(),
+            )
+        )
 
     def intake_algae(self) -> Command:
         return self.runOnce(
@@ -148,6 +162,11 @@ class Grabber(Subsystem):
             lambda: self.motor.set_control(VoltageOut(voltage, enable_foc=False))
         )
 
+    def run_motor_with_variable(self, callable: Callable[[], float]) -> Command:
+        return self.runOnce(
+            lambda: self.motor.set_control(VoltageOut(callable(), enable_foc=False))
+        )
+
     def stop_motor(self) -> Command:
         return self.runOnce(self.motor.stopMotor())
 
@@ -155,3 +174,4 @@ class Grabber(Subsystem):
         self._range_pub.set(self.get_range())
         self._coral_detected_pub.set(self.detecting_coral())
         self._algae_detected_pub.set(self.detecting_algae())
+        self._scoring_config_pub.set(self.scoring_config.get_name())
