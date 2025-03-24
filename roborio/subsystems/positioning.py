@@ -11,10 +11,7 @@ class Position(FROGField):
         super().__init__(AprilTagField.k2025ReefscapeWelded)
         self._reef_tags = None
 
-    def getTagPose(self, tag_id: int):
-        return self._layout.getTagPose(tag_id)
-
-    def getClosestReefPosition(self, robot_pose: Pose3d) -> Pose3d:
+    def getClosestReefPosition(self, robot_pose: Pose3d) -> int:
         """returns the tag number of the closest side of the Reef
 
         Args:
@@ -28,9 +25,7 @@ class Position(FROGField):
         closest_tag = None
 
         for tag in self._reef_tags:
-            distance = robot_pose.translation().distance(
-                self.getTagPose(tag.value).translation()
-            )
+            distance = self.get_distance_to_tag(robot_pose, tag.value)
             if distance < closest_distance:
                 closest_distance = distance
                 closest_tag = tag
@@ -44,7 +39,14 @@ class Position(FROGField):
     def setReefTags(self, alliance: DriverStation.Alliance):
         self._reef_tags = kReefTags[alliance]["Reef"]
 
-    def getRightSidePose():
+    def get_distance_to_tag(self, pose: Pose3d, tag_num: int) -> float:
+        return (
+            pose.toPose2d()
+            .translation()
+            .distance(self.getTagPose(tag_num).toPose2d().translation())
+        )
+
+    def get_scoring_pose(tag_num: int, position: str):
         import math
 
         # distance from center of robot forward to the centerline of the arm swing
