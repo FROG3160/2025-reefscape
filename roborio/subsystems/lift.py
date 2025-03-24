@@ -18,6 +18,7 @@ from commands2.sysid import SysIdRoutine
 from wpilib.sysid import SysIdRoutineLog
 from wpimath.units import volts
 from configs.scoring import ScoringConfigs
+from wpilib import SmartDashboard
 
 
 class Lift(Subsystem):
@@ -72,6 +73,7 @@ class Lift(Subsystem):
         self.scoring_config = ScoringConfigs(elevator_pos=0)
 
         self.position_tolerance = 0.1
+
         self.motion_magic_request = MotionMagicVoltage(0, slot=0, enable_foc=False)
         nt_table = f"Subsystems/{self.__class__.__name__}"
         self._position_pub = (
@@ -128,6 +130,7 @@ class Lift(Subsystem):
         self.motor.set_control(self.motion_magic_request.with_position(position))
 
     def move(self, position) -> Command:
+
         return self.runOnce(lambda: self._move(position))
 
     def move_to_scoring(self) -> Command:
@@ -140,7 +143,19 @@ class Lift(Subsystem):
             )  # VoltageOut(callable() * 10, enable_foc=False))
         )
 
-    def at_position(self, position):
+    def _increment_offset(self):
+        self.position_offset += 0.25
+
+    def _decrement_offset(self):
+        self.position_offset -= 0.25
+
+    def increment_offset(self) -> Command:
+        self.runOnce(self._increment_offset)
+
+    def decrement_offset(self) -> Command:
+        return self.runOnce(self.decrement_offset)
+
+    def at_position(self, position) -> bool:
         return abs(self.motor.get_position().value - position) < self.position_tolerance
 
     def periodic(self):
