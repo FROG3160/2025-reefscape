@@ -54,7 +54,7 @@ class Lift(Subsystem):
             .with_motion_magic(
                 MotionMagicConfigs()
                 .with_motion_magic_cruise_velocity(12)
-                .with_motion_magic_acceleration(24)
+                .with_motion_magic_acceleration(18)
                 .with_motion_magic_jerk(48)
             ),
             # .with_software_limit_switch(
