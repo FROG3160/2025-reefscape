@@ -59,6 +59,7 @@ class Grabber(Subsystem):
 
         self.motor_intake = VoltageOut(output=8.0, enable_foc=False)
         self.motor_eject = VoltageOut(output=8.0, enable_foc=False)
+        self.voltage_request = VoltageOut(output=0, enable_foc=False)
         self.motor_voltage = 5
 
         nt_table = f"Subsystems/{self.__class__.__name__}"
@@ -123,27 +124,48 @@ class Grabber(Subsystem):
             lambda: self.motor.stopMotor(),
         ).until(self.detecting_coral)
 
-    def eject_coral(self) -> Command:
-        return self.startEnd(
-            # start running the motor
-            lambda: self.motor.set_control(self.motor_eject),
-            # stop the motor
-            lambda: self.motor.stopMotor(),
-        ).until(self.not_detecting_coral)
+    # def eject_coral(self) -> Command:
+    #     return self.startEnd(
+    #         # start running the motor
+    #         lambda: self.motor.set_control(self.motor_eject),
+    #         # stop the motor
+    #         lambda: self.motor.stopMotor(),
+    #     ).until(self.not_detecting_coral)
 
-    def eject_coral_L1(self) -> Command:
-        return (
-            self.runOnce(
-                # start running the motor
-                lambda: self.motor.set_control(VoltageOut(-12, enable_foc=False))
+    # def eject_coral_L1(self) -> Command:
+    #     return (
+    #         self.runOnce(
+    #             # start running the motor
+    #             lambda: self.motor.set_control(VoltageOut(-12, enable_foc=False))
+    #         )
+    #         .until(self.not_detecting_coral)
+    #         .andThen(WaitCommand(2))
+    #         .andThen(
+    #             # stop the motor
+    #             lambda: self.motor.stopMotor(),
+    #         )
+    #     )
+
+    def _run(self, voltage):
+        self.motor.set_control(self.voltage_request.with_output(voltage))
+
+    def run_scoring(self) -> Command:
+        if self.scoring_config.element == "Algae" and self.scoring_config.grabber_v < 0:
+            return self.startEnd(
+                lambda: self._run(self.scoring_config.grabber_v), self.stop_motor()
+            ).until(self.not_detecting_algae)
+        elif self.scoring_config.element == "Algae":
+            return self.runOnce(lambda: self._run(self.scoring_config.grabber_v))
+        else:
+            return (
+                self.runOnce(lambda: self._run(self.scoring_config.grabber_v))
+                .until(self.not_detecting_coral)
+                .andThen(WaitCommand(2))
+                .andThen(
+                    # stop the motor
+                    lambda: self.motor.stopMotor(),
+                )
             )
-            .until(self.not_detecting_coral)
-            .andThen(WaitCommand(2))
-            .andThen(
-                # stop the motor
-                lambda: self.motor.stopMotor(),
-            )
-        )
 
     def intake_algae(self) -> Command:
         return self.runOnce(
