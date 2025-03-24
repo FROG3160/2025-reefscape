@@ -153,7 +153,7 @@ class RobotContainer:
             "Set L1 Scoring", self.set_scoring_config(L1_shoot)
         )
         NamedCommands.registerCommand("Move to Position", self.move_to_position())
-        NamedCommands.registerCommand("Move to Score", self.move_to_score())
+        NamedCommands.registerCommand("Score", self.score())
         NamedCommands.registerCommand("Stop Grabber", self.grabber.stop_motor())
         NamedCommands.registerCommand("Home Systems", self.move_to_home())
 
@@ -290,20 +290,21 @@ class RobotContainer:
             .andThen(self.arm.move_to_scoring())
         )
 
-    def move_to_score(self) -> Command:
+    def score(self) -> Command:
         # second_shoulder_pos = self.scoringConfig.shoulder_end_pos
         # grabber_voltage = self.scoringConfig.grabber_v
+        return self.grabber.run_scoring()
 
-        if self.scoring_config == L3_dunk or self.scoring_config == L4_dunk:
-            return self.shoulder.move_with_variable(
-                self.scoring_config.get_shoulder_end_position
-            )
-        elif self.scoring_config == L1_shoot:
-            return self.grabber.eject_coral_L1()
-        else:
-            return self.grabber.run_motor_with_variable(
-                self.scoring_config.get_grabber_voltage
-            )
+        # if self.scoring_config == L3_dunk or self.scoring_config == L4_dunk:
+        #     return self.shoulder.move_with_variable(
+        #         self.scoring_config.get_shoulder_end_position
+        #     )
+        # elif self.scoring_config == L1_shoot:
+        #     return self.grabber.eject_coral_L1()
+        # else:
+        #     return self.grabber.run_motor_with_variable(
+        #         self.scoring_config.get_grabber_voltage
+        #     )
 
     # def full_auto_scoring_sequence(self, scoringConfig: ScoringConfigs) -> Command:
     #     return (
@@ -394,10 +395,7 @@ class RobotContainer:
         #     )
         # )
         self.driverController.x().onTrue(self.move_to_position())
-        self.driverController.b().onTrue(self.move_to_score())
-        self.driverController.b().onFalse(
-            DeferredCommand(lambda: self.grabber.run_motor(0))
-        )
+        self.driverController.b().onTrue(self.score())
         # self.driverController.rightBumper().onTrue(self.grab_coral_from_trough())
         self.driverController.povUp().onTrue(self.hold_coral_during_travel())
         self.driverController.povDown().onTrue(self.hold_algae_during_travel())
