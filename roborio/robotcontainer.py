@@ -270,17 +270,8 @@ class RobotContainer:
         return self.arm.move(0).alongWith(self.shoulder.move(-0.15))
 
     def move_to_position(self) -> Command:
-
-        # first_shoulder_pos = self.scoringConfig.shoulder_start_pos
-        # elevator_pos = self.scoringConfig.elevator_pos
-        # second_shoulder_pos = self.scoringConfig.shoulder_end_pos
-        # arm_pos = self.scoringConfig.arm_pos
-        print(f"Using Scoring Config: {self.scoring_config.configName}")
-
         return (
-            PrintCommand(f"Moving to {self.scoring_config.get_name()}").andThen(
-                self.shoulder.move_to_scoring_start()
-            )
+            self.shoulder.move_to_scoring_start()
             # .andThen(
             #     waitUntil(
             #         lambda: self.shoulder.at_position(
