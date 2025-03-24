@@ -150,10 +150,12 @@ class Grabber(Subsystem):
         self.motor.set_control(self.voltage_request.with_output(voltage))
 
     def run_scoring(self) -> Command:
-        if self.scoring_config.element == "Algae":
+        if self.scoring_config.element == "Algae" and self.scoring_config.grabber_v < 0:
             return self.startEnd(
                 lambda: self._run(self.scoring_config.grabber_v), self.stop_motor()
             ).until(self.not_detecting_algae)
+        elif self.scoring_config.element == "Algae":
+            return self.runOnce(lambda: self._run(self.scoring_config.grabber_v))
         else:
             return (
                 self.runOnce(lambda: self._run(self.scoring_config.grabber_v))
