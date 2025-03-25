@@ -117,9 +117,12 @@ class SwerveModule:
         # create/configure cancoder
         self.steer_encoder = FROGCanCoder(config.cancoder_id, config.cancoder_config)
 
+        # configure signal frequencies
         self.drive_motor.get_velocity().set_update_frequency(50)
         self.drive_motor.get_motor_voltage().set_update_frequency(50)
+        self.drive_motor.get_closed_loop_error().set_update_frequency(50)
         self.steer_motor.get_position().set_update_frequency(50)
+        self.steer_motor.get_closed_loop_error().set_update_frequency(50)
         self.steer_encoder.get_absolute_position().set_update_frequency(50)
         self.drive_motor.optimize_bus_utilization()
         self.steer_motor.optimize_bus_utilization()
@@ -149,6 +152,16 @@ class SwerveModule:
         self._modulePositionPub = (
             NetworkTableInstance.getDefault()
             .getFloatTopic(f"{nt_table}/actual_position")
+            .publish()
+        )
+        self._module_velocity_error_pub = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/velocity_error")
+            .publish()
+        )
+        self._module_position_error_pub = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/position_error")
             .publish()
         )
 
@@ -201,8 +214,10 @@ class SwerveModule:
     def setState(self, requested_state: SwerveModuleState):
         if self.enabled:
             # log the current state of the motors before commanding them to a new value
-            self._moduleVelocityPub.set(self.drive_motor.get_velocity().value)
-            self._modulePositionPub.set(self.steer_motor.get_position().value)
+            self.current_velocity = self.drive_motor.get_velocity().value
+            self.current_position = self.steer_motor.get_position().value
+            self._moduleVelocityPub.set(self.current_velocity)
+            self._modulePositionPub.set(self.current_position)
 
             requested_state.optimize(self.getCurrentSteerAzimuth())
             self.commandedRotation = radiansToRotations(requested_state.angle.radians())
@@ -220,7 +235,14 @@ class SwerveModule:
                     slot=1,  # Voltage gains for drive
                 )
             )
+
             self._moduleSpeedPub.set(self.commandedSpeed)
+            self._module_velocity_error_pub.set(
+                self.drive_motor.get_closed_loop_error().value
+            )
+            self._module_position_error_pub.set(
+                self.drive_motor.get_closed_loop_error().value
+            )
 
         else:
             # stop the drive motor, steer motor can stay where it is
