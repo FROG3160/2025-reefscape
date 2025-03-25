@@ -6,6 +6,7 @@
     "configurations": [
 
 
+
         {
             "name": "Robot Sim",
             "type": "debugpy",
@@ -13,6 +14,16 @@
             "module": "robotpy",
             "cwd": "${workspaceFolder}/roborio",
             "args": ["sim"],
+            "console": "integratedTerminal",
+            "justMyCode": false
+        },
+        {
+            "name": "Robot Test",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "robotpy",
+            "cwd": "${workspaceFolder}/roborio",
+            "args": ["test"],
             "console": "integratedTerminal",
             "justMyCode": false
         },
