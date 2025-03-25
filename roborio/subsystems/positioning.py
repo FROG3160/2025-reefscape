@@ -37,7 +37,8 @@ class Position(FROGField):
         # print(f"    DISTANCE: {closest_distance}")
 
     def setReefTags(self, alliance: DriverStation.Alliance):
-        self._reef_tags = kReefTags[alliance]["Reef"]
+        if alliance:
+            self._reef_tags = kReefTags[alliance]["Reef"]
 
     def get_distance_to_tag(self, pose: Pose3d, tag_num: int) -> float:
         return (
