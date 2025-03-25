@@ -185,7 +185,7 @@ class Tags:
 
 robotToCamera1 = Transform3d(
     Translation3d(
-        inchesToMeters(5.625),  # Forward from center
+        inchesToMeters(7.1998),  # Forward from center
         inchesToMeters(-8.125),  # Left from center
         inchesToMeters(11.375),  # Up from the floor
     ),

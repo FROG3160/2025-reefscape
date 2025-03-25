@@ -65,6 +65,7 @@ class DriveChassis(SwerveBase):
 
         # initializing the estimator to 0, 0, 0
         self.estimatorPose = Pose2d(0, 0, Rotation2d(0))
+        self.pose_set = False
 
         self.profiledRotationConstraints = TrapezoidProfileRadians.Constraints(
             constants.kProfiledRotationMaxVelocity, constants.kProfiledRotationMaxAccel
@@ -192,6 +193,7 @@ class DriveChassis(SwerveBase):
         return self.runOnce(self.enableResetController)
 
     def periodic(self):
+        # update estimator with chassis data
         self.estimatorPose = self.estimator.update(
             self.gyro.getRotation2d(), tuple(self.getModulePositions())
         )
@@ -200,13 +202,35 @@ class DriveChassis(SwerveBase):
         for camera in self.positioningCameras:
             camera_pose = camera.periodic()
             if camera_pose is not None:
-                camera_pose2d = camera_pose.estimatedPose.toPose2d()
+                estimated_pose2d = camera_pose.estimatedPose.toPose2d()
+
                 for target in camera_pose.targetsUsed:
-                    target.bestCameraToTarget
+                    translation = (
+                        target.bestCameraToTarget.translation().toTranslation2d()
+                    )
+                    distance = math.sqrt(translation.x**2 + translation.y**2)
+                    target.getFiducialId()
+                    target.getPoseAmbiguity()
+                    print(f"Distance: {distance}")
+
+                # if (
+                #     abs(estimated_pose2d.x - self.estimatorPose.x) < 1
+                #     and abs(estimated_pose2d.y - self.estimatorPose.y) < 1
+                # ) or self.pose_set == False:
+                #     self.pose_set = True
+                # TODO:  We may want to validate the first instance of tagData
+                # is a valid tag by checking tagData[0].id > 0
+
+                translationStdDev = remap(distance, 0.1, 7, 0.002, 0.4)
+                # rotation stdev is high because we are relying on the gyro as more accurate
+                rotationStdDev = math.pi
+
                 self.estimator.addVisionMeasurement(
                     camera_pose.estimatedPose.toPose2d(),
                     camera_pose.timestampSeconds,
+                    (translationStdDev, translationStdDev, rotationStdDev),
                 )
+                # put camera pose on the field
                 cameraPoseObject = self.field.getObject(
                     camera.estimator._camera.getName()
                 )
