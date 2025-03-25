@@ -3,32 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.269289772727273,
-        "y": 7.460213068181818
+        "x": 3.4900568181818183,
+        "y": 2.703764204545455
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.354289772727273,
-        "y": 7.460213068181819
+        "x": 2.562698863636364,
+        "y": 2.3647301136363637
       },
-      "isLocked": true,
+      "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.181663907284768,
-        "y": 4.017735927152317
+        "x": 1.106846590909091,
+        "y": 1.0484801136363637
       },
       "prevControl": {
-        "x": 1.8813948675496688,
-        "y": 4.664238410596026
+        "x": 1.7649715909090915,
+        "y": 2.135383522727273
       },
       "nextControl": null,
-      "isLocked": true,
-      "linkedName": "DS Center Reef - Centered"
+      "isLocked": false,
+      "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.0,
+      "rotationDegrees": -178.31
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,13 +47,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 143.86462338841068
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 179.3414568224364
+    "rotation": 149.0362434679265
   },
   "useDefaultConstraints": true
 }
