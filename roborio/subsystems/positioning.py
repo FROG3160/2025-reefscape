@@ -1,8 +1,31 @@
 from FROGlib.field import FROGField
 from robotpy_apriltag import AprilTagField
-from wpimath.geometry import Transform3d, Translation3d, Rotation3d, Pose3d
+from wpimath.geometry import (
+    Transform3d,
+    Translation3d,
+    Rotation3d,
+    Pose3d,
+    Transform2d,
+    Rotation2d,
+)
 from wpilib import DriverStation
 from constants import kReefTags
+from wpimath.units import inchesToMeters
+import math
+
+TAG_TO_STEM_DISTANCE = inchesToMeters(6.5)
+ROBOT_WIDTH_TO_CENTER = 0.44
+ROBOT_GRABBER_TO_CENTER = inchesToMeters(1)
+TAG_TO_LEFT_STEM_ROBOT_TRANSFORM = Transform2d(
+    ROBOT_WIDTH_TO_CENTER,
+    -TAG_TO_STEM_DISTANCE + ROBOT_GRABBER_TO_CENTER,
+    Rotation2d(-math.pi / 2),
+)
+TAG_TO_LEFT_STEM_ROBOT_TRANSFORM = Transform2d(
+    ROBOT_WIDTH_TO_CENTER,
+    TAG_TO_STEM_DISTANCE + ROBOT_GRABBER_TO_CENTER,
+    Rotation2d(-math.pi / 2),
+)
 
 
 class Position(FROGField):
