@@ -105,7 +105,7 @@ class DriveChassis(SwerveBase):
                 speeds
             ),  # Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also outputs individual module feedforwards
             PPHolonomicDriveController(  # PPHolonomicController is the built in path following controller for holonomic drive trains
-                PIDConstants(1.0, 0.0, 0.0),  # Translation PID constants
+                PIDConstants(1.2, 0.0, 0.0),  # Translation PID constants
                 PIDConstants(1.0, 0.0, 0.0),  # Rotation PID constants
             ),
             autobuilder_config,  # The robot configuration

@@ -377,9 +377,9 @@ class RobotContainer:
         # )
         # self.configureSysIDButtonBindings()
 
-        # self.driverController.y().whileTrue(
-        #     self.driveSubsystem.driveAutoPath("Barge to Processor")
-        # )
+        self.driverController.y().whileTrue(
+            self.driveSubsystem.driveAutoPath("Test Source to Right Stem")
+        )
         # self.driverController.a().whileTrue(
         #     self.driveSubsystem.driveAutoPath("New Path")
         # )
@@ -405,6 +405,7 @@ class RobotContainer:
             self.grab_coral_from_trough()
             # self.driveSubsystem.driveAutoPath("New Path")
         )
+
         self.driverController.leftStick().whileTrue(
             ManualRobotOrientedDrive(self.driverController, self.driveSubsystem)
         )
