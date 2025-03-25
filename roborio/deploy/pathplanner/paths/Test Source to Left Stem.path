@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.269289772727273,
-        "y": 7.460213068181818
+        "x": 1.564,
+        "y": 1.376
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.354289772727273,
-        "y": 7.460213068181819
+        "x": 1.564,
+        "y": 2.102732469173546
       },
       "isLocked": true,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.181663907284768,
-        "y": 4.017735927152317
+        "x": 3.6952610669693535,
+        "y": 2.9492905788876267
       },
       "prevControl": {
-        "x": 1.8813948675496688,
-        "y": 4.664238410596026
+        "x": 3.3866533133896026,
+        "y": 3.1274653484909014
       },
       "nextControl": null,
       "isLocked": true,
-      "linkedName": "DS Center Reef - Centered"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 150.0
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 179.3414568224364
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }
