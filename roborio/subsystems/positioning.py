@@ -21,9 +21,14 @@ TAG_TO_LEFT_STEM_ROBOT_TRANSFORM = Transform2d(
     -TAG_TO_STEM_DISTANCE + ROBOT_GRABBER_TO_CENTER,
     Rotation2d(-math.pi / 2),
 )
-TAG_TO_LEFT_STEM_ROBOT_TRANSFORM = Transform2d(
+TAG_TO_RIGHT_STEM_ROBOT_TRANSFORM = Transform2d(
     ROBOT_WIDTH_TO_CENTER,
     TAG_TO_STEM_DISTANCE + ROBOT_GRABBER_TO_CENTER,
+    Rotation2d(-math.pi / 2),
+)
+TAG_TO_CENTER_ROBOT_TRANSFORM = Transform2d(
+    ROBOT_WIDTH_TO_CENTER,
+    ROBOT_GRABBER_TO_CENTER,
     Rotation2d(-math.pi / 2),
 )
 
@@ -122,4 +127,14 @@ class Position(FROGField):
 # print(f"RELATIVE: {relative}")
 # print(f"REL ANGLE: {relative.translation().toTranslation2d().angle().degrees()}")
 
-# pass
+test = Position()
+print(test.getTagPose(17))
+for transform in [
+    TAG_TO_CENTER_ROBOT_TRANSFORM,
+    TAG_TO_LEFT_STEM_ROBOT_TRANSFORM,
+    TAG_TO_RIGHT_STEM_ROBOT_TRANSFORM,
+]:
+    robotpose = test.getTagPose(17).toPose2d().transformBy(transform)
+    print(f"X: {robotpose.x}")
+    print(f"Y: {robotpose.y}")
+    print(f"DEG: {robotpose.rotation().degrees()}")

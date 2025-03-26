@@ -3,32 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.975085616438356,
-        "y": 1.913891267123288
+        "x": 3.5012831125827812,
+        "y": 1.9692673841059594
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.5080133204204884,
-        "y": 2.6785336599129272
+        "x": 3.8769139901771714,
+        "y": 2.68784678343684
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.5000284090909086,
-        "y": 2.713735795454545
+        "x": 4.018883839420934,
+        "y": 2.8300168223348465
       },
       "prevControl": {
-        "x": 3.1483774295208646,
-        "y": 2.1594440656241014
+        "x": 3.555383839420934,
+        "y": 2.027211273026672
       },
       "nextControl": null,
-      "isLocked": false,
-      "linkedName": null
+      "isLocked": true,
+      "linkedName": "Reef DS Right - Right Stem"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.0,
+      "rotationDegrees": 150.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,13 +47,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 149.1222494572709
+    "rotation": 150.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "TeleopPaths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 178.5311992856142
+    "rotation": 150.81874591469284
   },
   "useDefaultConstraints": true
 }
