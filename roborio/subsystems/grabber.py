@@ -26,7 +26,7 @@ from phoenix6.controls import (
 from phoenix6.hardware import CANrange
 from typing import Callable
 from commands2 import Command, WaitCommand
-from configs.ctre import motorOutputCWPandBrake
+from configs.ctre import motorOutputCCWPandBrake
 from ntcore import NetworkTableInstance
 from configs.scoring import ScoringConfigs
 
@@ -44,7 +44,7 @@ class Grabber(Subsystem):
                 .with_brushed_motor_wiring(BrushedMotorWiringValue.LEADS_A_AND_B)
                 .with_motor_arrangement(MotorArrangementValue.BRUSHED_DC)
             )
-            .with_motor_output(motorOutputCWPandBrake)
+            .with_motor_output(motorOutputCCWPandBrake)
         )
 
         self.range = CANrange(constants.kGrabberSensorID)
@@ -150,12 +150,15 @@ class Grabber(Subsystem):
         self.motor.set_control(self.voltage_request.with_output(voltage))
 
     def run_scoring(self) -> Command:
+        # if we are trying to place an algae, run the motor backwards, stop when not detected
         if self.scoring_config.element == "Algae" and self.scoring_config.grabber_v < 0:
             return self.startEnd(
                 lambda: self._run(self.scoring_config.grabber_v), self.stop_motor()
             ).until(self.not_detecting_algae)
+        # if we are picking up algae, run motor, don't shut it off
         elif self.scoring_config.element == "Algae":
             return self.runOnce(lambda: self._run(self.scoring_config.grabber_v))
+        # we aren't doing either of the other two, so run as coral
         else:
             return (
                 self.runOnce(lambda: self._run(self.scoring_config.grabber_v))

@@ -305,7 +305,7 @@ class RobotContainer:
     def score(self) -> Command:
         # second_shoulder_pos = self.scoringConfig.shoulder_end_pos
         # grabber_voltage = self.scoringConfig.grabber_v
-        return self.grabber.run_scoring()
+        return DeferredCommand(self.grabber.run_scoring)
 
         # if self.scoring_config == L3_dunk or self.scoring_config == L4_dunk:
         #     return self.shoulder.move_with_variable(
