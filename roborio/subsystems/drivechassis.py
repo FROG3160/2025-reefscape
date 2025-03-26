@@ -22,6 +22,7 @@ from commands2 import Subsystem, Command
 from commands2.sysid import SysIdRoutine
 from FROGlib.utils import RobotRelativeTarget, remap
 import constants
+from subsystems.positioning import Position
 from wpimath.units import degreesToRadians, lbsToKilograms, inchesToMeters
 from wpimath.controller import ProfiledPIDControllerRadians
 from wpimath.trajectory import TrapezoidProfileRadians
@@ -42,9 +43,11 @@ from subsystems.vision import VisionPose
 
 
 class DriveChassis(SwerveBase):
+
     def __init__(
         self,
         positioningCameras: list[VisionPose],
+        positioning=Position(),
         parent_nt: str = "Subsystems",
     ):
         super().__init__(
@@ -67,6 +70,8 @@ class DriveChassis(SwerveBase):
         self.estimatorPose = Pose2d(0, 0, Rotation2d(0))
         self.pose_set = False
 
+        self.positioning = positioning
+
         self.profiledRotationConstraints = TrapezoidProfileRadians.Constraints(
             constants.kProfiledRotationMaxVelocity, constants.kProfiledRotationMaxAccel
         )
@@ -81,20 +86,6 @@ class DriveChassis(SwerveBase):
         self.field = Field2d()
         SmartDashboard.putData("DrivePose", self.field)
 
-        # ab_config = RobotConfig(
-        #     massKG=constants.kRobotKilograms,
-        #     MOI=constants.kMOI,
-        #     moduleConfig=ModuleConfig(
-        #         wheelRadiusMeters=inchesToMeters(constants.kWheelDiameter / 2),
-        #         maxDriveVelocityMPS=constants.kMaxMetersPerSecond,
-        #         wheelCOF=1.0,
-        #         driveMotor=DCMotor.krakenX60(1),
-        #         driveCurrentLimit=120,
-        #         numMotors=1,
-        #     ),
-        #     moduleOffsets=[module.location for module in self.modules],
-        #     trackwidthMeters=constants.kTrackWidthMeters,
-        # )
         autobuilder_config = RobotConfig.fromGUISettings()
 
         AutoBuilder.configure(
@@ -123,6 +114,7 @@ class DriveChassis(SwerveBase):
             SysIdRoutine.Config(),
             SysIdRoutine.Mechanism(self.sysid_steer, self.sysid_log_steer, self),
         )
+        self.reef_scoring_position = self.positioning.CENTER
 
     def shouldFlipPath(self):
         return DriverStation.getAlliance() == DriverStation.Alliance.kRed
@@ -176,6 +168,37 @@ class DriveChassis(SwerveBase):
         return self.sys_id_routine_steer.dynamic(direction)
 
     # PathPlanner Auto Commands
+    def _get_reef_scoring_pose(self) -> Pose2d:
+        reef_pose = self.positioning.get_closest_reef_pose(
+            self.estimator.getEstimatedPosition()
+        )
+
+        return reef_pose.transformBy(
+            self.positioning.TRANSFORMS[self.reef_scoring_position]
+        )
+
+    def _get_reef_scoring_path(self) -> str:
+        path_suffixes = ["Left Stem", "Center", "Right Stem"]
+        closest_tag = self.positioning.get_closest_reef_tag_num(
+            self.estimator.getEstimatedPosition()
+        )
+        return f"Reef {str(self.positioning.get_reef_enum_name(closest_tag))} - {path_suffixes[self.reef_scoring_position]}"
+
+    def drive_to_reef_scoring_pose(self) -> Command:
+        return AutoBuilder.pathfindToPose(
+            self._get_reef_scoring_pose(),
+            PathConstraints(
+                constants.kMaxTrajectorySpeed,
+                constants.kMaxTrajectoryAccel,
+                constants.kProfiledRotationMaxVelocity,
+                constants.kProfiledRotationMaxAccel,
+            ),
+        ).withName("PathFindToReefScoringPose")
+
+    def drive_to_reef_scoring_path(self) -> Command:
+        return AutoBuilder.followPath(
+            PathPlannerPath.fromPathFile(self._get_reef_scoring_path())
+        )
 
     def driveAutoPath(self, pathname) -> Command:
         return AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathname))

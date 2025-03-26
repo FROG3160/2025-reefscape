@@ -9,7 +9,7 @@ from wpilib import DriverStation, SmartDashboard
 from wpilib.interfaces import GenericHID
 from wpimath.units import degreesToRadians
 from wpimath.geometry import Pose2d, Rotation2d
-
+import constants
 import commands2
 import commands2.button
 import commands2.cmd
@@ -59,7 +59,12 @@ from subsystems.shoulder import Shoulder
 from subsystems.grabber import Grabber
 from subsystems.arm import Arm
 from subsystems.climber import Climber
-from pathplannerlib.auto import AutoBuilder, NamedCommands
+from pathplannerlib.auto import (
+    AutoBuilder,
+    NamedCommands,
+    PathPlannerPath,
+    PathConstraints,
+)
 
 from commands.drive.field_oriented import (
     ManualDrive,
@@ -118,7 +123,7 @@ class RobotContainer:
         self.positioning = Position()
 
         # Subsystems
-        self.driveSubsystem = DriveChassis(self.positioningCameras)
+        self.driveSubsystem = DriveChassis(self.positioningCameras, self.positioning)
         self.elevator = Lift()
         self.shoulder = Shoulder()
         self.arm = Arm()
@@ -203,6 +208,13 @@ class RobotContainer:
 
     def set_scoring_config(self, scoringConfig) -> Command:
         return runOnce(lambda: self._set_scoring_config(scoringConfig))
+
+    def _set_reef_target(self, location):
+        print(f"Changing Reef Target Position: {location}")
+        self.driveSubsystem.reef_scoring_position = location
+
+    def set_reef_target(self, location) -> Command:
+        return runOnce(lambda: self._set_reef_target(location))
 
     def position_for_coral_placement(
         self, first_shoulder_pos, elevator_pos, second_shoulder_pos, arm_pos
@@ -399,6 +411,12 @@ class RobotContainer:
         # self.driverController.rightBumper().onTrue(self.grab_coral_from_trough())
         self.driverController.povUp().onTrue(self.hold_coral_during_travel())
         self.driverController.povDown().onTrue(self.hold_algae_during_travel())
+        self.driverController.povLeft().whileTrue(
+            DeferredCommand(self.driveSubsystem.drive_to_reef_scoring_pose)
+        )
+        self.driverController.povRight().whileTrue(
+            self.driveSubsystem.drive_to_reef_scoring_pose()
+        )
         self.driverController.start().onTrue(self.move_to_home())
         self.driverController.leftBumper().onTrue(self.move_to_station())
         self.driverController.a().onTrue(
@@ -454,6 +472,12 @@ class RobotContainer:
             # self.shoulder.move(self.shoulder.Position.LEVEL4).andThen(
             #     self.arm.move(self.arm.Position.CORAL_L4_PLACE)
             # )
+        )
+        self.tacticalController.leftTrigger().onTrue(
+            self.set_reef_target(self.positioning.LEFT)
+        )
+        self.tacticalController.rightTrigger().onTrue(
+            self.set_reef_target(self.positioning.RIGHT)
         )
 
     def configureSysIDButtonBindings(self):
