@@ -296,18 +296,9 @@ class RobotContainer:
         )
 
     def rotate_to_station(self) -> Command:
-        self.currentDriveRotation = self.driveSubsystem.getRotation2d().radians()
-        self.goalRotation = self.driveSubsystem.profiledRotationController.calculate(
-            self.currentDriveRotation, self.driveSubsystem.returnRotationToStation()
-        )
-
         return AutoRotateToStationFieldOriented(
             self.driverController, self.driveSubsystem
-        ).until(
-            self.driveSubsystem.returnRotationWithinTolerance(
-                self.currentDriveRotation, self.goalRotation
-            )
-        )
+        ).until(self.driveSubsystem.returnRotationWithinTolerance)
 
     def test_run_grabber(self) -> Command:
         grabber_voltage = SmartDashboard.getNumber(self.grabber_str, 0)

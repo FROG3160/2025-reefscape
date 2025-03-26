@@ -197,8 +197,15 @@ class DriveChassis(SwerveBase):
             else:
                 return constants.kquadrant3 + constants.krobotIntakeHeading
 
-    def returnRotationWithinTolerance(self, currentRot, goalRot) -> bool:
-        return abs(goalRot - currentRot) <= constants.kRotationTolerance
+    def returnRotationWithinTolerance(self) -> bool:
+        self.currentDriveRotation = self.getRotation2d().radians()
+        self.goalRotation = self.profiledRotationController.calculate(
+            self.currentDriveRotation, self.returnRotationToStation()
+        )
+        return (
+            abs(self.currentDriveRotation - self.goalRotation)
+            <= constants.kRotationTolerance
+        )
 
     def resetRotationController(self):
         self.profiledRotationController.reset(
