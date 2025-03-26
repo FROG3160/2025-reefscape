@@ -123,7 +123,7 @@ class RobotContainer:
         self.positioning = Position()
 
         # Subsystems
-        self.driveSubsystem = DriveChassis(self.positioningCameras)
+        self.driveSubsystem = DriveChassis(self.positioningCameras, self.positioning)
         self.elevator = Lift()
         self.shoulder = Shoulder()
         self.arm = Arm()
@@ -208,6 +208,13 @@ class RobotContainer:
 
     def set_scoring_config(self, scoringConfig) -> Command:
         return runOnce(lambda: self._set_scoring_config(scoringConfig))
+
+    def _set_reef_target(self, location):
+        print(f"Changing Reef Target Position: {location}")
+        self.driveSubsystem.reef_scoring_position = location
+
+    def set_reef_target(self, location) -> Command:
+        return runOnce(lambda: self._set_reef_target(location))
 
     def position_for_coral_placement(
         self, first_shoulder_pos, elevator_pos, second_shoulder_pos, arm_pos
@@ -405,10 +412,10 @@ class RobotContainer:
         self.driverController.povUp().onTrue(self.hold_coral_during_travel())
         self.driverController.povDown().onTrue(self.hold_algae_during_travel())
         self.driverController.povLeft().whileTrue(
-            self.driveSubsystem.moveToReefScoringPose("left")
+            DeferredCommand(self.driveSubsystem.drive_to_reef_scoring_pose)
         )
         self.driverController.povRight().whileTrue(
-            self.driveSubsystem.moveToReefScoringPose("right")
+            self.driveSubsystem.drive_to_reef_scoring_pose()
         )
         self.driverController.start().onTrue(self.move_to_home())
         self.driverController.leftBumper().onTrue(self.move_to_station())
@@ -464,6 +471,12 @@ class RobotContainer:
             # self.shoulder.move(self.shoulder.Position.LEVEL4).andThen(
             #     self.arm.move(self.arm.Position.CORAL_L4_PLACE)
             # )
+        )
+        self.tacticalController.leftTrigger().onTrue(
+            self.set_reef_target(self.positioning.LEFT)
+        )
+        self.tacticalController.rightTrigger().onTrue(
+            self.set_reef_target(self.positioning.RIGHT)
         )
 
     def configureSysIDButtonBindings(self):

@@ -24,45 +24,55 @@ TAG_TO_LEFT_STEM_ROBOT_TRANSFORM = Transform2d(
 )
 TAG_TO_RIGHT_STEM_ROBOT_TRANSFORM = Transform2d(
     ROBOT_WIDTH_TO_CENTER,
-    TAG_TO_STEM_DISTANCE - ROBOT_GRABBER_TO_CENTER,
+    TAG_TO_STEM_DISTANCE + ROBOT_GRABBER_TO_CENTER,
+    Rotation2d(-math.pi / 2),
+)
+TAG_TO_CENTER_ROBOT_TRANSFORM = Transform2d(
+    ROBOT_WIDTH_TO_CENTER,
+    ROBOT_GRABBER_TO_CENTER,
     Rotation2d(-math.pi / 2),
 )
 
 
 class Position(FROGField):
+    TRANSFORMS = [
+        TAG_TO_LEFT_STEM_ROBOT_TRANSFORM,
+        TAG_TO_CENTER_ROBOT_TRANSFORM,
+        TAG_TO_RIGHT_STEM_ROBOT_TRANSFORM,
+    ]
+    LEFT = 0
+    CENTER = 1
+    RIGHT = 2
 
     def __init__(self):
         super().__init__(AprilTagField.k2025ReefscapeWelded)
-        self._reef_tags = None
+        self._reef_tags = kReefTags[DriverStation.Alliance.kRed]["Reef"]
 
-    def getClosestReefPosition(self, robot_pose: Pose2d) -> int:
+    def get_closest_reef_tag_num(self, robot_pose: Pose2d) -> int:
         """returns the tag number of the closest side of the Reef
 
         Args:
-            robot_pose (Pose3d): Current robot position
+            robot_pose (Pose2d): Current robot position
 
         Returns:
-            tag number (Pose3d): The tag position of the closest side
+            tag number (): The tag position of the closest side
                 of the reef.
         """
         closest_distance = 1000.0
         closest_tag = None
 
-        if self._reef_tags:
-            for tag in self._reef_tags:
-                distance = self.get_distance_to_tag(robot_pose, tag.value)
-                if distance < closest_distance:
-                    closest_distance = distance
-                    closest_tag = tag
-            return self.getTagPose(closest_tag.value).toPose2d()
+        for tag in self._reef_tags:
+            distance = self.get_distance_to_tag(robot_pose, tag.value)
+            if distance < closest_distance:
+                closest_distance = distance
+                closest_tag = tag
+        return closest_tag.value
 
-        else:
-            return self.getTagPose(1).toPose2d()
-        #     print(f"TAG: {tag}, Distance: {distance}")
-        # tag_pose = self.getTagPose(closest_tag.value)
-        # print(f"CLOSEST TAG: {closest_tag}")
-        # print(f"    POSE: {tag_pose}")
-        # print(f"    DISTANCE: {closest_distance}")
+    def get_closest_reef_pose(self, robot_pose: Pose2d) -> Pose2d:
+        return self.getTagPose(self.get_closest_reef_tag_num(robot_pose)).toPose2d()
+
+    def get_reef_enum_name(self, tag_num: int) -> str:
+        return self._reef_tags(tag_num).name
 
     def setReefTags(self, alliance: DriverStation.Alliance):
         if alliance:
@@ -128,4 +138,4 @@ class Position(FROGField):
 # print(f"RELATIVE: {relative}")
 # print(f"REL ANGLE: {relative.translation().toTranslation2d().angle().degrees()}")
 
-# pass
+pass
