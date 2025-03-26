@@ -9,7 +9,7 @@ from wpilib import DriverStation, SmartDashboard
 from wpilib.interfaces import GenericHID
 from wpimath.units import degreesToRadians
 from wpimath.geometry import Pose2d, Rotation2d
-
+import constants
 import commands2
 import commands2.button
 import commands2.cmd
@@ -59,7 +59,12 @@ from subsystems.shoulder import Shoulder
 from subsystems.grabber import Grabber
 from subsystems.arm import Arm
 from subsystems.climber import Climber
-from pathplannerlib.auto import AutoBuilder, NamedCommands
+from pathplannerlib.auto import (
+    AutoBuilder,
+    NamedCommands,
+    PathPlannerPath,
+    PathConstraints,
+)
 
 from commands.drive.field_oriented import (
     ManualDrive,
@@ -399,6 +404,12 @@ class RobotContainer:
         # self.driverController.rightBumper().onTrue(self.grab_coral_from_trough())
         self.driverController.povUp().onTrue(self.hold_coral_during_travel())
         self.driverController.povDown().onTrue(self.hold_algae_during_travel())
+        self.driverController.povLeft().whileTrue(
+            self.driveSubsystem.moveToReefScoringPose("left")
+        )
+        self.driverController.povRight().whileTrue(
+            self.driveSubsystem.moveToReefScoringPose("right")
+        )
         self.driverController.start().onTrue(self.move_to_home())
         self.driverController.leftBumper().onTrue(self.move_to_station())
         self.driverController.a().onTrue(

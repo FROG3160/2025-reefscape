@@ -22,6 +22,7 @@ from commands2 import Subsystem, Command
 from commands2.sysid import SysIdRoutine
 from FROGlib.utils import RobotRelativeTarget, remap
 import constants
+from subsystems.positioning import Position
 from wpimath.units import degreesToRadians, lbsToKilograms, inchesToMeters
 from wpimath.controller import ProfiledPIDControllerRadians
 from wpimath.trajectory import TrapezoidProfileRadians
@@ -66,6 +67,8 @@ class DriveChassis(SwerveBase):
         # initializing the estimator to 0, 0, 0
         self.estimatorPose = Pose2d(0, 0, Rotation2d(0))
         self.pose_set = False
+
+        self.positioning = Position()
 
         self.profiledRotationConstraints = TrapezoidProfileRadians.Constraints(
             constants.kProfiledRotationMaxVelocity, constants.kProfiledRotationMaxAccel
@@ -176,6 +179,29 @@ class DriveChassis(SwerveBase):
         return self.sys_id_routine_steer.dynamic(direction)
 
     # PathPlanner Auto Commands
+    def returnReefScoringPose(self, leftOrRight: str) -> Pose2d:
+        self.currentPose = self.estimator.getEstimatedPosition()
+        self.goalReefPose = self.positioning.getClosestReefPosition(self.currentPose)
+        if leftOrRight == "left":
+            self.goalScoringPose = self.positioning.get_scoring_pose(
+                self.goalReefPose, leftOrRight
+            )
+        if leftOrRight == "right":
+            self.goalScoringPose = self.positioning.get_scoring_pose(
+                self.goalReefPose, leftOrRight
+            )
+        return self.goalScoringPose
+
+    def moveToReefScoringPose(self, leftorRight: str) -> Command:
+        return AutoBuilder.pathfindToPose(
+            self.returnReefScoringPose(leftorRight),
+            PathConstraints(
+                constants.kMaxTrajectorySpeed,
+                constants.kMaxTrajectoryAccel,
+                constants.kProfiledRotationMaxVelocity,
+                constants.kProfiledRotationMaxAccel,
+            ),
+        ).withName("PathFindToReefScoringPose")
 
     def driveAutoPath(self, pathname) -> Command:
         return AutoBuilder.followPath(PathPlannerPath.fromPathFile(pathname))
