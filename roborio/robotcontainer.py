@@ -73,6 +73,7 @@ from commands.drive.field_oriented import (
 from commands.drive.robot_oriented import (
     ManualRobotOrientedDrive,
 )
+from commands.grabber.scoring import ScoringCommand
 
 
 class RobotContainer:
@@ -158,7 +159,7 @@ class RobotContainer:
             "Set L1 Scoring", self.set_scoring_config(L1_shoot)
         )
         NamedCommands.registerCommand("Move to Position", self.move_to_position())
-        NamedCommands.registerCommand("Score", self.score())
+        NamedCommands.registerCommand("Score", self.grabber.run_scoring())
         NamedCommands.registerCommand("Stop Grabber", self.grabber.stop_motor())
         NamedCommands.registerCommand("Home Systems", self.move_to_home())
 
@@ -389,9 +390,9 @@ class RobotContainer:
         # )
         # self.configureSysIDButtonBindings()
 
-        self.driverController.y().whileTrue(
-            self.driveSubsystem.driveAutoPath("Test Source to Right Stem")
-        )
+        # self.driverController.y().whileTrue(
+        #     self.driveSubsystem.driveAutoPath("Test Source to Right Stem")
+        # )
         # self.driverController.a().whileTrue(
         #     self.driveSubsystem.driveAutoPath("New Path")
         # )
@@ -407,24 +408,21 @@ class RobotContainer:
         #     )
         # )
         self.driverController.x().onTrue(self.move_to_position())
-        self.driverController.b().onTrue(self.score())
+        self.driverController.b().onTrue(ScoringCommand(self.grabber))
         # self.driverController.rightBumper().onTrue(self.grab_coral_from_trough())
-        self.driverController.povUp().onTrue(self.hold_coral_during_travel())
-        self.driverController.povDown().onTrue(self.hold_algae_during_travel())
-        self.driverController.povLeft().whileTrue(
+        # self.driverController.povUp().onTrue(self.hold_coral_during_travel())
+        # self.driverController.povDown().onTrue(self.hold_algae_during_travel())
+        self.driverController.y().whileTrue(
             DeferredCommand(self.driveSubsystem.drive_to_reef_scoring_pose)
         )
-        self.driverController.povRight().whileTrue(
-            self.driveSubsystem.drive_to_reef_scoring_pose()
-        )
+        # self.driverController.povRight().whileTrue(
+        #     self.driveSubsystem.drive_to_reef_scoring_pose()
+        # )
         self.driverController.start().onTrue(self.move_to_home())
         self.driverController.leftBumper().onTrue(self.move_to_station())
-        self.driverController.a().onTrue(
-            self.grab_coral_from_trough()
-            # self.driveSubsystem.driveAutoPath("New Path")
-        )
+        self.driverController.a().onTrue(self.grab_coral_from_trough())
 
-        self.driverController.leftStick().whileTrue(
+        self.driverController.leftTrigger().whileTrue(
             ManualRobotOrientedDrive(self.driverController, self.driveSubsystem)
         )
 
@@ -433,20 +431,20 @@ class RobotContainer:
         # wpilib.SmartDashboard.putData("Deploy Intake", self.intake.deploy_)
         # wpilib.SmartDashboard.putData("Retract Intake",
         # self.intake.retract())
-        self.tacticalController.povRight().onTrue(self.set_scoring_config(algae_L34))
+        self.tacticalController.povUp().onTrue(self.set_scoring_config(algae_L34))
         self.tacticalController.povDown().onTrue(
             self.set_scoring_config(algae_L23)
         )  # self.shoulder.move(-0.25))
-        self.tacticalController.povLeft().onTrue(
-            self.set_scoring_config(L3_dunk)
-        )  # self.shoulder.move(0))
-        self.tacticalController.povUp().onTrue(
-            self.set_scoring_config(L4_dunk)
-        )  # self.shoulder.move(0.125))
+        # self.tacticalController.povLeft().onTrue(
+        #     self.set_scoring_config(L3_dunk)
+        # )  # self.shoulder.move(0))
+        # self.tacticalController.povUp().onTrue(
+        #     self.set_scoring_config(L4_dunk)
+        # )  # self.shoulder.move(0.125))
         self.tacticalController.leftBumper().onTrue(
             self.set_scoring_config(algae_process)
         )
-        self.tacticalController.rightBumper().onTrue(
+        self.tacticalController.back().onTrue(
             self.elevator.move(3)
             .alongWith(self.shoulder.move(0))
             .andThen(self.climber.deploy_climber(1.7))

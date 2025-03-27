@@ -25,7 +25,7 @@ from phoenix6.controls import (
 )
 from phoenix6.hardware import CANrange
 from typing import Callable
-from commands2 import Command, WaitCommand
+from commands2 import Command, WaitCommand, WaitUntilCommand
 from configs.ctre import motorOutputCCWPandBrake
 from ntcore import NetworkTableInstance
 from configs.scoring import ScoringConfigs
@@ -57,7 +57,7 @@ class Grabber(Subsystem):
         )
         self.scoring_config = ScoringConfigs(grabber_v=0)
 
-        self.motor_intake = VoltageOut(output=8.0, enable_foc=False)
+        self.motor_intake = VoltageOut(output=5.0, enable_foc=False)
         self.motor_eject = VoltageOut(output=8.0, enable_foc=False)
         self.voltage_request = VoltageOut(output=0, enable_foc=False)
         self.motor_voltage = 5
@@ -84,6 +84,9 @@ class Grabber(Subsystem):
             .publish()
         )
 
+        self.algae_detected = Trigger(self._detecting_algae)
+        self.coral_detected = Trigger(self._detecting_coral)
+
     def joystick_move_command(self, control: Callable[[], float]) -> Command:
         """Returns a command that takes a joystick control giving values between
         -1.0 and 1.0 and calls it to apply motor voltage of -10 to 10 volts.
@@ -104,17 +107,17 @@ class Grabber(Subsystem):
     def get_range(self):
         return self.range.get_distance().value
 
-    def detecting_coral(self) -> bool:
+    def _detecting_coral(self) -> bool:
         return self.range.get_is_detected().value == True
 
-    def not_detecting_coral(self) -> bool:
-        return not self.detecting_coral()
+    def _not_detecting_coral(self) -> bool:
+        return not self._detecting_coral()
 
-    def detecting_algae(self) -> bool:
+    def _detecting_algae(self) -> bool:
         return 0.15 > self.get_range() > 0.055
 
-    def not_detecting_algae(self) -> bool:
-        return not self.detecting_algae()
+    def _not_detecting_algae(self) -> bool:
+        return not self._detecting_algae()
 
     def intake_coral(self) -> Command:
         return self.startEnd(
@@ -122,7 +125,7 @@ class Grabber(Subsystem):
             lambda: self.motor.set_control(self.motor_intake),
             # stop the motor
             lambda: self.motor.stopMotor(),
-        ).until(self.detecting_coral)
+        ).until(self._detecting_coral)
 
     # def eject_coral(self) -> Command:
     #     return self.startEnd(
@@ -152,19 +155,21 @@ class Grabber(Subsystem):
     def run_scoring(self) -> Command:
         # if we are trying to place an algae, run the motor backwards, stop when not detected
         if self.scoring_config.element == "Algae" and self.scoring_config.grabber_v < 0:
+            print("Ejecting Algae")
             return self.startEnd(
                 lambda: self._run(self.scoring_config.grabber_v), self.stop_motor()
-            ).until(self.not_detecting_algae)
+            ).until(self._not_detecting_algae)
         # if we are picking up algae, run motor, don't shut it off
         elif self.scoring_config.element == "Algae":
+            print("Intaking Algae")
             return self.runOnce(lambda: self._run(self.scoring_config.grabber_v))
         # we aren't doing either of the other two, so run as coral
         else:
+            print("Ejecting Coral")
             return (
                 self.runOnce(lambda: self._run(self.scoring_config.grabber_v))
-                .until(self.not_detecting_coral)
-                .andThen(WaitCommand(2))
-                .andThen(
+                # .andThen(WaitUntilCommand(self.not_detecting_coral))
+                .andThen(WaitCommand(2)).andThen(
                     # stop the motor
                     lambda: self.motor.stopMotor(),
                 )
@@ -197,6 +202,6 @@ class Grabber(Subsystem):
 
     def periodic(self):
         self._range_pub.set(self.get_range())
-        self._coral_detected_pub.set(self.detecting_coral())
-        self._algae_detected_pub.set(self.detecting_algae())
+        self._coral_detected_pub.set(self._detecting_coral())
+        self._algae_detected_pub.set(self._detecting_algae())
         self._scoring_config_pub.set(self.scoring_config.get_name())
