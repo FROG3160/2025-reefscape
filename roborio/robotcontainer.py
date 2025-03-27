@@ -450,7 +450,7 @@ class RobotContainer:
             self.elevator.move(3)
             .alongWith(self.shoulder.move(0))
             .andThen(self.climber.deploy_climber(1.7))
-            .alongWith(self.arm.move(3))
+            # .alongWith(self.arm.move(3))
         )
         self.tacticalController.start().onTrue(self.climber.winch_climber())
         self.tacticalController.a().onTrue(
