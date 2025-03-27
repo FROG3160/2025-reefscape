@@ -10,21 +10,29 @@ class ScoringCommand(Command):
 
     def execute(self):
         scoring_config = self.grabber.scoring_config
-        if scoring_config.get_element == "Algae" and self.grabber._detecting_algae():
-            self.grabber._run(scoring_config.get_grabber_voltage() * 0.75)
-        else:
-            self.grabber._run(scoring_config.get_grabber_voltage())
+        self.grabber._run(scoring_config.get_grabber_voltage())
 
     def isFinished(self):
         scoring_config = self.grabber.scoring_config
-        if (
-            scoring_config.get_element() == "Algae"
-            and scoring_config.get_grabber_voltage() < 0
-        ):
-            return self.grabber._not_detecting_algae()
-        if scoring_config.get_element() == "Coral":
+        if scoring_config.get_element() == "Algae":
+            if scoring_config.get_grabber_voltage() < 0:
+                # We are using negative voltage to push out algae
+                # return true when it's gone.
+                return self.grabber._not_detecting_algae()
+            else:
+                return self.grabber._detecting_algae()
+        else:
             return self.grabber._not_detecting_coral()
-        return False
 
     def end(self, interrupted):
-        self.grabber.stop_motor()
+        scoring_config = self.grabber.scoring_config
+        if scoring_config.get_element() == "Algae":
+            if self.grabber._detecting_algae():
+                # if we are still detecting algae, we just grabbed it.  Reduce
+                # motor voltage by 1/4
+                self.grabber._run(scoring_config.get_grabber_voltage() * 0.75)
+            else:
+                self.grabber._not_detecting_algae()
+            self.grabber.stop_motor()
+        else:
+            self.grabber.stop_motor()
