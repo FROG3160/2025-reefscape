@@ -249,11 +249,13 @@ class RobotContainer:
         return (
             self.arm.move(0)
             .andThen(waitUntil(self.arm.at_home))
-            .andThen(self.shoulder.move(-0.25))
-            .andThen(waitUntil(lambda: self.shoulder.at_position(-0.25)))
+            .andThen(self.shoulder.set_slow_mm_accel())
+            .andThen(self.shoulder.move(-0.23))
+            .andThen(waitUntil(lambda: self.shoulder.at_position(-0.23)))
             .andThen(self.arm.move(0.8))
             .andThen(self.grabber.intake_coral())
             .andThen(self.arm.move(0))
+            .andThen(self.shoulder.set_fast_mm_accel())
         )
 
     def hold_coral_during_travel(self) -> Command:
@@ -275,7 +277,7 @@ class RobotContainer:
     def move_to_station(self) -> Command:
         return (
             self.arm.move(0)
-            .andThen(self.shoulder.move(-0.2))
+            .andThen(self.shoulder.move(-0.19))
             .alongWith(self.elevator.move(10))
         )
 
