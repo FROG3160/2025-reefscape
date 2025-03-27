@@ -110,6 +110,9 @@ class Grabber(Subsystem):
     def _detecting_coral(self) -> bool:
         return self.range.get_is_detected().value == True
 
+    def _not_detecting_coral_range(self) -> bool:
+        return self.get_range() > 0.1
+
     def _not_detecting_coral(self) -> bool:
         return not self._detecting_coral()
 
