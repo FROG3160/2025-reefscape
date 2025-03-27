@@ -12,14 +12,18 @@ class VisionPose:
         self, poseCameraName: str, cameraTransform: Transform3d = Transform3d()
     ):
         self.camera_name = poseCameraName
+        self.camera = PhotonCamera(poseCameraName)
         self.estimator = PhotonPoseEstimator(
             fieldTags=AprilTagFieldLayout().loadField(
                 AprilTagField.k2025ReefscapeWelded
             ),
-            strategy=PoseStrategy.LOWEST_AMBIGUITY,
-            camera=PhotonCamera(poseCameraName),
+            # strategy=PoseStrategy.LOWEST_AMBIGUITY,
+            strategy=PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            camera=self.camera,
             robotToCamera=cameraTransform,
         )
+        self.estimator.multiTagFallbackStrategy = PoseStrategy.LOWEST_AMBIGUITY
+
         nt_table = f"Subsystems/Vision/{self.camera_name}"
         self.pose_buffer = PoseBuffer(100)
         self._latest_pose_pub = (
@@ -51,7 +55,7 @@ class VisionPose:
     def get_result(self):
         estimated_pose = self.estimator.update()
         if estimated_pose:
-            targets = estimated_pose.targetsUsed[0].getBestCameraToTarget()
+            targets = estimated_pose.targetsUsed
             SmartDashboard.putNumber(
                 f"{self.estimator._camera.getName()} Targets Found", len(targets)
             )
@@ -73,6 +77,10 @@ class VisionPose:
 
     def periodic(self):
         self.latestVisionPose = self.estimator.update()
+        # result = self.estimator._camera.getLatestResult()
+        # if result.hasTargets():
+        #     target = result.getBestTarget()
+        #     ambiguity = target.getPoseAmbiguity()
         if self.latestVisionPose:
             self.pose_buffer.append(self.latestVisionPose.estimatedPose.toPose2d())
             # target_details = []

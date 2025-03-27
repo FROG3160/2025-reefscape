@@ -96,7 +96,7 @@ class DriveChassis(SwerveBase):
                 speeds
             ),  # Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also outputs individual module feedforwards
             PPHolonomicDriveController(  # PPHolonomicController is the built in path following controller for holonomic drive trains
-                PIDConstants(1.2, 0.0, 0.0),  # Translation PID constants
+                PIDConstants(1.0, 0.0, 0.0),  # Translation PID constants
                 PIDConstants(1.0, 0.0, 0.0),  # Rotation PID constants
             ),
             autobuilder_config,  # The robot configuration
@@ -188,8 +188,10 @@ class DriveChassis(SwerveBase):
         return AutoBuilder.pathfindToPose(
             self._get_reef_scoring_pose(),
             PathConstraints(
-                constants.kMaxTrajectorySpeed,
-                constants.kMaxTrajectoryAccel,
+                # constants.kMaxTrajectorySpeed,
+                # constants.kMaxTrajectoryAccel,
+                2,
+                2,
                 constants.kProfiledRotationMaxVelocity,
                 constants.kProfiledRotationMaxAccel,
             ),
@@ -234,7 +236,7 @@ class DriveChassis(SwerveBase):
                     distance = math.sqrt(translation.x**2 + translation.y**2)
                     target.getFiducialId()
                     target.getPoseAmbiguity()
-                    print(f"Distance: {distance}")
+                    # print(f"Distance: {distance}")
 
                 # if (
                 #     abs(estimated_pose2d.x - self.estimatorPose.x) < 1
@@ -244,7 +246,7 @@ class DriveChassis(SwerveBase):
                 # TODO:  We may want to validate the first instance of tagData
                 # is a valid tag by checking tagData[0].id > 0
 
-                translationStdDev = remap(distance, 0.1, 7, 0.002, 0.4)
+                translationStdDev = remap(distance, 0, 6, 0.2, 0.8)
                 # rotation stdev is high because we are relying on the gyro as more accurate
                 rotationStdDev = math.pi
 
