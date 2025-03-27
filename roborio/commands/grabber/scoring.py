@@ -32,7 +32,7 @@ class ScoringCommand(Command):
                 # motor voltage by 1/4
                 self.grabber._run(scoring_config.get_grabber_voltage() * 0.75)
             else:
-                self.grabber._not_detecting_algae()
-            self.grabber.stop_motor()
+                # self.grabber._not_detecting_algae()
+                self.grabber.stop_motor()
         else:
             self.grabber.stop_motor()
