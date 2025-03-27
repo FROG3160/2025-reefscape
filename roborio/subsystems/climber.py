@@ -34,9 +34,9 @@ class Climber(Subsystem):
             # Inverting the motor so positive voltage winches the climber up
             .with_motor_output(motorOutputCWPandBrake).with_hardware_limit_switch(
                 HardwareLimitSwitchConfigs()
-                .with_reverse_limit_enable(True)
-                .with_reverse_limit_source(ReverseLimitSourceValue.LIMIT_SWITCH_PIN)
-                .with_reverse_limit_type(ReverseLimitTypeValue.NORMALLY_OPEN)
+                .with_forward_limit_enable(True)
+                .with_forward_limit_source(ReverseLimitSourceValue.LIMIT_SWITCH_PIN)
+                .with_forward_limit_type(ReverseLimitTypeValue.NORMALLY_OPEN)
             ),
             parent_nt="Climber",
             motor_name="motor",
@@ -66,7 +66,7 @@ class Climber(Subsystem):
             .publish()
         )
 
-    def run_motor(self) -> Command:
+    def winch_climber(self) -> Command:
         return self.runOnce(lambda: self.motor.set_control(self.motor_winch_request))
 
     def stop_motor(self) -> Command:

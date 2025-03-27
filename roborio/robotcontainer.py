@@ -452,7 +452,7 @@ class RobotContainer:
             .andThen(self.climber.deploy_climber(1.7))
             .alongWith(self.arm.move(3))
         )
-        self.tacticalController.start().onTrue(self.climber.run_motor())
+        self.tacticalController.start().onTrue(self.climber.winch_climber())
         self.tacticalController.a().onTrue(
             self.set_scoring_config(L1_shoot)
             # self.shoulder.move(self.shoulder.Position.LEVEL1)
