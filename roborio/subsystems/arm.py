@@ -98,6 +98,25 @@ class Arm(Subsystem):
 
     def reset_position(self):
         self.motor.set_position(0)
+        self._enable_software_limits()
+
+    def get_torque(self):
+        return self.motor.get_torque_current().value
+
+    def stop_homing(self):
+        return abs(self.get_torque()) > self.homing_torque_limit
+
+    def _disable_software_limits(self):
+        self.motor.config.with_software_limit_switch(
+            SoftwareLimitSwitchConfigs()
+            .with_reverse_soft_limit_enable(False)
+            .with_reverse_soft_limit_threshold(0.0)
+            .with_forward_soft_limit_enable(False)
+            .with_forward_soft_limit_threshold(7)
+        )
+        self.motor.configurator.apply(self.motor.config)
+
+    def _enable_software_limits(self):
         self.motor.config.with_software_limit_switch(
             SoftwareLimitSwitchConfigs()
             .with_reverse_soft_limit_enable(True)
@@ -107,23 +126,19 @@ class Arm(Subsystem):
         )
         self.motor.configurator.apply(self.motor.config)
 
-    def get_torque(self):
-        return self.motor.get_torque_current().value
-
-    def stop_homing(self):
-        return abs(self.get_torque()) > self.homing_torque_limit
-
     def set_home(self) -> Command:
         return (
-            self.startEnd(
-                # START
-                lambda: self.motor.set_control(
-                    VoltageOut(self.homing_voltage, enable_foc=False)
-                ),
-                # END
-                lambda: self.motor.stopMotor(),
+            self.runOnce(self._disable_software_limits)
+            .andThen(
+                self.startEnd(
+                    # START
+                    lambda: self.motor.set_control(
+                        VoltageOut(self.homing_voltage, enable_foc=False)
+                    ),
+                    # END
+                    lambda: self.motor.stopMotor(),
+                ).until(self.stop_homing)
             )
-            .until(self.stop_homing)
             .andThen(self.runOnce(self.reset_position))
         )
 

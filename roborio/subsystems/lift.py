@@ -107,6 +107,19 @@ class Lift(Subsystem):
 
     def reset_lift_to_home(self):
         self.motor.set_position(0)
+        self._enable_software_limits()
+
+    def _disable_software_limits(self):
+        self.motor.config.with_software_limit_switch(
+            SoftwareLimitSwitchConfigs()
+            .with_reverse_soft_limit_enable(False)
+            .with_reverse_soft_limit_threshold(0.0)
+            .with_forward_soft_limit_enable(False)
+            .with_forward_soft_limit_threshold(13.5)
+        )
+        self.motor.configurator.apply(self.motor.config)
+
+    def _enable_software_limits(self):
         self.motor.config.with_software_limit_switch(
             SoftwareLimitSwitchConfigs()
             .with_reverse_soft_limit_enable(True)
@@ -118,11 +131,13 @@ class Lift(Subsystem):
 
     def home(self) -> Command:
         return (
-            self.startEnd(
-                lambda: self.motor.set_control(VoltageOut(-0.25, enable_foc=False)),
-                lambda: self.motor.stopMotor(),
+            self.runOnce(self._disable_software_limits)
+            .andThen(
+                self.startEnd(
+                    lambda: self.motor.set_control(VoltageOut(-0.25, enable_foc=False)),
+                    lambda: self.motor.stopMotor(),
+                ).until(self.lift_is_at_home)
             )
-            .until(self.lift_is_at_home)
             .andThen(self.runOnce(self.reset_lift_to_home))
         )
 
