@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.181663907284768,
-        "y": 4.017735927152317
+        "x": 6.9124290578887635,
+        "y": 6.774035187287172
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.251862582781457,
-        "y": 4.024999999999999
+        "x": 4.253036322360954,
+        "y": 7.441373439273552
       },
       "isLocked": false,
-      "linkedName": "DS Center Reef - Centered"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.228978102189781,
-        "y": 4.017735927152317
+        "x": 3.2176,
+        "y": 4.1656
       },
       "prevControl": {
-        "x": 3.0134979697394506,
-        "y": 3.981415562913906
+        "x": 2.5299091940976166,
+        "y": 5.668444948921678
       },
       "nextControl": null,
-      "isLocked": false,
-      "linkedName": null
+      "isLocked": true,
+      "linkedName": "Reef DS Center - Left Stem"
     }
   ],
   "rotationTargets": [],
@@ -34,7 +34,19 @@
   "eventMarkers": [
     {
       "name": "Home Systems",
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Set L2 Scoring",
+      "waypointRelativePos": 0.1,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Move to Position",
+      "waypointRelativePos": 0.5,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -55,7 +67,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -38.21102542556117
   },
   "useDefaultConstraints": true
 }

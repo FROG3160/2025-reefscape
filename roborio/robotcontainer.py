@@ -162,6 +162,10 @@ class RobotContainer:
         NamedCommands.registerCommand("Score", self.grabber.run_scoring())
         NamedCommands.registerCommand("Stop Grabber", self.grabber.stop_motor())
         NamedCommands.registerCommand("Home Systems", self.move_to_home())
+        NamedCommands.registerCommand("Set L2 Scoring", self.set_reef_target(L2_shoot))
+        NamedCommands.registerCommand("Move to Station", self.move_to_station())
+        NamedCommands.registerCommand("Push robot off Line", self.move_off_line())
+        NamedCommands.registerCommand("Grab coral", self.grab_coral_from_trough())
 
     def configureButtonBindings(self):
         """
@@ -352,7 +356,7 @@ class RobotContainer:
             self.systems_homed = True
 
     def move_off_line(self) -> Command:
-        return WaitCommand(1.5).deadlineWith(AutoMoveOffLine(self.driveSubsystem))
+        return WaitCommand(2.5).deadlineWith(AutoMoveOffLine(self.driveSubsystem))
 
     def configureAutomationBindings(self):
         """Configures all triggers that are watching states or conditions

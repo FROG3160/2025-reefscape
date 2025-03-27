@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.0,
-        "y": 7.0
+        "x": 3.2176,
+        "y": 4.1656
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.0,
-        "y": 7.0
+        "x": 2.509988649262202,
+        "y": 5.867650397275822
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Reef DS Center - Left Stem"
     },
     {
       "anchor": {
-        "x": 4.0,
-        "y": 6.0
+        "x": 1.245034052213394,
+        "y": 7.052922814982974
       },
       "prevControl": {
-        "x": 3.0,
-        "y": 6.0
+        "x": 1.6534052213393873,
+        "y": 6.724233825198637
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,7 +31,14 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Move to Station",
+      "waypointRelativePos": 0.2,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -42,13 +49,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 35.537677791974374
   },
   "reversed": false,
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }
