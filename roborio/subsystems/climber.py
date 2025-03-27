@@ -9,6 +9,7 @@ from phoenix6.configs import Slot0Configs, Slot1Configs, HardwareLimitSwitchConf
 from phoenix6.signals.spn_enums import (
     ReverseLimitSourceValue,
     ReverseLimitTypeValue,
+    ForwardLimitValue,
 )
 from phoenix6.controls import (
     VoltageOut,
@@ -62,7 +63,7 @@ class Climber(Subsystem):
         )
         self._limit_switch_pub = (
             NetworkTableInstance.getDefault()
-            .getBooleanTopic(f"{nt_table}/limit_switch")
+            .getBooleanTopic(f"{nt_table}/limit_switch_closed")
             .publish()
         )
 
@@ -80,7 +81,9 @@ class Climber(Subsystem):
         )
 
     def periodic(self):
-        self._position_pub.set(self.motor.get_position())
-        self._torque_current_pub.set(self.motor.get_torque_current())
-        self._voltage_pub.set(self.motor.get_motor_voltage())
-        self._limit_switch_pub.set(self.motor.get_forward_limit())
+        self._position_pub.set(self.motor.get_position().value)
+        self._torque_current_pub.set(self.motor.get_torque_current().value)
+        self._voltage_pub.set(self.motor.get_motor_voltage().value)
+        self._limit_switch_pub.set(
+            self.motor.get_forward_limit().value == ForwardLimitValue.CLOSED_TO_GROUND
+        )
