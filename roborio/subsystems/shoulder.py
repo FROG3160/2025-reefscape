@@ -45,6 +45,11 @@ class Shoulder(Subsystem):
         ALGAE3 = -0.1
 
     def __init__(self):
+        self.motion_magic_config = (
+            MotionMagicConfigs()
+            .with_motion_magic_cruise_velocity(0.5)
+            .with_motion_magic_acceleration(1)
+        )
         self.shoulder_encoder = FROGCanCoder(
             constants.kShoulderSensorID,
             CANcoderConfiguration().with_magnet_sensor(
@@ -70,11 +75,7 @@ class Shoulder(Subsystem):
                 slot1gains=Slot1Configs(),
             )
             .with_motor_output(motorOutputCWPandBrake)
-            .with_motion_magic(
-                MotionMagicConfigs()
-                .with_motion_magic_cruise_velocity(0.5)
-                .with_motion_magic_acceleration(1)
-            ),
+            .with_motion_magic(self.motion_magic_config),
             parent_nt="Shoulder",
             motor_name="motor",
         )
@@ -137,6 +138,18 @@ class Shoulder(Subsystem):
         #     < self.position_tolerance
         # )
         return abs(self.motor.get_position().value - position) < self.position_tolerance
+
+    def _configure_mm_acceleration(self, accel: float):
+        self.motor.config.with_motion_magic(
+            self.motion_magic_config.with_motion_magic_acceleration(accel)
+        )
+        self.motor.configurator.apply(self.motor.config)
+
+    def set_slow_mm_accel(self) -> Command:
+        return self.runOnce(lambda: self._configure_mm_acceleration(0.25))
+
+    def set_fast_mm_accel(self) -> Command:
+        return self.runOnce(lambda: self._configure_mm_acceleration(1))
 
     def _move(self, position):
         self.motor.set_control(self.motion_magic_request.with_position(position))
