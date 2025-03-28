@@ -117,7 +117,7 @@ class Grabber(Subsystem):
         return not self._detecting_coral()
 
     def _detecting_algae(self) -> bool:
-        return 0.06 > self.get_range() > 0.03
+        return self.get_range() < 0.1
 
     def _not_detecting_algae(self) -> bool:
         return not self._detecting_algae()
