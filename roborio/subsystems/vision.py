@@ -51,6 +51,21 @@ class VisionPose:
             .getFloatTopic(f"{nt_table}/stdev_rotation")
             .publish()
         )
+        self._has_targets_pub = (
+            NetworkTableInstance.getDefault()
+            .getBooleanTopic(f"{nt_table}/has_targets")
+            .publish()
+        )
+        self._tag_id_pub = (
+            NetworkTableInstance.getDefault()
+            .getIntegerTopic(f"{nt_table}/target_id")
+            .publish()
+        )
+        self._target_ambiguity_rotation_pub = (
+            NetworkTableInstance.getDefault()
+            .getFloatTopic(f"{nt_table}/target_ambiguity")
+            .publish()
+        )
 
     def get_result(self):
         estimated_pose = self.estimator.update()
@@ -77,10 +92,15 @@ class VisionPose:
 
     def periodic(self):
         self.latestVisionPose = self.estimator.update()
-        # result = self.estimator._camera.getLatestResult()
-        # if result.hasTargets():
-        #     target = result.getBestTarget()
-        #     ambiguity = target.getPoseAmbiguity()
+        result = self.estimator._camera.getLatestResult()
+        if result.hasTargets():
+            target = result.getBestTarget()
+            ambiguity = target.getPoseAmbiguity()
+            tag_id = target.getFiducialId()
+            self._has_targets_pub.set(result.hasTargets())
+            self._tag_id_pub.set(tag_id)
+            self._target_ambiguity_rotation_pub.set(ambiguity)
+
         if self.latestVisionPose:
             self.pose_buffer.append(self.latestVisionPose.estimatedPose.toPose2d())
             # target_details = []
@@ -96,6 +116,7 @@ class VisionPose:
             #             ),
             #         }
             #     )
+
             self._latest_pose_pub.set(self.latestVisionPose.estimatedPose.toPose2d())
             self._stdev_x_pub.set(self.pose_buffer.x_stddev())
             self._stdev_y_pub.set(self.pose_buffer.y_stddev())
