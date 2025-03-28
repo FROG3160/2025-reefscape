@@ -361,7 +361,7 @@ class RobotContainer:
             self.systems_homed = True
 
     def move_off_line(self) -> Command:
-        return WaitCommand(2.5).deadlineWith(AutoMoveOffLine(self.driveSubsystem))
+        return WaitCommand(1.5).deadlineWith(AutoMoveOffLine(self.driveSubsystem))
 
     def configureAutomationBindings(self):
         """Configures all triggers that are watching states or conditions
@@ -482,15 +482,15 @@ class RobotContainer:
             #     self.arm.move(self.arm.Position.CORAL_L4_PLACE)
             # )
         )
-        self.tacticalController.leftTrigger().not_(
-            self.tacticalController.rightTrigger()
-        ).onTrue(self.set_reef_target(self.positioning.LEFT))
-        self.tacticalController.rightTrigger().not_(
-            self.tacticalController.leftTrigger()
-        ).onTrue(self.set_reef_target(self.positioning.RIGHT))
-        self.tacticalController.leftTrigger().and_(
-            self.tacticalController.rightTrigger()
-        ).onTrue(self.set_reef_target(self.positioning.CENTER))
+        # self.tacticalController.leftTrigger().not_(
+        #     self.tacticalController.rightTrigger()
+        # ).onTrue(self.set_reef_target(self.positioning.LEFT))
+        # self.tacticalController.rightTrigger().not_(
+        #     self.tacticalController.leftTrigger()
+        # ).onTrue(self.set_reef_target(self.positioning.RIGHT))
+        # self.tacticalController.leftTrigger().and_(
+        #     self.tacticalController.rightTrigger()
+        # ).onTrue(self.set_reef_target(self.positioning.CENTER))
 
     def configureSysIDButtonBindings(self):
         # Bind full set of SysId routine tests to buttons; a complete routine should run each of these
