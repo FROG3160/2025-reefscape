@@ -482,11 +482,11 @@ class RobotContainer:
             #     self.arm.move(self.arm.Position.CORAL_L4_PLACE)
             # )
         )
-        self.tacticalController.leftTrigger().not_(
-            self.tacticalController.rightTrigger()
+        self.tacticalController.leftTrigger().and_(
+            (self.tacticalController.rightTrigger().not_())
         ).onTrue(self.set_reef_target(self.positioning.LEFT))
-        self.tacticalController.rightTrigger().not_(
-            self.tacticalController.leftTrigger()
+        self.tacticalController.rightTrigger().and_(
+            self.tacticalController.leftTrigger().not_()
         ).onTrue(self.set_reef_target(self.positioning.RIGHT))
         self.tacticalController.leftTrigger().and_(
             self.tacticalController.rightTrigger()
