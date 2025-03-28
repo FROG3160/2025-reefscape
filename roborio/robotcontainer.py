@@ -164,7 +164,7 @@ class RobotContainer:
         NamedCommands.registerCommand(
             "Set L3 Scoring", self.set_scoring_config(L3_shootV2)
         )
-        NamedCommands.registerCommand("Score", self.grabber.run_scoring())
+        NamedCommands.registerCommand("Score", ScoringCommand(self.grabber))
         NamedCommands.registerCommand("Move to Position", self.move_to_position())
         NamedCommands.registerCommand("Stop Grabber", self.grabber.stop_motor())
         NamedCommands.registerCommand("Home Systems", self.move_to_home())
@@ -314,21 +314,21 @@ class RobotContainer:
             .andThen(self.arm.move_to_scoring())
         )
 
-    def score(self) -> Command:
-        # second_shoulder_pos = self.scoringConfig.shoulder_end_pos
-        # grabber_voltage = self.scoringConfig.grabber_v
-        return DeferredCommand(self.grabber.run_scoring)
+    # def score(self) -> Command:
+    #     # second_shoulder_pos = self.scoringConfig.shoulder_end_pos
+    #     # grabber_voltage = self.scoringConfig.grabber_v
+    #     return DeferredCommand(self.grabber.run_scoring)
 
-        # if self.scoring_config == L3_dunk or self.scoring_config == L4_dunk:
-        #     return self.shoulder.move_with_variable(
-        #         self.scoring_config.get_shoulder_end_position
-        #     )
-        # elif self.scoring_config == L1_shoot:
-        #     return self.grabber.eject_coral_L1()
-        # else:
-        #     return self.grabber.run_motor_with_variable(
-        #         self.scoring_config.get_grabber_voltage
-        #     )
+    # if self.scoring_config == L3_dunk or self.scoring_config == L4_dunk:
+    #     return self.shoulder.move_with_variable(
+    #         self.scoring_config.get_shoulder_end_position
+    #     )
+    # elif self.scoring_config == L1_shoot:
+    #     return self.grabber.eject_coral_L1()
+    # else:
+    #     return self.grabber.run_motor_with_variable(
+    #         self.scoring_config.get_grabber_voltage
+    #     )
 
     # def full_auto_scoring_sequence(self, scoringConfig: ScoringConfigs) -> Command:
     #     return (
