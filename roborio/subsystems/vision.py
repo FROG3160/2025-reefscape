@@ -25,7 +25,7 @@ class VisionPose:
         # self.estimator.multiTagFallbackStrategy = PoseStrategy.LOWEST_AMBIGUITY
 
         nt_table = f"Subsystems/Vision/{self.camera_name}"
-        self.pose_buffer = PoseBuffer(100)
+        self.pose_buffer = PoseBuffer(25)
         self._latest_pose_pub = (
             NetworkTableInstance.getDefault()
             .getStructTopic(f"{nt_table}/estimated_pose", Pose2d)
