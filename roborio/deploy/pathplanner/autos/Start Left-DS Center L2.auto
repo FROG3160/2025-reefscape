@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left to DS S Left"
+            "pathName": "Left to DS center reef stem"
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "DS S Center to Source"
+            "pathName": "DS center reef stem to Source"
           }
         },
         {
@@ -37,7 +37,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Source to DS S Right"
+            "pathName": "Source to DS center right reef stem"
           }
         },
         {
@@ -49,7 +49,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Leave DS S Center"
+            "pathName": "Leave DS Center Reef"
           }
         }
       ]
