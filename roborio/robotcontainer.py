@@ -361,7 +361,7 @@ class RobotContainer:
             self.systems_homed = True
 
     def move_off_line(self) -> Command:
-        return WaitCommand(2.5).deadlineWith(AutoMoveOffLine(self.driveSubsystem))
+        return WaitCommand(1.5).deadlineWith(AutoMoveOffLine(self.driveSubsystem))
 
     def configureAutomationBindings(self):
         """Configures all triggers that are watching states or conditions
