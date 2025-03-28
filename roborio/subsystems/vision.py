@@ -17,12 +17,12 @@ class VisionPose:
             fieldTags=AprilTagFieldLayout().loadField(
                 AprilTagField.k2025ReefscapeWelded
             ),
-            # strategy=PoseStrategy.LOWEST_AMBIGUITY,
-            strategy=PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
+            strategy=PoseStrategy.LOWEST_AMBIGUITY,
+            # strategy=PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             camera=self.camera,
             robotToCamera=cameraTransform,
         )
-        self.estimator.multiTagFallbackStrategy = PoseStrategy.LOWEST_AMBIGUITY
+        # self.estimator.multiTagFallbackStrategy = PoseStrategy.LOWEST_AMBIGUITY
 
         nt_table = f"Subsystems/Vision/{self.camera_name}"
         self.pose_buffer = PoseBuffer(100)
