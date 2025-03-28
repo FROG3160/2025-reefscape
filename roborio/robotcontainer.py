@@ -158,11 +158,16 @@ class RobotContainer:
         NamedCommands.registerCommand(
             "Set L1 Scoring", self.set_scoring_config(L1_shoot)
         )
-        NamedCommands.registerCommand("Move to Position", self.move_to_position())
+        NamedCommands.registerCommand(
+            "Set L2 Scoring", self.set_scoring_config(L2_shoot)
+        )
+        NamedCommands.registerCommand(
+            "Set L3 Scoring", self.set_scoring_config(L3_shootV2)
+        )
         NamedCommands.registerCommand("Score", self.grabber.run_scoring())
+        NamedCommands.registerCommand("Move to Position", self.move_to_position())
         NamedCommands.registerCommand("Stop Grabber", self.grabber.stop_motor())
         NamedCommands.registerCommand("Home Systems", self.move_to_home())
-        NamedCommands.registerCommand("Set L2 Scoring", self.set_reef_target(L2_shoot))
         NamedCommands.registerCommand("Move to Station", self.move_to_station())
         NamedCommands.registerCommand("Push robot off Line", self.move_off_line())
         NamedCommands.registerCommand("Grab coral", self.grab_coral_from_trough())
