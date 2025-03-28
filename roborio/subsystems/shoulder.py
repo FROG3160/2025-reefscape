@@ -48,7 +48,7 @@ class Shoulder(Subsystem):
         self.motion_magic_config = (
             MotionMagicConfigs()
             .with_motion_magic_cruise_velocity(0.5)
-            .with_motion_magic_acceleration(1)
+            .with_motion_magic_acceleration(0.5)
         )
         self.shoulder_encoder = FROGCanCoder(
             constants.kShoulderSensorID,

@@ -22,7 +22,7 @@ class ScoringCommand(Command):
             else:
                 return self.grabber._detecting_algae()
         else:
-            return self.grabber._not_detecting_coral()
+            return self.grabber._not_detecting_coral_range()
 
     def end(self, interrupted):
         scoring_config = self.grabber.scoring_config

@@ -35,6 +35,12 @@ class Lift(Subsystem):
         ALGAE3 = 9
 
     def __init__(self):
+        self.motion_magic_config = (
+            MotionMagicConfigs()
+            .with_motion_magic_cruise_velocity(12)
+            .with_motion_magic_acceleration(18)
+            .with_motion_magic_jerk(48)
+        )
 
         self.motor = FROGTalonFX(
             id=constants.kLiftMotorID,
@@ -51,12 +57,7 @@ class Lift(Subsystem):
                 slot1gains=Slot1Configs(),
             )
             .with_motor_output(motorOutputCCWPandBrake)
-            .with_motion_magic(
-                MotionMagicConfigs()
-                .with_motion_magic_cruise_velocity(12)
-                .with_motion_magic_acceleration(18)
-                .with_motion_magic_jerk(48)
-            ),
+            .with_motion_magic(self.motion_magic_config),
             # .with_software_limit_switch(
             #     SoftwareLimitSwitchConfigs()
             #     .with_reverse_soft_limit_enable(True)
