@@ -55,7 +55,7 @@
       }
     },
     {
-      "name": "Move Subsystems",
+      "name": "Move to Position",
       "waypointRelativePos": 0.49766233766233964,
       "endWaypointRelativePos": null,
       "command": {
