@@ -140,13 +140,14 @@ class Position(FROGField):
 # print(f"REL ANGLE: {relative.translation().toTranslation2d().angle().degrees()}")
 
 # test = Position()
-# print(test.getTagPose(17))
+# print(test.getTagPose(18))
 # for transform in [
 #     TAG_TO_CENTER_ROBOT_TRANSFORM,
 #     TAG_TO_LEFT_STEM_ROBOT_TRANSFORM,
 #     TAG_TO_RIGHT_STEM_ROBOT_TRANSFORM,
 # ]:
-#     robotpose = test.getTagPose(17).toPose2d().transformBy(transform)
+#     robotpose = test.getTagPose(18).toPose2d().transformBy(transform)
 #     print(f"X: {robotpose.x}")
 #     print(f"Y: {robotpose.y}")
 #     print(f"DEG: {robotpose.rotation().degrees()}")
+# pass

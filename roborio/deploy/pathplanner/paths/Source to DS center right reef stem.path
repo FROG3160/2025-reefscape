@@ -3,35 +3,42 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.2034561258278145,
-        "y": 2.1581332781456957
+        "x": 1.444239500567537,
+        "y": 6.9234392735527805
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.611329533908202,
-        "y": 2.864276316678096
+        "x": 2.2111804767309877,
+        "y": 6.22622020431328
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.732922251091313,
-        "y": 2.9951168223348468
+        "x": 3.2176,
+        "y": 3.8354
       },
       "prevControl": {
-        "x": 3.267922251091313,
-        "y": 2.189713196815319
+        "x": 2.6693530079455168,
+        "y": 4.8417423382519855
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Reef DS Right - Left Stem"
+      "linkedName": "Reef DS Center - Right Stem"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "Set L2 Scoring",
+      "waypointRelativePos": 0.6,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -42,13 +49,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 148.94286587492056
+    "rotation": 90.0
   },
   "reversed": false,
-  "folder": "TeleopPaths",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 150.81874591469284
+    "rotation": 35.83765295427824
   },
   "useDefaultConstraints": true
 }
