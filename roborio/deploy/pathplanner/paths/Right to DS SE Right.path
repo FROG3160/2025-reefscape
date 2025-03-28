@@ -1,0 +1,73 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 6.912,
+        "y": 1.1
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.2988649262202046,
+        "y": 1.3058456299659464
+      },
+      "isLocked": false,
+      "linkedName": "Angled Start Right"
+    },
+    {
+      "anchor": {
+        "x": 4.018883839420934,
+        "y": 2.8300168223348465
+      },
+      "prevControl": {
+        "x": 4.422360953461975,
+        "y": 1.943303064699204
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "DS SE Right"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Home Systems",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Set L2 Scoring",
+      "waypointRelativePos": 0.3,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Move to Position",
+      "waypointRelativePos": 0.35,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 149.99999999999997
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -135.79988469610353
+  },
+  "useDefaultConstraints": true
+}
