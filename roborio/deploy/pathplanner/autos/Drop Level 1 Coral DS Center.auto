@@ -7,7 +7,9 @@
         {
           "type": "path",
           "data": {
+
             "pathName": "Left to DS S Left"
+
           }
         },
         {
@@ -19,7 +21,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Leave DS Center Reef"
+            "pathName": "Leave DS S Center"
           }
         }
       ]
