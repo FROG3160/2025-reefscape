@@ -5,23 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "path",
-          "data": {
-            "pathName": "Left to DS S Left"
-          }
-        },
-        {
           "type": "named",
           "data": {
-            "name": "Score"
+            "name": "Push robot off Line"
           }
         }
       ]
     }
   },
-
   "resetOdom": false,
-
   "folder": null,
   "choreoAuto": false
 }

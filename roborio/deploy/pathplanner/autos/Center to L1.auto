@@ -5,23 +5,27 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-
-            "pathName": "Left to DS S Left"
-
+            "name": "Home Systems"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Score"
+            "name": "Set L1 Scoring"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Move to Position"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Leave DS S Center"
+            "pathName": "Center to DS N Center"
           }
         }
       ]

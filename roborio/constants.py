@@ -102,7 +102,7 @@ kRobotKilograms = lbsToKilograms(95)
 kMOI = (kTrackWidthMeters**2 + kWheelBaseMeters**2) * kRobotKilograms * (1 / 12)
 
 # Swerve Drive Performance
-kMaxMetersPerSecond = feetToMeters(16)  # max fps for Mk4c L1=14.7, L2=17.7, L3=19.5
+kMaxMetersPerSecond = feetToMeters(19)  # max fps for Mk4c L1=14.7, L2=17.7, L3=19.5
 kMaxChassisRadiansPerSec = 2 * math.tau  # revolutions per sec * tau
 
 # Swerve Drive Trajectory Constraints

@@ -99,9 +99,9 @@ class AutoMoveOffLine(Command):
     def execute(self) -> None:
 
         if DriverStation.getAlliance() == DriverStation.Alliance.kRed:
-            vX = 0.1
+            vX = 0.25
         else:
-            vX = -0.1
+            vX = -0.25
 
         self.drive.fieldOrientedAutoRotateDrive(
             # self._vX, self._vY, self._vT, self._throttle
