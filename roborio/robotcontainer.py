@@ -58,6 +58,7 @@ from subsystems.lift import Lift
 from subsystems.shoulder import Shoulder
 from subsystems.grabber import Grabber
 from subsystems.arm import Arm
+from subsystems.intake import Intake
 from subsystems.climber import Climber
 from pathplannerlib.auto import (
     AutoBuilder,
@@ -129,7 +130,7 @@ class RobotContainer:
         self.shoulder = Shoulder()
         self.arm = Arm()
         self.grabber = Grabber()
-        # self.intake = Intake()
+        self.intake = Intake()
         self.climber = Climber()
 
         self.registerNamedCommands()
@@ -357,7 +358,7 @@ class RobotContainer:
         if not self.subsystems_homed:
             self.elevator.home().schedule()
             self.arm.set_home().schedule()
-            # self.intake.set_home().schedule()
+            self.intake.set_home().schedule()
             self.systems_homed = True
 
     def move_off_line(self) -> Command:
@@ -368,24 +369,24 @@ class RobotContainer:
         of various subsystems.
         """
 
-        # self.intake.intake_deployed().onTrue(
-        #     self.shoulder.move(self.shoulder.Position.READY).andThen(
-        #         self.intake.start_intake()
-        #     )
-        # )
+        self.intake.intake_deployed().onTrue(
+            self.shoulder.move(self.shoulder.Position.READY).andThen(
+                self.intake.start_intake()
+            )
+        )
 
-        # self.intake.coral_detected_trigger().onFalse(
-        #     self.intake.set_intake_loaded().andThen(
-        #         PrintCommand("CORAL DETECTED WENT FALSE")
-        #     )
-        # )
+        self.intake.coral_detected().onFalse(
+            self.intake.set_intake_loaded().andThen(
+                PrintCommand("CORAL DETECTED WENT FALSE")
+            )
+        )
 
         """CORAL LOADED TRIGGER CAN BE REPLACED WITH HAS_STATE LIKE LINE 172"""
-        # self.intake.has_state(self.intake.State.CORAL_LOADED).onTrue(
-        #     self.intake.stop_intake().andThen(
-        #         self.shoulder.move(self.shoulder.Position.LOAD)
-        #     )
-        # )
+        self.intake.has_state(self.intake.State.CORAL_LOADED).onTrue(
+            self.intake.stop_intake().andThen(
+                self.shoulder.move(self.shoulder.Position.LOAD)
+            )
+        )
         # self.shoulder.at_position(self.shoulder.Position.LOAD).and_(
         #     self.intake.has_state(self.intake.State.CORAL_LOADED)
         # ).onTrue(
@@ -408,16 +409,16 @@ class RobotContainer:
         #     self.driveSubsystem.driveAutoPath("New Path")
         # )
 
-        # self.driverController.rightBumper().onTrue(
-        #     self.intake.move_intake(self.intake.Position.DEPLOYED)
-        # )
-        # self.driverController.leftBumper().onTrue(
-        #     self.intake.move_intake(self.intake.Position.HOME).andThen(
-        #         self.shoulder.move(self.shoulder.Position.READY).andThen(
-        #             self.intake.stop_intake()
-        #         )a
-        #     )
-        # )
+        self.driverController.rightBumper().onTrue(
+            self.intake.move_intake(self.intake.Position.DEPLOYED)
+        )
+        self.driverController.leftBumper().onTrue(
+            self.intake.move_intake(self.intake.Position.HOME).andThen(
+                self.shoulder.move(self.shoulder.Position.READY).andThen(
+                    self.intake.stop_intake()
+                )
+            )
+        )
         self.driverController.x().onTrue(self.move_to_position())
         self.driverController.b().onTrue(ScoringCommand(self.grabber))
         # self.driverController.rightBumper().onTrue(self.grab_coral_from_trough())
@@ -430,7 +431,7 @@ class RobotContainer:
         #     self.driveSubsystem.drive_to_reef_scoring_pose()
         # )
         self.driverController.start().onTrue(self.move_to_home())
-        self.driverController.leftBumper().onTrue(self.move_to_station())
+        # self.driverController.leftBumper().onTrue(self.move_to_station())
         self.driverController.a().onTrue(self.grab_coral_from_trough())
 
         self.driverController.leftTrigger().whileTrue(

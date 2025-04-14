@@ -174,7 +174,7 @@ class Intake(Subsystem):
         )
 
     def stop_intake(self) -> Command:
-        return self.runOnce(self._stop_intake_motors).andthen(
+        return self.runOnce(self._stop_intake_motors).andThen(
             self.runOnce(self._disable_watch_torque)
         )
 
@@ -201,13 +201,13 @@ class Intake(Subsystem):
     def intake_retracted(self):
         return Trigger(lambda: self._at_position(self.Position.HOME))
 
-    # def coral_detected(self):
-    #     # return Trigger(self._coral_detected)
-    #     return self.has_state(self.State.CORAL_DETECTED)
+    def coral_detected(self):
+        # return Trigger(self._coral_detected)
+        return self.has_state(self.State.CORAL_DETECTED)
 
-    # def coral_loaded(self):
-    #     # return Trigger(self._coral_loaded)
-    #     return self.has_state(self.State.CORAL_LOADED)
+    def coral_loaded(self):
+        # return Trigger(self._coral_loaded)
+        return self.has_state(self.State.CORAL_LOADED)
 
     def periodic(self):
         if self.watch_intake_torque:
