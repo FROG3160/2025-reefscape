@@ -59,6 +59,7 @@ from subsystems.shoulder import Shoulder
 from subsystems.grabber import Grabber
 from subsystems.arm import Arm
 from subsystems.climber import Climber
+from subsystems.intake import Intake
 from pathplannerlib.auto import (
     AutoBuilder,
     NamedCommands,
@@ -129,7 +130,7 @@ class RobotContainer:
         self.shoulder = Shoulder()
         self.arm = Arm()
         self.grabber = Grabber()
-        # self.intake = Intake()
+        self.intake = Intake()
         self.climber = Climber()
 
         self.registerNamedCommands()
@@ -357,7 +358,7 @@ class RobotContainer:
         if not self.subsystems_homed:
             self.elevator.home().schedule()
             self.arm.set_home().schedule()
-            # self.intake.set_home().schedule()
+            self.intake.set_home().schedule()
             self.systems_homed = True
 
     def move_off_line(self) -> Command:
@@ -368,31 +369,31 @@ class RobotContainer:
         of various subsystems.
         """
 
-        # self.intake.intake_deployed().onTrue(
-        #     self.shoulder.move(self.shoulder.Position.READY).andThen(
-        #         self.intake.start_intake()
-        #     )
-        # )
+        self.intake.intake_deployed().onTrue(
+            self.shoulder.move(self.shoulder.Position.READY).andThen(
+                self.intake.start_intake()
+            )
+        )
 
-        # self.intake.coral_detected_trigger().onFalse(
-        #     self.intake.set_intake_loaded().andThen(
-        #         PrintCommand("CORAL DETECTED WENT FALSE")
-        #     )
-        # )
+        self.intake.coral_detected_trigger().onFalse(
+            self.intake.set_intake_loaded().andThen(
+                PrintCommand("CORAL DETECTED WENT FALSE")
+            )
+        )
 
         """CORAL LOADED TRIGGER CAN BE REPLACED WITH HAS_STATE LIKE LINE 172"""
-        # self.intake.has_state(self.intake.State.CORAL_LOADED).onTrue(
-        #     self.intake.stop_intake().andThen(
-        #         self.shoulder.move(self.shoulder.Position.LOAD)
-        #     )
-        # )
-        # self.shoulder.at_position(self.shoulder.Position.LOAD).and_(
-        #     self.intake.has_state(self.intake.State.CORAL_LOADED)
-        # ).onTrue(
-        #     self.grabber.intake_coral().andThen(
-        #         self.arm.move(self.arm.Position.CORAL_PICKUP)
-        #     )
-        # )
+        self.intake.has_state(self.intake.State.CORAL_LOADED).onTrue(
+            self.intake.stop_intake().andThen(
+                self.shoulder.move(self.shoulder.Position.LOAD)
+            )
+        )
+        self.shoulder.at_position(self.shoulder.Position.LOAD).and_(
+            self.intake.has_state(self.intake.State.CORAL_LOADED)
+        ).onTrue(
+            self.grabber.intake_coral().andThen(
+                self.arm.move(self.arm.Position.CORAL_PICKUP)
+            )
+        )
 
     def configureDriverControls(self):
         """Configures triggers for manual control by the driver"""
