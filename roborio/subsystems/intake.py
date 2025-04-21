@@ -32,7 +32,7 @@ class Intake(Subsystem):
     # upAndOff, downAndOn
 
     class Position:
-        HOME = 0.33
+        HOME = 0.293
         DEPLOYED = 0.0
 
     class State:
