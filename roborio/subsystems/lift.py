@@ -166,7 +166,7 @@ class Lift(Subsystem):
         self.position_offset -= 0.25
 
     def increment_offset(self) -> Command:
-        self.runOnce(self._increment_offset)
+        return self.runOnce(self._increment_offset)
 
     def decrement_offset(self) -> Command:
         return self.runOnce(self.decrement_offset)
